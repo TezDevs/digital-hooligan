@@ -1,0 +1,6 @@
+packages:
+  - "apps/*"
+  - "apps/bots/*"
+  - "packages/*"
+  - "backend/*"
+  - "docs/*"

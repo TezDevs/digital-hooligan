@@ -1,0 +1,25 @@
+# Node / pnpm
+node_modules
+.pnpm-store
+npm-debug.log*
+pnpm-debug.log*
+
+# Next.js
+.next
+out
+dist
+
+# Turborepo / build caches
+.turbo
+turbo
+
+# Env
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# Per-app node_modules / builds (safety)
+apps/*/node_modules
+apps/*/.next
