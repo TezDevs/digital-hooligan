@@ -110,7 +110,7 @@
   height: 4rem;
   width: 4rem;
   border-radius: 9999px;
-  border: 1px solid rgba(51, 65, 85, 0.9); /* slate-700 */
+  border: 1px solid rgba(51, 65, 85, 0.9);
   background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.35), rgba(15, 23, 42, 0.98));
   box-shadow:
     0 10px 20px rgba(15, 23, 42, 0.9),
@@ -123,7 +123,8 @@
   padding-inline: 0.5rem;
   text-align: center;
   cursor: pointer;
-  pointer-events: auto; /* re-enable clicking inside .orbits */
+  pointer-events: auto;
+  z-index: 3; /* 👈 NEW: keep nodes on top of nucleus */
   transition:
     border-color 150ms ease,
     color 150ms ease,
@@ -131,6 +132,7 @@
     background-color 150ms ease,
     transform 150ms ease;
 }
+
 
 .productNodeActive {
   border-color: rgba(56, 189, 248, 1); /* cyan-400 */

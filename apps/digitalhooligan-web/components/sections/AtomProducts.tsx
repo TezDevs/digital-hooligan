@@ -94,14 +94,22 @@ export default function AtomProducts() {
           <div className={styles.atomGlow} />
 
           <div className={styles.atom}>
-            {/* Nucleus */}
-            <div className={styles.nucleus}>
+            {/* Nucleus with subtle breathing animation */}
+            <motion.div
+              className={styles.nucleus}
+              animate={{ scale: [1, 1.03, 1] }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
               <div className={styles.nucleusContent}>
                 <span className={styles.nucleusTag}>Digital</span>
                 <span className={styles.nucleusTitle}>Hooligan</span>
                 <span className={styles.nucleusSub}>Ops • Apps • Chaos</span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Static orbits: nodes positioned around nucleus */}
             <div className={styles.orbits}>
@@ -125,8 +133,8 @@ export default function AtomProducts() {
                     style={{
                       transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
                     }}
-                    whileHover={{ scale: 1.08 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.12, y: -6 }}
+                    whileTap={{ scale: 0.96 }}
                   >
                     <span className={styles.productLabel}>{product.name}</span>
                   </motion.button>
