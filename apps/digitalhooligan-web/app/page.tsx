@@ -1,13 +1,11 @@
-import Hero from "../components/sections/Hero";
-import BrandStory from "../components/sections/BrandStory";
-import Products from "../components/sections/Products";
+import HeroClient from "./HeroClient";
+import AtomProducts from "../components/sections/AtomProducts";
 
 export default function Home() {
   return (
-    <main>
-      <Hero />
-      <BrandStory />
-      <Products />
+    <main className="min-h-screen bg-dh-black text-white">
+      <HeroClient />
+      <AtomProducts />
     </main>
   );
 }
