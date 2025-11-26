@@ -1,55 +1,58 @@
-"use client";
-
-import Container from "../layout/Container";
+import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="border-b border-dh-street-gray/70 bg-gradient-to-b from-dh-black via-[#050508] to-black">
-      <Container className="pt-24 pb-16">
-        <div className="max-w-3xl">
-          {/* Tagline */}
-          <p className="text-xs font-mono uppercase tracking-[0.35em] text-dh-graffiti-yellow">
-            Digital Hooligan · Smart Chaos · Street-Tech
+    <section className="relative isolate overflow-hidden bg-[#050509]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-gradient-to-b from-[#1EFFCB22] via-transparent to-transparent" />
+
+      <div className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-10 px-4 py-16 md:flex-row md:py-24">
+        {/* LEFT: text */}
+        <div className="relative z-10 max-w-xl space-y-6">
+          <p className="text-sm uppercase tracking-[0.25em] text-[#1EFFCB]">
+            DIGITAL HOOLIGAN
           </p>
 
-          {/* Headline */}
-          <h1 className="mt-4 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-            Break the rules.
-            <br />
-            <span className="dh-graffiti-underline">Ship dangerous ideas.</span>
+          <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            Build, watch, and <span className="text-[#1EFFCB]">disrupt</span> your
+            digital empire.
           </h1>
 
-          {/* Subcopy */}
-          <p className="mt-4 max-w-xl text-sm text-neutral-300 sm:text-base">
-            A rogue dev studio building neon-fast tools for traders, sneakerheads,
-            and digital misfits. No suits. Just sharp code, clean execution, and
-            a little bit of chaos.
+          <p className="text-base text-white/70 sm:text-lg">
+            Sneaker scrapers, hype monitors, bots and dashboards—Hooligan HQ is
+            where your experiments, apps, and automations live in one neon-lit
+            alley.
           </p>
 
-          {/* CTA Row */}
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              className="rounded-full border border-dh-electric-mint/70 bg-dh-electric-mint/15 
-                         px-6 py-3 text-dh-electric-mint text-sm font-mono uppercase tracking-[0.18em]
-                         transition-transform transition-colors duration-150
-                         hover:bg-dh-electric-mint/25 hover:scale-[1.03]
-                         active:scale-[0.97]"
-            >
-              Explore Projects →
+          <div className="flex flex-wrap gap-3 pt-2">
+            <button className="rounded-full bg-[#1EFFCB] px-5 py-2.5 text-sm font-medium text-black shadow-lg shadow-[#1EFFCB55] hover:bg-[#14cba0]">
+              Launch Dev HQ
             </button>
-
-            <button
-              className="rounded-full border border-dh-street-gray/80 bg-dh-black 
-                         px-6 py-3 text-sm font-mono uppercase tracking-[0.18em]
-                         text-neutral-200 transition-transform transition-colors duration-150
-                         hover:border-dh-graffiti-yellow/80 hover:text-dh-graffiti-yellow
-                         active:scale-[0.97]"
-            >
-              Enter Hooligan Labs
+            <button className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-medium text-white/80 hover:border-[#FF4DB2] hover:text-white">
+              View Hooligan Apps
             </button>
           </div>
+
+          <p className="text-xs text-white/40">
+            Monorepo powered · PennyWize · SneakerScout · more in the lab…
+          </p>
         </div>
-      </Container>
+
+        {/* RIGHT: hero image */}
+        <div className="relative w-full max-w-lg">
+          <div className="pointer-events-none absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-[#1EFFCB33] via-[#FF4DB233] to-[#00C8FF33] blur-3xl" />
+
+          <div className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-[#050509] shadow-2xl shadow-black/70">
+            <Image
+              src="/products/dh-hero-graffiti-bear.png"
+              alt="Digital Hooligan bear spraying graffiti on a city alley wall"
+              width={1052}
+              height={768}
+              className="h-auto w-full object-cover"
+              priority
+            />
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
