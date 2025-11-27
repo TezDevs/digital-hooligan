@@ -18,7 +18,7 @@ export default function StreetCred() {
   return (
     <section className="border-b border-dh-street-gray/70 bg-dh-black">
       <Container>
-        <div className="grid gap-10 py-10 md:grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)] md:items-center">
+        <div className="grid gap-10 py-10 md:grid-cols-[minmax(0,2.1fr)_minmax(0,1.6fr)] md:items-center">
           {/* Left: hero copy */}
           <div className="space-y-4">
             <p className="text-[11px] uppercase tracking-[0.25em] text-dh-graffiti-yellow">
@@ -81,16 +81,18 @@ export default function StreetCred() {
             </div>
           </div>
 
-          {/* Right: hero visual + skill chips */}
+          {/* Right: BIG hero visual + skill chips */}
           <div className="space-y-6">
-            <div className="relative mx-auto flex h-48 w-48 items-center justify-center rounded-[2rem] bg-gradient-to-b from-zinc-900 to-black border border-dh-street-gray/70 shadow-[0_0_40px_rgba(30,255,203,0.4)]">
+            <div className="relative mx-auto md:ml-auto flex h-60 w-60 sm:h-72 sm:w-72 lg:h-80 lg:w-80 items-center justify-center rounded-[2.4rem] bg-gradient-to-b from-zinc-900 to-black border border-dh-street-gray/70 shadow-[0_0_55px_rgba(30,255,203,0.5)]">
               <Image
                 src="/products/dh-hero-graffiti-bear.png"
                 alt="Digital Hooligan graffiti bear"
-                width={192}
-                height={192}
-                className="h-40 w-40 object-contain drop-shadow-[0_0_30px_rgba(30,255,203,0.7)]"
+                width={260}
+                height={260}
+                className="h-52 w-52 sm:h-60 sm:w-60 object-contain drop-shadow-[0_0_40px_rgba(30,255,203,0.8)]"
               />
+              {/* soft outer glow ring */}
+              <div className="pointer-events-none absolute inset-[-18%] rounded-[3rem] bg-[radial-gradient(circle_at_top,_rgba(30,255,203,0.4),transparent_65%)] opacity-70" />
             </div>
 
             {/* skill chips */}
