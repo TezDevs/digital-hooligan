@@ -1,20 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import Container from "../layout/Container"; // keep your existing path if different
+import Container from "../layout/Container"; // keep this path; change only if your project uses a different one
+
+const SKILLS = [
+  "TypeScript",
+  "React / Next.js",
+  "Tailwind",
+  "Full-stack Engineering",
+  "ICAM / Security",
+  "Real-time Systems",
+  "Fintech & Alerts",
+  "Automation / Bots",
+];
 
 export default function Hero() {
-  const skills = [
-    "TypeScript",
-    "React / Next.js",
-    "Tailwind",
-    "Full-stack Engineering",
-    "ICAM / Security",
-    "Real-time Systems",
-    "Fintech & Alerts",
-    "Automation / Bots",
-  ];
-
   return (
     <section className="border-b border-dh-street-gray/60 bg-dh-black">
       <Container>
@@ -69,7 +69,7 @@ export default function Hero() {
 
             {/* skills grid */}
             <div className="mt-4 grid gap-2 text-[11px] text-dh-soft-white/70 sm:grid-cols-2 lg:grid-cols-4">
-              {skills.map((skill) => (
+              {SKILLS.map((skill) => (
                 <div
                   key={skill}
                   className="inline-flex items-center justify-start gap-2 rounded-full border border-dh-street-gray/50 bg-dh-deep-void/60 px-3 py-1.5 backdrop-blur-sm"
@@ -81,15 +81,15 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* RIGHT: clean image card – NO teal background */}
+          {/* RIGHT: super simple image card – NO teal background, NO glow */}
           <div className="flex justify-center md:justify-end">
-            <div className="relative w-full max-w-[420px] overflow-hidden rounded-[28px] border border-dh-street-gray/70 bg-dh-deep-void shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
+            <div className="relative w-full max-w-[420px] overflow-hidden rounded-[24px] border border-dh-street-gray/70 bg-dh-deep-void shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
               <Image
                 src="/images/hero/dh-hero-bear.png"
                 alt="Digital Hooligan bear tagging a wall with neon graffiti."
                 width={1200}
                 height={900}
-                className="h-full w-full object-cover object-center"
+                className="block h-full w-full object-cover object-center"
                 priority
               />
             </div>
