@@ -22,18 +22,29 @@ export default function Navbar() {
 
           {/* Nav links */}
           <nav className="hidden gap-6 text-sm text-neutral-300 md:flex">
-            <a href="#what" className="hover:text-white">
+            <a href="#about" className="hover:text-white">
               What We Do
             </a>
             <a href="#apps" className="hover:text-white">
               Apps
             </a>
+            <a href="#labs" className="hover:text-white">
+              Labs
+            </a>
+            <a href="#contact" className="hover:text-white">
+              Contact
+            </a>
           </nav>
 
+
           {/* CTA */}
-          <button className="rounded-full border border-dh-rebel-red/60 bg-dh-rebel-red/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] shadow-[0_0_18px_rgba(255,77,178,0.7)] hover:bg-dh-rebel-red/40">
+          {/* CTA */}
+          <a
+            href="#contact"
+            className="rounded-full border border-dh-rebel-red/60 bg-dh-rebel-red/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] shadow-[0_0_18px_rgba(255,77,178,0.7)] hover:bg-dh-rebel-red/40 flex items-center"
+          >
             Join the Crew
-          </button>
+          </a>
         </div>
       </Container>
     </header>
