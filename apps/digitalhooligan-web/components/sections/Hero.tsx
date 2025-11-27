@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Container from "../layout/Container"; // keep this path; change only if your project uses a different one
+import Container from "../layout/Container"; // keep this path; change only if yours is different
 
 const SKILLS = [
   "TypeScript",
@@ -16,58 +16,36 @@ const SKILLS = [
 
 export default function Hero() {
   return (
-    <section className="border-b border-dh-street-gray/60 bg-dh-black">
+    <section className="bg-dh-black border-b border-dh-street-gray/60">
       <Container>
-        <div className="grid gap-10 py-16 md:grid-cols-2 md:items-center md:py-20 lg:gap-16 lg:py-24">
-          {/* LEFT: text & chips */}
-          <div className="space-y-8">
+        <div className="flex flex-col items-start gap-10 py-16 md:flex-row md:items-center md:py-20">
+          {/* LEFT: text */}
+          <div className="max-w-xl space-y-6">
             {/* eyebrow */}
             <div className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/60 bg-dh-black/80 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-dh-graffiti-yellow/80">
               <span className="h-1 w-1 rounded-full bg-dh-electric-mint shadow-[0_0_10px_rgba(30,255,203,0.9)]" />
               <span>Builder</span>
             </div>
 
-            {/* heading & body */}
-            <div className="space-y-4">
-              <h1 className="text-balance text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
-                Designed by a builder who actually deploys.
-              </h1>
+            <h1 className="text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+              Designed by a builder who actually deploys.
+            </h1>
 
-              <p className="max-w-2xl text-sm leading-relaxed text-dh-street-gray sm:text-base">
-                Digital Hooligan is led by{" "}
-                <span className="font-medium text-dh-electric-mint">
-                  Courtez Cannady
-                </span>
-                — engineer, product thinker, and operator with 14+ years across
-                ICAM, C4ISR, fintech, and U.S. Marine Corps mission systems.
-              </p>
+            <p className="text-sm leading-relaxed text-dh-street-gray sm:text-base">
+              Digital Hooligan is led by{" "}
+              <span className="font-medium text-dh-electric-mint">
+                Courtez Cannady
+              </span>
+              — engineer, product thinker, and operator with 14+ years across
+              ICAM, C4ISR, fintech, and U.S. Marine Corps mission systems.
+            </p>
 
-              <p className="max-w-xl text-sm leading-relaxed text-dh-street-gray/80 sm:text-[15px]">
-                The mission isn&apos;t noise — it&apos;s execution. Sharp tools,
-                clean UI, and decisive engineering designed for speed and
-                utility.
-              </p>
-            </div>
+            <p className="text-sm leading-relaxed text-dh-street-gray/80 sm:text-[15px]">
+              The mission isn&apos;t noise — it&apos;s execution. Sharp tools, clean
+              UI, and decisive engineering designed for speed and utility.
+            </p>
 
-            {/* primary chips */}
-            <div className="flex flex-wrap gap-3">
-              <button className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/80 px-4 py-2 text-xs font-medium text-dh-electric-mint shadow-[0_0_18px_rgba(30,255,203,0.5)] transition hover:-translate-y-0.5 hover:border-dh-electric-mint hover:shadow-[0_0_30px_rgba(30,255,203,0.7)]">
-                <span className="text-lg">🧠</span>
-                <span>Systems Thinking</span>
-              </button>
-
-              <button className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/70 bg-dh-black/80 px-4 py-2 text-xs font-medium text-dh-soft-white transition hover:-translate-y-0.5 hover:border-dh-electric-mint/60">
-                <span className="text-lg">🧪</span>
-                <span>Apps in the Lab</span>
-              </button>
-
-              <button className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/70 bg-dh-black/80 px-4 py-2 text-xs font-medium text-dh-soft-white transition hover:-translate-y-0.5 hover:border-dh-electric-mint/60">
-                <span className="text-lg">🧬</span>
-                <span>Hooligan Labs</span>
-              </button>
-            </div>
-
-            {/* skills grid */}
+            {/* skills row */}
             <div className="mt-4 grid gap-2 text-[11px] text-dh-soft-white/70 sm:grid-cols-2 lg:grid-cols-4">
               {SKILLS.map((skill) => (
                 <div
@@ -81,9 +59,9 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* RIGHT: super simple image card – NO teal background, NO glow */}
-          <div className="flex justify-center md:justify-end">
-            <div className="relative w-full max-w-[420px] overflow-hidden rounded-[24px] border border-dh-street-gray/70 bg-dh-deep-void shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+          {/* RIGHT: clean image card – NO teal panel, NO gradient */}
+          <div className="w-full max-w-[420px]">
+            <div className="overflow-hidden rounded-[24px] border border-dh-street-gray/70 bg-dh-deep-void shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
               <Image
                 src="/images/hero/dh-hero-bear.png"
                 alt="Digital Hooligan bear tagging a wall with neon graffiti."
