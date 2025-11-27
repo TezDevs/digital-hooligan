@@ -1,28 +1,19 @@
+import HeroV2 from "@/components/sections/HeroV2";
+import BrandStory from "@/components/sections/BrandStory";
+import AppGrid from "@/components/sections/AppGrid";
+import Products from "@/components/sections/Products";
 import StreetCred from "@/components/sections/StreetCred";
-import AppsSection from "@/components/sections/AppsSection";
-import About from "@/components/sections/About";
-import Labs from "@/components/sections/Labs";
-import Contact from "@/components/sections/Contact";
-import Footer from "@/components/layout/Footer";
-
-
-
-
+import CTA from "@/components/sections/CTA";
 
 export default function HomePage() {
   return (
-    <>
-      <main className="min-h-screen bg-dh-black text-neutral-50">
-        <StreetCred />
-        <AppsSection />
-        <About />
-        <Labs />
-        <Contact />
-      </main>
-      <Footer />
-    </>
+    <main className="bg-dh-black text-dh-soft-white">
+      <HeroV2 />
+      <BrandStory />
+      <AppGrid />
+      <Products />
+      <StreetCred />
+      <CTA />
+    </main>
   );
 }
-
-
-
