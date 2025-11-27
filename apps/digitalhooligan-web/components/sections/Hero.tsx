@@ -4,6 +4,17 @@ import Image from "next/image";
 import Container from "../layout/Container"; // keep your existing path if different
 
 export default function Hero() {
+  const skills = [
+    "TypeScript",
+    "React / Next.js",
+    "Tailwind",
+    "Full-stack Engineering",
+    "ICAM / Security",
+    "Real-time Systems",
+    "Fintech & Alerts",
+    "Automation / Bots",
+  ];
+
   return (
     <section className="border-b border-dh-street-gray/60 bg-dh-black">
       <Container>
@@ -16,7 +27,7 @@ export default function Hero() {
               <span>Builder</span>
             </div>
 
-            {/* heading & subcopy */}
+            {/* heading & body */}
             <div className="space-y-4">
               <h1 className="text-balance text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
                 Designed by a builder who actually deploys.
@@ -58,16 +69,7 @@ export default function Hero() {
 
             {/* skills grid */}
             <div className="mt-4 grid gap-2 text-[11px] text-dh-soft-white/70 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                "TypeScript",
-                "React / Next.js",
-                "Tailwind",
-                "Full-stack Engineering",
-                "ICAM / Security",
-                "Real-time Systems",
-                "Fintech & Alerts",
-                "Automation / Bots",
-              ].map((skill) => (
+              {skills.map((skill) => (
                 <div
                   key={skill}
                   className="inline-flex items-center justify-start gap-2 rounded-full border border-dh-street-gray/50 bg-dh-deep-void/60 px-3 py-1.5 backdrop-blur-sm"
@@ -79,7 +81,7 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* RIGHT: clean image card – no neon background */}
+          {/* RIGHT: clean image card – NO teal background */}
           <div className="flex justify-center md:justify-end">
             <div className="relative w-full max-w-[420px] overflow-hidden rounded-[28px] border border-dh-street-gray/70 bg-dh-deep-void shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
               <Image
