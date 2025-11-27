@@ -1,4 +1,4 @@
-import HeroV2 from "@/components/sections/HeroV2";
+import Hero from "@/components/sections/Hero";
 import BrandStory from "@/components/sections/BrandStory";
 import AppGrid from "@/components/sections/AppGrid";
 import Products from "@/components/sections/Products";
@@ -8,7 +8,7 @@ import CTA from "@/components/sections/CTA";
 export default function HomePage() {
   return (
     <main className="bg-dh-black text-dh-soft-white">
-      <HeroV2 />
+      <Hero />
       <BrandStory />
       <AppGrid />
       <Products />
