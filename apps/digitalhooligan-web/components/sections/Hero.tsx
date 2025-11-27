@@ -1,20 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import Container from "../layout/Container"; // if your Container path is different, keep your existing import
+import Container from "../layout/Container"; // keep your existing path if different
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-dh-street-gray/60 bg-dh-black">
-      {/* subtle background glow */}
-      <div className="pointer-events-none absolute inset-0 opacity-60">
-        <div className="absolute -top-56 -right-40 h-96 w-96 rounded-full bg-dh-electric-mint/20 blur-3xl" />
-        <div className="absolute -bottom-64 -left-32 h-96 w-96 rounded-full bg-dh-rebel-red/15 blur-3xl" />
-      </div>
-
+    <section className="border-b border-dh-street-gray/60 bg-dh-black">
       <Container>
-        <div className="relative grid items-center gap-12 py-16 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:py-20 lg:py-24">
-          {/* LEFT: text */}
+        <div className="grid gap-10 py-16 md:grid-cols-2 md:items-center md:py-20 lg:gap-16 lg:py-24">
+          {/* LEFT: text & chips */}
           <div className="space-y-8">
             {/* eyebrow */}
             <div className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/60 bg-dh-black/80 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-dh-graffiti-yellow/80">
@@ -44,7 +38,7 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* main chips */}
+            {/* primary chips */}
             <div className="flex flex-wrap gap-3">
               <button className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/80 px-4 py-2 text-xs font-medium text-dh-electric-mint shadow-[0_0_18px_rgba(30,255,203,0.5)] transition hover:-translate-y-0.5 hover:border-dh-electric-mint hover:shadow-[0_0_30px_rgba(30,255,203,0.7)]">
                 <span className="text-lg">🧠</span>
@@ -62,7 +56,7 @@ export default function Hero() {
               </button>
             </div>
 
-            {/* skills */}
+            {/* skills grid */}
             <div className="mt-4 grid gap-2 text-[11px] text-dh-soft-white/70 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 "TypeScript",
@@ -85,22 +79,18 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* RIGHT: hero image card */}
+          {/* RIGHT: compact hero card with tight glow */}
           <div className="flex justify-center md:justify-end">
-            <div className="relative h-[260px] w-[260px] sm:h-[320px] sm:w-[320px] lg:h-[360px] lg:w-[360px]">
-              {/* outer glow */}
+            <div className="relative w-[260px] sm:w-[320px] lg:w-[360px]">
+              {/* tight glow just around the card */}
               <div
                 aria-hidden="true"
-                className="absolute -inset-6 rounded-[40px] bg-[radial-gradient(circle_at_top,rgba(30,255,203,0.35),transparent_60%),radial-gradient(circle_at_bottom,rgba(244,63,94,0.25),transparent_60%)] opacity-80 blur-2xl"
+                className="pointer-events-none absolute inset-0 rounded-[32px] bg-[radial-gradient(circle_at_center,rgba(30,255,203,0.5),transparent_70%)] blur-2xl opacity-80"
               />
 
-              {/* main card */}
-              <div className="relative flex h-full w-full items-center justify-center rounded-[32px] border border-dh-electric-mint/50 bg-gradient-to-br from-dh-deep-void/95 via-dh-black to-dh-electric-mint/10 shadow-[0_0_80px_rgba(30,255,203,0.7)]">
-                {/* inner glow */}
-                <div className="absolute inset-px rounded-[30px] bg-[radial-gradient(circle_at_0_0,rgba(30,255,203,0.28),transparent_55%),radial-gradient(circle_at_100%_100%,rgba(244,63,94,0.3),transparent_55%)] opacity-70 mix-blend-screen" />
-
-                {/* image */}
-                <div className="relative h-[82%] w-[82%] overflow-hidden rounded-[26px] border border-dh-street-gray/40">
+              {/* card */}
+              <div className="relative overflow-hidden rounded-[24px] border border-dh-electric-mint/60 bg-gradient-to-br from-dh-deep-void via-dh-black to-dh-deep-void shadow-[0_0_40px_rgba(30,255,203,0.7)]">
+                <div className="relative aspect-[4/3] w-full">
                   <Image
                     src="/images/hero/dh-hero-bear.png"
                     alt="Digital Hooligan bear tagging a wall with neon graffiti."
