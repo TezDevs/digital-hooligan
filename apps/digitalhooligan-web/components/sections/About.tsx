@@ -6,7 +6,7 @@ export default function About() {
     return (
         <section
             id="about"
-            className="relative w-full mt-16 border border-dh-street-gray/70 bg-dh-black/80 rounded-3xl px-6 py-10 sm:px-10 sm:py-12"
+            className="relative w-full mt-4 border border-dh-street-gray/70 bg-dh-black/80 rounded-3xl px-4 py-6 sm:px-8 sm:py-8"
         >
             <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                 {/* Left: heading + story */}
@@ -39,12 +39,12 @@ export default function About() {
                         </p>
                         <ul className="space-y-2 text-xs sm:text-sm text-neutral-200">
                             <li>• PennyWize – penny stock signal + alert engine</li>
-                            <li>• DropSignal – price-drop radar for deals & drops</li>
-                            <li>• HypeWatch – collectibles & hype asset tracking</li>
+                            <li>• DropSignal – price-drop radar for deals &amp; drops</li>
+                            <li>• HypeWatch – collectibles &amp; hype asset tracking</li>
                         </ul>
                         <p className="pt-2 border-t border-dh-street-gray/70 text-[11px] sm:text-xs text-neutral-500">
-                            Designed, built, and shipped by Courtez “TezDevs” Cannady —
-                            this site is the lab, the playground, and the portfolio.
+                            Designed, built, and shipped by Courtez “TezDevs” Cannady — this
+                            site is the lab, the playground, and the portfolio.
                         </p>
                     </div>
                 </div>
