@@ -79,27 +79,17 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* RIGHT: compact hero card with tight glow */}
+          {/* RIGHT: clean image card – no neon background */}
           <div className="flex justify-center md:justify-end">
-            <div className="relative w-[260px] sm:w-[320px] lg:w-[360px]">
-              {/* tight glow just around the card */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-[32px] bg-[radial-gradient(circle_at_center,rgba(30,255,203,0.5),transparent_70%)] blur-2xl opacity-80"
+            <div className="relative w-full max-w-[420px] overflow-hidden rounded-[28px] border border-dh-street-gray/70 bg-dh-deep-void shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
+              <Image
+                src="/images/hero/dh-hero-bear.png"
+                alt="Digital Hooligan bear tagging a wall with neon graffiti."
+                width={1200}
+                height={900}
+                className="h-full w-full object-cover object-center"
+                priority
               />
-
-              {/* card */}
-              <div className="relative overflow-hidden rounded-[24px] border border-dh-electric-mint/60 bg-gradient-to-br from-dh-deep-void via-dh-black to-dh-deep-void shadow-[0_0_40px_rgba(30,255,203,0.7)]">
-                <div className="relative aspect-[4/3] w-full">
-                  <Image
-                    src="/images/hero/dh-hero-bear.png"
-                    alt="Digital Hooligan bear tagging a wall with neon graffiti."
-                    fill
-                    className="object-cover object-center"
-                    priority
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </div>
