@@ -68,7 +68,7 @@ const APPS: AppMeta[] = [
 ];
 
 
-export function AppGrid() {
+export default function AppGrid() {
   const [selectedSlug, setSelectedSlug] = useState<AppMeta["slug"]>("dropsignal");
   const selectedApp =
     APPS.find((app) => app.slug === selectedSlug) ?? APPS[0];
