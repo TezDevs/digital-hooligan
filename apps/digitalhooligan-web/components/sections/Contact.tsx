@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Contact() {
     return (
-        <div className="relative overflow-hidden rounded-3xl border border-dh-street-gray/60 bg-dh-black/90 px-6 py-10 md:px-10 md:py-12">
+        <div id="contact" className="relative overflow-hidden rounded-3xl border border-dh-street-gray/60 bg-dh-black/90 px-6 py-10 md:px-10 md:py-12">
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute -left-16 top-0 h-40 w-40 rounded-full border border-dh-electric-mint/25 blur-xl" />
                 <div className="absolute -right-20 bottom-0 h-48 w-48 rounded-full border border-dh-electric-mint/25 blur-xl" />
