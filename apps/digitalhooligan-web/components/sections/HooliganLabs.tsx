@@ -36,7 +36,7 @@ export default function HooliganLabs() {
     return (
         <section
             id="labs"
-            className="border-y border-dh-street-gray/60 bg-gradient-to-b from-dh-black to-[#050608]"
+            className="scroll-mt-24 border-y border-dh-street-gray/60 bg-gradient-to-b from-dh-black to-[#050608]"
         >
             <Container>
                 <div className="flex flex-col gap-10 py-16 md:flex-row md:items-start md:justify-between md:py-20">
@@ -48,8 +48,8 @@ export default function HooliganLabs() {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-dh-street-gray/60 bg-dh-black">
-                                {/* Update the src path if your icon lives somewhere else */}
+                            <div className="relative h-16 w-16 md:h-20 md:w-20 shrink-0 overflow-hidden rounded-3xl border border-dh-street-gray/60 bg-dh-black shadow-[0_0_26px_rgba(30,255,203,0.25)]">
+                                {/* If your icon lives somewhere else, change the src below to match */}
                                 <Image
                                     src="/apps/hooligan-labs.png"
                                     alt="Hooligan Labs icon"
@@ -58,10 +58,10 @@ export default function HooliganLabs() {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <h2 className="text-xl font-semibold text-white">
+                                <h2 className="text-xl font-semibold text-white md:text-2xl">
                                     Where bad ideas and backend services get ship-tested.
                                 </h2>
-                                <p className="text-xs text-dh-street-gray/80">
+                                <p className="text-xs text-dh-street-gray/80 md:text-sm">
                                     Tiny experiments, bots, APIs, and tools that may or may not
                                     belong on a production server—yet.
                                 </p>
