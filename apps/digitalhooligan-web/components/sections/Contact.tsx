@@ -24,24 +24,30 @@ export default function Contact() {
                         talk scope, chaos, and timelines.
                     </p>
 
-                    <div className="space-y-2 text-sm text-dh-street-gray">
+                    <div className="space-y-1 text-sm text-dh-street-gray">
                         <p>
                             Email:{" "}
                             <a
-                                href="mailto:your-email@digitalhooligan.io"
+                                href="mailto:ceo@digitalhooligan.io"
                                 className="text-dh-electric-mint hover:underline"
                             >
-                                your-email@digitalhooligan.io
+                                ceo@digitalhooligan.io
                             </a>
                         </p>
-                        <p className="text-xs text-dh-street-gray/80">
-                            Short brief, links, screenshots – whatever helps tell the story.
+                        <p>
+                            Phone:{" "}
+                            <a
+                                href="tel:+15402876266"
+                                className="text-dh-electric-mint hover:underline"
+                            >
+                                (540) 287-6266
+                            </a>
                         </p>
                     </div>
 
                     <div className="pt-2">
                         <Link
-                            href="mailto:your-email@digitalhooligan.io"
+                            href="mailto:ceo@digitalhooligan.io"
                             className="inline-flex items-center justify-center rounded-full border border-dh-electric-mint/70 bg-dh-electric-mint/10 px-5 py-2.5 text-sm font-medium text-dh-electric-mint hover:bg-dh-electric-mint hover:text-dh-black transition"
                         >
                             Email Digital Hooligan
