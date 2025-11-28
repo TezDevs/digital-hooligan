@@ -1,6 +1,6 @@
 export default function StreetCred() {
   return (
-    <section id="street-cred" className="space-y-8">
+    <section id="street-cred" className="scroll-mt-24 border-t border-dh-street-gray/60 bg-dh-black pt-16 pb-16 md:pt-20 md:pb-20">
       <header className="space-y-3 max-w-2xl">
         <p className="text-xs font-mono uppercase tracking-[0.2em] text-dh-electric-mint/80">
           Street Cred
