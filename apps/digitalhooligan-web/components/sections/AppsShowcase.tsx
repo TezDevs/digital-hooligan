@@ -21,7 +21,7 @@ const apps: AppDefinition[] = [
         name: "PennyWize",
         label: "Flagship",
         status: "Active",
-        imageSrc: "/images/apps/pennywize.png",
+        imageSrc: "/apps/pennywize.png",
         tagline: "Hunt penny stocks like a maniac, not a fool.",
         description:
             "Real-time penny stock scrapes, smart alerts, and a hooligan-approved dashboard so you never miss cheap chaos turning into real money.",
@@ -31,7 +31,7 @@ const apps: AppDefinition[] = [
         name: "DropSignal",
         label: "Signal bot",
         status: "Prototype",
-        imageSrc: "/images/apps/dropsignal.png",
+        imageSrc: "/apps/dropsignal.png",
         tagline: "Spray-paint alerts all over your watchlist.",
         description:
             "Price-drop and restock radar for hype releases. Built for people who live in release calendars and push notifications.",
@@ -41,7 +41,7 @@ const apps: AppDefinition[] = [
         name: "HypeWatch",
         label: "Collectors",
         status: "Designing",
-        imageSrc: "/images/apps/hypewatch.png",
+        imageSrc: "/apps/hypewatch.png",
         tagline: "Track hype before it becomes history.",
         description:
             "A collector-focused view of markets: cards, kicks, and whatever else is volatile enough to be fun.",
@@ -51,15 +51,20 @@ const apps: AppDefinition[] = [
         name: "Hooligan Labs",
         label: "Experiments",
         status: "In the lab",
-        imageSrc: "/images/apps/hooligan-lab.png",
+        imageSrc: "/apps/hooligan-labs.png",
         tagline: "Where the dangerous ideas get built first.",
         description:
             "Small experiments, scrapers, and bots that graduate into full apps once they prove they can survive outside the lab.",
     },
 ];
 
+
 export default function AppsShowcase() {
-    const [activeSlug, setActiveSlug] = useState<string>("pennywize");
+    // keep the same initial app active
+    const [activeSlug, setActiveSlug] = useState<string>(
+        apps[0]?.slug ?? "pennywize"
+    );
+
     const activeApp =
         apps.find((app) => app.slug === activeSlug) ?? apps[0];
 
@@ -91,12 +96,15 @@ export default function AppsShowcase() {
                     </div>
 
                     {/* Main layout: flagship card + side list */}
-                    <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1.2fr)] lg:items-stretch">
+                    <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1.2fr)] lg:items-stretch">
                         {/* Left: flagship / active app card */}
-                        <article className="relative overflow-hidden rounded-2xl border border-dh-street-gray/60 bg-gradient-to-br from-dh-black via-[#050608] to-[#050608] p-5 shadow-[0_0_40px_rgba(30,255,203,0.3)]">
-                            <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+                        <article className="group relative overflow-hidden rounded-2xl border border-dh-street-gray/60 bg-gradient-to-br from-dh-black via-[#050608] to-[#050608] p-5 shadow-[0_0_26px_rgba(30,255,203,0.25)] transition-all duration-300 hover:border-dh-electric-mint/80 hover:shadow-[0_0_40px_rgba(30,255,203,0.45)]">
+                            {/* subtle glow overlay on hover */}
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-dh-electric-mint/10 via-transparent to-dh-electric-mint/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                            <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
                                 {/* Icon */}
-                                <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-3xl border border-dh-street-gray/60 bg-dh-black">
+                                <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-3xl border border-dh-street-gray/60 bg-dh-black transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-1 group-hover:rotate-1">
                                     <Image
                                         src={activeApp.imageSrc}
                                         alt={`${activeApp.name} icon`}
@@ -139,14 +147,14 @@ export default function AppsShowcase() {
                                         type="button"
                                         onClick={() => setActiveSlug(app.slug)}
                                         className={clsx(
-                                            "group flex items-center justify-between gap-3 rounded-2xl border bg-dh-black/60 px-4 py-3 text-left transition",
+                                            "group flex items-center justify-between gap-3 rounded-2xl border bg-dh-black/60 px-4 py-3 text-left transform transition-all duration-200",
                                             isActive
-                                                ? "border-dh-electric-mint/80 shadow-[0_0_32px_rgba(30,255,203,0.4)]"
-                                                : "border-dh-street-gray/60 hover:border-dh-electric-mint/60 hover:bg-dh-black"
+                                                ? "border-dh-electric-mint/80 shadow-[0_0_32px_rgba(30,255,203,0.4)] scale-[1.02] -translate-y-0.5"
+                                                : "border-dh-street-gray/60 hover:border-dh-electric-mint/60 hover:bg-dh-black hover:-translate-y-0.5 hover:translate-x-0.5"
                                         )}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-dh-street-gray/60 bg-dh-black">
+                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-dh-street-gray/60 bg-dh-black transform transition-transform duration-200 group-hover:scale-110">
                                                 <Image
                                                     src={app.imageSrc}
                                                     alt={`${app.name} icon`}
@@ -168,6 +176,7 @@ export default function AppsShowcase() {
                                             <span className="text-[10px] font-mono uppercase tracking-[0.26em] text-dh-electric-mint/90">
                                                 {isActive ? "Active" : app.status}
                                             </span>
+                                            <span className="h-0.5 w-6 rounded-full bg-dh-street-gray/50 transition-all duration-200 group-hover:w-8 group-hover:bg-dh-electric-mint/80" />
                                         </div>
                                     </button>
                                 );
