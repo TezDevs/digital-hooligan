@@ -47,7 +47,7 @@ export default function HooliganLabs() {
                             <span>Hooligan Labs</span>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-dh-street-gray/60 bg-dh-black">
                                 {/* Update the src path if your icon lives somewhere else */}
                                 <Image
