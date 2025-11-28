@@ -70,7 +70,7 @@ export default function Hero() {
               <div className="relative h-72 w-full md:h-80">
                 <Image
                   // ⬇️ change this to whatever src you were using before
-                  src="/images/hero-bear.png"
+                  src="/apps/digital-hooligan-hero.png"
                   alt="Digital Hooligan bear spraying graffiti"
                   fill
                   className="object-cover"
