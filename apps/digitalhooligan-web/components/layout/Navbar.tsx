@@ -1,39 +1,58 @@
 "use client";
 
+import Link from "next/link";
 import Container from "./Container";
+
+const navLinks = [
+  { href: "#apps", label: "Apps" },
+  { href: "#labs", label: "Hooligan Labs" },
+  { href: "#street-cred", label: "Street Cred" },
+  { href: "#cta", label: "Why DH?" },
+];
 
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-dh-street-gray/60 bg-dh-black/80 backdrop-blur">
       <Container>
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg border border-dh-electric-mint/60 bg-dh-black shadow-[0_0_18px_rgba(30,255,203,0.7)]" />
+        <div className="flex h-16 items-center justify-between gap-4">
+          {/* Logo + wordmark */}
+          <Link href="#top" className="flex items-center gap-2 group">
+            <div className="h-8 w-8 rounded-lg border border-dh-electric-mint/60 bg-dh-black shadow-[0_0_18px_rgba(30,255,203,0.7)] transition group-hover:shadow-[0_0_28px_rgba(30,255,203,0.9)]" />
             <div className="flex flex-col leading-none">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-dh-graffiti-yellow">
+              <span className="text-xs font-mono uppercase tracking-[0.25em] text-dh-street-gray">
                 Digital
               </span>
-              <span className="text-lg font-semibold tracking-tight">
+              <span className="text-sm font-semibold text-white group-hover:text-dh-electric-mint">
                 Hooligan
               </span>
             </div>
-          </div>
+          </Link>
 
-          {/* Nav links */}
-          <nav className="hidden gap-6 text-sm text-neutral-300 md:flex">
-            <a href="#what" className="hover:text-white">
-              What We Do
-            </a>
-            <a href="#apps" className="hover:text-white">
-              Apps
-            </a>
+          {/* Nav links + CTA */}
+          <nav className="flex items-center gap-4 sm:gap-6">
+            {/* Main nav */}
+            <ul className="hidden items-center gap-4 text-xs font-medium text-dh-street-gray sm:flex">
+              {navLinks.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="inline-flex items-center gap-1 tracking-wide transition hover:text-white"
+                  >
+                    <span className="h-1 w-1 rounded-full bg-dh-street-gray/70" />
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* Primary CTA */}
+            <Link
+              href="#contact"
+              className="inline-flex items-center justify-center rounded-full border border-dh-electric-mint bg-dh-electric-mint px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-dh-black shadow-[0_0_22px_rgba(30,255,203,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(30,255,203,0.9)]"
+            >
+              Let&apos;s build
+            </Link>
           </nav>
-
-          {/* CTA */}
-          <button className="rounded-full border border-dh-rebel-red/60 bg-dh-rebel-red/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] shadow-[0_0_18px_rgba(255,77,178,0.7)] hover:bg-dh-rebel-red/40">
-            Join the Crew
-          </button>
         </div>
       </Container>
     </header>
