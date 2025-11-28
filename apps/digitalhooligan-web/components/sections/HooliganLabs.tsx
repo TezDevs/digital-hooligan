@@ -48,7 +48,7 @@ export default function HooliganLabs() {
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-dh-street-gray/60 bg-dh-black">
+                            <div className="relative h-40 w-40 md:h-48 md:w-48 shrink-0 overflow-hidden rounded-[1.4rem] border border-dh-street-gray/60 bg-dh-black shadow-[0_0_32px_rgba(30,255,203,0.35)]">
                                 {/* Update the src path if your icon lives somewhere else */}
                                 <Image
                                     src="/apps/hooligan-labs.png"
@@ -107,6 +107,6 @@ export default function HooliganLabs() {
                     </div>
                 </div>
             </Container>
-        </section>
+        </section >
     );
 }
