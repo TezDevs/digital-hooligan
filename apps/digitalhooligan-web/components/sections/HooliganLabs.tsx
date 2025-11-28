@@ -51,7 +51,7 @@ export default function HooliganLabs() {
                             <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-dh-street-gray/60 bg-dh-black">
                                 {/* Update the src path if your icon lives somewhere else */}
                                 <Image
-                                    src="/images/hooligan-labs.png"
+                                    src="/apps/hooligan-labs.png"
                                     alt="Hooligan Labs icon"
                                     fill
                                     className="object-contain"
