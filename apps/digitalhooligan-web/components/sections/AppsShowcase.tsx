@@ -69,15 +69,14 @@ export default function AppsShowcase() {
                     <span className="text-dh-electric-mint">dangerous little apps</span>.
                 </h2>
                 <p className="text-sm md:text-base text-dh-street-gray">
-                    Icons below are live cards. Click one to blow it up and read what kind
-                    of chaos it’s built for.
+                    Click an icon to see what kind of chaos it&apos;s built for.
                 </p>
             </header>
 
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-center">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-stretch">
                 {/* Active app panel */}
-                <div className="relative overflow-hidden rounded-3xl border border-dh-street-gray/50 bg-gradient-to-br from-dh-black via-dh-black to-dh-electric-mint/10 p-6 md:p-8 shadow-[0_0_40px_rgba(30,255,203,0.4)]">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/70 px-3 py-1 text-xs text-dh-electric-mint">
+                <div className="relative overflow-hidden rounded-3xl border border-dh-street-gray/50 bg-gradient-to-br from-dh-black via-dh-black to-dh-electric-mint/10 p-6 md:p-8 shadow-[0_0_30px_rgba(30,255,203,0.35)] transition-shadow duration-300">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/70 px-3 py-1 text-xs text-dh-electric-mint/90">
                         <span className="inline-block h-1.5 w-1.5 rounded-full bg-dh-electric-mint animate-pulse" />
                         {activeApp.badgeLabel}
                     </div>
@@ -85,13 +84,14 @@ export default function AppsShowcase() {
                     <div className="mt-4 flex flex-col gap-6 md:flex-row md:items-center">
                         <div className="relative h-32 w-32 shrink-0 md:h-40 md:w-40">
                             <div className="absolute inset-0 rounded-3xl bg-dh-electric-mint/20 blur-2xl" />
-                            <div className="relative rounded-3xl border border-dh-electric-mint/60 bg-dh-black/90 p-3 shadow-[0_0_30px_rgba(30,255,203,0.6)]">
+                            <div className="relative rounded-3xl border border-dh-electric-mint/60 bg-dh-black/90 p-3 shadow-[0_0_40px_rgba(30,255,203,0.6)] transition-transform duration-300 ease-out">
                                 <Image
+                                    key={activeApp.id}
                                     src={activeApp.imageSrc}
                                     alt={`${activeApp.name} icon`}
                                     width={256}
                                     height={256}
-                                    className="h-full w-full rounded-2xl object-contain"
+                                    className="h-full w-full rounded-2xl object-contain transform transition-transform duration-300 ease-out"
                                 />
                             </div>
                         </div>
@@ -119,20 +119,27 @@ export default function AppsShowcase() {
                                 key={app.id}
                                 onClick={() => setActiveId(app.id)}
                                 className={clsx(
-                                    "group flex items-center gap-4 rounded-2xl border px-4 py-3 text-left transition-all",
-                                    "bg-dh-black/60 hover:bg-dh-black shadow-[0_0_0_rgba(0,0,0,0)] hover:shadow-[0_0_30px_rgba(30,255,203,0.45)]",
+                                    "group flex items-center gap-4 rounded-2xl border px-4 py-3 text-left",
+                                    "bg-dh-black/60 transition-all duration-200 ease-out",
+                                    "hover:bg-dh-black hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(30,255,203,0.35)]",
                                     isActive
-                                        ? "border-dh-electric-mint/70"
-                                        : "border-dh-street-gray/50 hover:border-dh-electric-mint/50"
+                                        ? "border-dh-electric-mint/80 shadow-[0_0_24px_rgba(30,255,203,0.45)] scale-[1.02]"
+                                        : "border-dh-street-gray/50 hover:border-dh-electric-mint/60"
                                 )}
                             >
                                 <div className="relative h-10 w-10 shrink-0">
+                                    <div className="absolute inset-0 rounded-xl bg-dh-electric-mint/0 transition-opacity duration-200 group-hover:bg-dh-electric-mint/10" />
                                     <Image
                                         src={app.imageSrc}
                                         alt={`${app.name} icon`}
                                         width={64}
                                         height={64}
-                                        className="h-full w-full rounded-xl object-contain"
+                                        className={clsx(
+                                            "relative h-full w-full rounded-xl object-contain transition-transform duration-200 ease-out",
+                                            isActive
+                                                ? "scale-110"
+                                                : "group-hover:scale-110 group-active:scale-95"
+                                        )}
                                     />
                                 </div>
                                 <div className="flex-1">
