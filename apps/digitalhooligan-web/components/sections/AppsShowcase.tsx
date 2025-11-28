@@ -59,7 +59,7 @@ export default function AppsShowcase() {
     const activeApp = APPS.find((a) => a.id === activeId)!;
 
     return (
-        <div id="apps" className="space-y-10">
+        <div id="apps" className="scroll-mt-24 border-y border-dh-street-gray/60 bg-[#050608] pt-10 pb-16 md:pt-14 md:pb-20">
             <header className="max-w-2xl space-y-3">
                 <p className="text-sm font-mono uppercase tracking-[0.2em] text-dh-electric-mint/80">
                     App Studio
