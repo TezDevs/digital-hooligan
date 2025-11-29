@@ -102,10 +102,12 @@ export default function StreetCred() {
                   SDVOSB
                 </p>
                 <p className="mt-2 text-xs leading-relaxed text-dh-street-gray/80 sm:text-sm">
-                  Digital Hooligan is built as a Service-Disabled Veteran-Owned
-                  Small Business (SDVOSB) — a federal designation for businesses
-                  that are at least 51% owned, managed, and controlled by one or
-                  more service-disabled veterans.
+                  Digital Hooligan operates as a Service-Disabled Veteran-Owned
+                  Small Business (SDVOSB). I was Honorably discharged after serving
+                  four years on active dutyfrom 2007–2011 as a troposcatter communications
+                  operator, including a year in Iraq — that mindset of reliability,
+                  service, and calm under pressure shows up in how I build and
+                  ship.
                 </p>
               </div>
             </div>
