@@ -5,7 +5,7 @@ import Container from "../Container";
 export default function StreetCred() {
   return (
     <section
-      id="why"
+      id="why-dh"
       className="border-b border-dh-street-gray/60 bg-dh-black"
     >
       <Container>
@@ -103,9 +103,9 @@ export default function StreetCred() {
                 </p>
                 <p className="mt-2 text-xs leading-relaxed text-dh-street-gray/80 sm:text-sm">
                   Digital Hooligan operates as a Service-Disabled Veteran-Owned
-                  Small Business (SDVOSB). I was Honorably discharged after serving
-                  four years on active dutyfrom 2007–2011 as a troposcatter communications
-                  operator, including a year in Iraq — that mindset of reliability,
+                  Small Business (SDVOSB). I served four years on active duty
+                  from 2007–2011 as a troposcatter communications operator,
+                  including a year in Iraq — that mindset of reliability,
                   service, and calm under pressure shows up in how I build and
                   ship.
                 </p>
