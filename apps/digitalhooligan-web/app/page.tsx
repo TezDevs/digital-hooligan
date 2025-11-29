@@ -5,7 +5,6 @@ import AboutSection from "../components/sections/About";
 import StreetCredSection from "../components/sections/StreetCred";
 import CTASection from "../components/sections/CTA";
 import ContactSection from "../components/sections/Contact";
-import Footer from "../components/layout/Footer";
 
 export default function HomePage() {
   return (
@@ -17,7 +16,6 @@ export default function HomePage() {
       <StreetCredSection />
       <CTASection />
       <ContactSection />
-      <Footer />
     </main>
   );
 }
