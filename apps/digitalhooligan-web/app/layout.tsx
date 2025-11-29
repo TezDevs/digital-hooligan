@@ -15,21 +15,37 @@ export const metadata: Metadata = {
     url: "https://digitalhooligan.io",
     siteName: "Digital Hooligan",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Digital Hooligan — Dangerous Little Tools. Serious Fundamentals.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Digital Hooligan — Dangerous Little Tools. Serious Fundamentals.",
     description:
       "A small studio shipping opinionated apps for people who care about speed, reliability, and vibe.",
+    images: ["/og-image.png"],
   },
   icons: {
     icon: [
       { url: "/favicon.ico" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      // If you use the SVG pinned tab in Safari:
+      { rel: "mask-icon", url: "/favicon.svg", color: "#1effcb" },
+    ],
   },
+  manifest: "/site.webmanifest",
+  themeColor: "#050505",
 };
 
 export default function RootLayout({
