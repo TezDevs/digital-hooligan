@@ -1,42 +1,78 @@
+"use client";
+
+import Container from "../Container";
+
 export default function Contact() {
     return (
         <section
             id="contact"
-            className="border-t border-dh-street-gray/60 bg-dh-black/95"
+            className="border-t border-dh-street-gray/60 bg-dh-black"
         >
-            <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
-                <div className="max-w-xl">
-                    <h2 className="text-xl font-semibold text-white sm:text-2xl">
-                        Contact
-                    </h2>
-                    <p className="mt-2 max-w-md text-sm text-dh-street-gray sm:text-base">
-                        Whether you want to collaborate, hire me for a problem, or just
-                        trade ideas about weird apps — I read everything.
-                    </p>
+            <Container>
+                <div className="grid gap-8 py-10 sm:py-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:items-start md:gap-12 lg:py-16">
+                    {/* Left: heading & pitch */}
+                    <div className="space-y-4 sm:space-y-5 md:space-y-6">
+                        <p className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/80 px-3 py-1 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-dh-electric-mint/80">
+                            Let&apos;s talk
+                        </p>
 
-                    <ul className="mt-5 space-y-3 text-sm text-dh-street-gray">
-                        <li className="flex items-center gap-2">
-                            <span className="text-dh-electric-mint">📞</span>
-                            <span>540-287-6266</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <span className="text-dh-electric-mint">✉️</span>
-                            <span>ceo@digitalhooligan.io</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <span className="text-dh-electric-mint">💻</span>
-                            <a
-                                href="https://github.com/TezDevs"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="underline decoration-dh-electric-mint/60 underline-offset-2 hover:text-white"
-                            >
-                                github.com/TezDevs
-                            </a>
-                        </li>
-                    </ul>
+                        <div className="space-y-3 sm:space-y-4">
+                            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                                Need a hooligan in your corner?
+                            </h2>
+                            <p className="max-w-xl text-sm leading-relaxed text-dh-street-gray/80 sm:text-[0.95rem]">
+                                Whether it&apos;s a weird niche product, internal tooling, or
+                                experiments you can&apos;t run in a big org, I can help you
+                                scope it, build it, and ship it.
+                            </p>
+                        </div>
+
+                        <div className="space-y-2 text-sm text-dh-street-gray/80">
+                            <p>
+                                <span className="font-medium text-white">Phone:</span>{" "}
+                                <a href="tel:15402876266" className="hover:text-dh-electric-mint">
+                                    (540) 287-6266
+                                </a>
+                            </p>
+                            <p>
+                                <span className="font-medium text-white">Email:</span>{" "}
+                                <a
+                                    href="mailto:ceo@digitalhooligan.io"
+                                    className="hover:text-dh-electric-mint"
+                                >
+                                    ceo@digitalhooligan.io
+                                </a>
+                            </p>
+                            <p>
+                                <span className="font-medium text-white">GitHub:</span>{" "}
+                                <a
+                                    href="https://github.com/TezDevs"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-dh-electric-mint"
+                                >
+                                    github.com/TezDevs
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Right: simple “get in touch” card */}
+                    <div className="space-y-4">
+                        <div className="rounded-3xl border border-dh-street-gray/60 bg-dh-black/70 px-4 py-4 sm:px-5 sm:py-5">
+                            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-dh-street-gray/70">
+                                How this works
+                            </p>
+                            <p className="mt-2 text-xs leading-relaxed text-dh-street-gray/80 sm:text-sm">
+                                Shoot me a message with what you&apos;re trying to build, what
+                                you&apos;ve tried, and where you&apos;re stuck. If it&apos;s a
+                                fit, we&apos;ll sketch a small, dangerous project and ship
+                                something real.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </Container>
         </section>
     );
 }
