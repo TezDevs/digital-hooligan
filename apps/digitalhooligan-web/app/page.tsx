@@ -1,24 +1,19 @@
-import Hero from "@/components/sections/Hero";
-import AppsShowcase from "@/components/sections/AppsShowcase";
-import HooliganLabs from "@/components/sections/HooliganLabs";
-import StreetCred from "@/components/sections/StreetCred";
-import BrandStory from "@/components/sections/BrandStory";  // 👈 add this
-import CTA from "@/components/sections/CTA";
-import Contact from "@/components/sections/Contact";
-import Footer from "@/components/layout/Footer";
-
+import Hero from "../components/sections/Hero";
+import Apps from "../components/sections/Apps";
+import HooliganLabs from "../components/sections/HooliganLabs";
+import StreetCred from "../components/sections/StreetCred";
+import CTA from "../components/sections/CTA";
+import Contact from "../components/Contact";
 
 export default function HomePage() {
   return (
-    <main id="top" className="bg-dh-black text-white">
+    <main className="bg-dh-black">
       <Hero />
-      <AppsShowcase />
+      <Apps />
       <HooliganLabs />
       <StreetCred />
-      <BrandStory />   {/* 👈 Why DH section now renders here */}
       <CTA />
       <Contact />
-      <Footer />
     </main>
   );
 }
