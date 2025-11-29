@@ -5,7 +5,7 @@ import Container from "../Container";
 export default function StreetCred() {
   return (
     <section
-      id="why-dh"
+      id="why"
       className="border-b border-dh-street-gray/60 bg-dh-black"
     >
       <Container>
