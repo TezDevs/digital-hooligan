@@ -1,69 +1,67 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import Container from "../Container";
 
 export default function Hero() {
   return (
-    <section className="border-b border-dh-street-gray/60 bg-dh-black">
-      <div className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:flex-row lg:gap-12 lg:px-8 lg:py-24">
-        {/* Left: Copy */}
-        <div className="w-full max-w-xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/80 px-3 py-1 text-xs font-medium text-dh-electric-mint/90">
-            <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint" />
-            Break the rules. Ship dangerous ideas.
+    <section
+      id="hero"
+      className="border-b border-dh-street-gray/60 bg-dh-black"
+    >
+      <Container>
+        <div className="grid gap-6 py-6 sm:gap-7 sm:py-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-center md:gap-10 md:py-12 lg:py-14">
+          {/* Text side */}
+          <div className="space-y-3 sm:space-y-4 md:space-y-6">
+            <p className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/80 px-3 py-1 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-dh-electric-mint/80 sm:text-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint shadow-[0_0_12px_rgba(30,255,203,0.9)]" />
+              Digital Hooligan • App Studio
+            </p>
+
+            <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.1rem]">
+              Break the rules.
+              <span className="block text-dh-electric-mint">
+                Ship dangerous ideas.
+              </span>
+            </h1>
+
+            <p className="max-w-xl text-sm leading-relaxed text-dh-street-gray/80 sm:text-[0.95rem] sm:leading-relaxed">
+              Digital Hooligan is a one-person app studio for misfit builders
+              and collectors. Sneaker drops, collectibles, and money-saving
+              tools — built fast, loud, and a little bit reckless.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2.5 pt-1 sm:gap-3 sm:pt-2">
+              <a
+                href="#apps"
+                className="inline-flex items-center justify-center rounded-xl border border-dh-electric-mint/80 bg-dh-electric-mint px-4 py-2 text-sm font-semibold text-dh-black shadow-[0_0_22px_rgba(30,255,203,0.7)] transition hover:translate-y-[1px] hover:bg-dh-electric-mint/95 sm:px-5 sm:py-2.5"
+              >
+                Explore the apps
+              </a>
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center rounded-xl border border-dh-street-gray/60 bg-dh-black px-3.5 py-1.5 text-xs font-medium text-dh-street-gray/90 transition hover:border-dh-electric-mint/60 hover:text-white sm:px-4 sm:py-2 sm:text-sm"
+              >
+                Talk to the hooligan
+              </a>
+            </div>
           </div>
 
-          <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
-            Digital Hooligan is your
-            <span className="block text-dh-electric-mint">
-              one-person app studio.
-            </span>
-          </h1>
-
-          <p className="mt-3 max-w-md text-sm text-dh-street-gray sm:text-base">
-            I’m Tez — building scrappy, high-utility tools for people who live
-            on drops, side hustles, and signal. No committees. Just fast,
-            opinionated software.
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Link
-              href="#apps"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-dh-electric-mint bg-dh-electric-mint px-4 text-sm font-medium text-dh-black transition hover:bg-dh-electric-mint/90"
-            >
-              View apps
-            </Link>
-            <Link
-              href="#contact"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-dh-street-gray/60 px-4 text-sm font-medium text-dh-street-gray transition hover:border-dh-electric-mint/70 hover:text-white"
-            >
-              Talk to the hooligan
-            </Link>
-          </div>
-
-          <p className="mt-4 text-xs text-dh-street-gray/80 sm:text-sm">
-            Currently cooking: PennyWize, DropSignal, HypeWatch, and more.
-          </p>
-        </div>
-
-        {/* Right: Hero image */}
-        <div className="w-full max-w-sm sm:max-w-md lg:max-w-md">
-          <div className="relative overflow-hidden rounded-3xl border border-dh-electric-mint/40 bg-gradient-to-br from-dh-black to-dh-deep-purple/40 p-3 shadow-[0_0_40px_rgba(30,255,203,0.25)]">
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-dh-black">
+          {/* Image side */}
+          <div className="relative h-52 sm:h-60 md:h-72 lg:h-80">
+            <div className="pointer-events-none absolute inset-0 rounded-3xl border border-dh-electric-mint/30 bg-gradient-to-br from-dh-black via-dh-black to-dh-electric-mint/10 shadow-[0_0_40px_rgba(30,255,203,0.55)]" />
+            <div className="relative h-full w-full p-2.5 sm:p-3.5 md:p-4">
               <Image
                 src="/hero/digital-hooligan-hero.png"
                 alt="Digital Hooligan hero artwork"
                 fill
-                className="object-cover"
+                className="rounded-2xl object-contain"
                 priority
               />
             </div>
-            <div className="mt-3 flex items-center justify-between text-xs text-dh-street-gray">
-              <span>Digital Hooligan Labs</span>
-              <span className="text-dh-electric-mint/90">Since 2024</span>
-            </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
