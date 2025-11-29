@@ -5,16 +5,20 @@ import Container from "../Container";
 export default function StreetCred() {
   return (
     <section
-      id="why-dh"
+      id="street-cred"
       className="border-b border-dh-street-gray/60 bg-dh-black"
     >
       <Container>
         <div className="grid gap-8 py-10 sm:py-12 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:items-start md:gap-12 lg:py-16">
-          {/* Left side: Why Digital Hooligan? */}
+          {/* Left side: Why Digital Hooligan? + About block */}
           <div className="space-y-4 sm:space-y-5 md:space-y-6">
-            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            <h2
+              id="why-dh"
+              className="text-2xl font-semibold tracking-tight text-white sm:text-3xl"
+            >
               Why Digital Hooligan?
             </h2>
+
             <p className="max-w-2xl text-sm leading-relaxed text-dh-street-gray/80 sm:text-[0.95rem]">
               You&apos;re not looking for an “enterprise partner.” You want
               someone who can think like a user, build like an engineer, and
@@ -22,6 +26,7 @@ export default function StreetCred() {
               of Digital Hooligan.
             </p>
 
+            {/* Three core tiles */}
             <div className="grid gap-4 sm:grid-cols-3 sm:gap-5">
               <div className="rounded-3xl border border-dh-street-gray/60 bg-dh-black/60 px-4 py-4 sm:px-5 sm:py-5">
                 <h3 className="text-sm font-semibold text-white">
@@ -51,6 +56,27 @@ export default function StreetCred() {
                   of the internet.
                 </p>
               </div>
+            </div>
+
+            {/* About block in the empty space */}
+            <div className="mt-2 rounded-3xl border border-dh-street-gray/60 bg-dh-black/70 px-4 py-4 sm:px-5 sm:py-5">
+              <h3
+                id="about"
+                className="text-sm font-semibold tracking-tight text-white"
+              >
+                About Digital Hooligan
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-dh-street-gray/80 sm:text-[0.8rem]">
+                Digital Hooligan is a one-person app studio and
+                Service-Disabled Veteran-Owned Small Business (SDVOSB). Im a
+                Charleston, SC anative and U.S. Marine Corps vet. I hold a B.S. in Information
+                Technology Management certifications in AWS Cloud Practitioner and
+                Solutions Architect certifications, Google&apos;s Professional
+                Project Management certification, plus PSPO and CSM. I live in
+                Virginia now, and when I&apos;m not shipping tools I&apos;m
+                usually strength training, watching anime, reading manga, playing
+                games, or tinkering with web development.
+              </p>
             </div>
           </div>
 
