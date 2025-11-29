@@ -1,70 +1,94 @@
 import Image from "next/image";
+import Container from "../layout/Container";
+
+const experiments = [
+    {
+        label: "PennyWize",
+        status: "In progress",
+        blurb:
+            "A smarter way to track and act on your everyday spending, built for people who hate bloated finance tools.",
+    },
+    {
+        label: "DropSignal",
+        status: "Concept",
+        blurb:
+            "Sneaker and collectible drop alerts without the noise — just the signals you actually care about.",
+    },
+    {
+        label: "Ops Toys",
+        status: "Lab",
+        blurb:
+            "Little internal tools and dashboards for incident response, release hygiene, and observability experiments.",
+    },
+];
 
 export default function Labs() {
     return (
         <section
             id="labs"
-            className="border-b border-dh-street-gray/60 bg-dh-black"
+            aria-labelledby="labs-title"
+            className="border-t border-dh-street-gray/60 bg-dh-black/95"
         >
-            <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
-                    {/* Left: Copy */}
-                    <div className="w-full max-w-xl">
-                        <h2 className="text-xl font-semibold text-white sm:text-2xl">
-                            Hooligan Labs
-                        </h2>
-                        <p className="mt-2 max-w-lg text-sm text-dh-street-gray sm:text-base">
-                            This is where the experiments live — bots, scrapers, monitors, and
-                            half-crazy utilities that may or may not graduate into full apps.
-                            Fast iterations, ugly prototypes, useful results.
-                        </p>
+            <Container>
+                <div className="py-16 sm:py-20 lg:py-24">
+                    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
+                        {/* Left: Icon + description */}
+                        <div>
+                            <p className="text-xs font-mono uppercase tracking-[0.25em] text-dh-electric-mint">
+                                Hooligan Labs
+                            </p>
+                            <h2
+                                id="labs-title"
+                                className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl"
+                            >
+                                Where the weird ideas get built first.
+                            </h2>
+                            <p className="mt-4 max-w-2xl text-sm text-dh-street-gray md:text-base">
+                                Hooligan Labs is the experiment wing of Digital Hooligan — the place for prototypes,
+                                odd ideas, and small tools that might grow into full products. If it breaks, it
+                                breaks here first.
+                            </p>
 
-                        <ul className="mt-4 space-y-3 text-sm text-dh-street-gray">
-                            <li>
-                                <span className="font-medium text-white">
-                                    ⚙️ Market & drop scrapers:
-                                </span>{" "}
-                                pipelines that watch news, listings, and prices so you don&apos;t
-                                have to sit in five tabs all day.
-                            </li>
-                            <li>
-                                <span className="font-medium text-white">
-                                    📊 Signal dashboards:
-                                </span>{" "}
-                                experiments in surfacing only what matters: velocity, volume,
-                                and real movement.
-                            </li>
-                            <li>
-                                <span className="font-medium text-white">
-                                    🤖 Automation tooling:
-                                </span>{" "}
-                                little bots to handle alerts, summaries, and nightly cleanups.
-                            </li>
-                        </ul>
-                    </div>
+                            <div className="mt-6 inline-flex items-center gap-4 rounded-3xl border border-dh-street-gray/70 bg-dh-black/90 px-4 py-3 shadow-[0_0_30px_rgba(30,255,203,0.25)]">
+                                <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-dh-black">
+                                    <Image
+                                        src="/labs/hooligan-labs.png"
+                                        alt="Hooligan Labs logo"
+                                        fill
+                                        sizes="56px"
+                                        className="object-contain"
+                                        priority
+                                    />
+                                </div>
+                                <div className="space-y-1 text-sm">
+                                    <p className="font-semibold text-white">Hooligan Labs</p>
+                                    <p className="text-xs text-dh-street-gray">
+                                        The R&amp;D corner of Digital Hooligan — part skunkworks, part playground.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                    {/* Right: Visual */}
-                    <div className="w-full max-w-md lg:max-w-sm">
-                        <div className="relative overflow-hidden rounded-3xl border border-dh-street-gray/70 bg-dh-black p-3">
-                            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-dh-black">
-                                <Image
-                                    src="/labs/hooligan-labs.png"
-                                    alt="Hooligan Labs icon"
-                                    fill
-                                    className="object-cover"
-                                    sizes="(min-width: 1024px) 320px, (min-width: 640px) 280px, 100vw"
-                                />
-                            </div>
-                            <div className="mt-3 flex items-center justify-between text-xs text-dh-street-gray">
-                                <span>Experimental zone</span>
-                                <span className="text-dh-electric-mint/90">
-                                    Shipping &gt; perfection
-                                </span>
-                            </div>
+                        {/* Right: Experiments list */}
+                        <div className="space-y-4">
+                            {experiments.map((item) => (
+                                <div
+                                    key={item.label}
+                                    className="rounded-2xl border border-dh-street-gray/70 bg-dh-black/85 p-4 shadow-[0_0_24px_rgba(30,255,203,0.12)]"
+                                >
+                                    <div className="flex items-center justify-between gap-4">
+                                        <p className="text-sm font-semibold text-white">{item.label}</p>
+                                        <span className="inline-flex items-center rounded-full border border-dh-street-gray/70 bg-dh-black/80 px-2.5 py-1 text-[0.65rem] font-mono uppercase tracking-[0.18em] text-dh-street-gray">
+                                            {item.status}
+                                        </span>
+                                    </div>
+                                    <p className="mt-2 text-xs text-dh-street-gray md:text-sm">{item.blurb}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
-            </div>
+            </Container>
         </section>
     );
 }
