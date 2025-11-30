@@ -6,51 +6,57 @@ import Container from "../Container";
 
 type AppCard = {
     name: string;
-    slug?: string; // only for those with detail pages
+    slug: string; // detail route, e.g. /pennywize
     tagline: string;
     status: string;
     statusTone: "live" | "beta" | "soon";
     description: string;
-    iconSrc?: string; // adjust these to match your actual icon file names
+    iconSrc?: string; // point this at your actual icon file
 };
 
 const APPS: AppCard[] = [
     {
         name: "PennyWize",
-        slug: "pennywize",
+        slug: "pennywize", // /pennywize
         tagline: "Penny stock radar bot → web app → mobile.",
         status: "Bot first • Web app next",
         statusTone: "beta",
         description:
             "A penny stock scraper that surfaces unusual volume, price action, and watchlist ideas so you can spend less time refreshing charts and more time executing.",
+        // 🔧 Make sure this matches your real file in /public/apps
         iconSrc: "/apps/pennywize.png",
     },
     {
         name: "DropSignal",
-        slug: "dropsignal",
+        slug: "dropsignal", // /dropsignal
         tagline: "Sneakers + streetwear price-drop radar.",
         status: "Assist mode alerts • Grown-up mode later",
         statusTone: "beta",
         description:
             "DropSignal tracks price drops and restocks for sneakers and urban streetwear — think Jordans, Kith, Mitchell & Ness — starting with assist-mode alerts and later add-to-cart integrations via official retailers.",
+        // 🔧 Update if your filename is different, e.g. "/apps/dropsignal-icon.png"
         iconSrc: "/apps/dropsignal.png",
     },
     {
         name: "HypeWatch",
+        slug: "hypewatch", // /hypewatch
         tagline: "Collectibles price tracking for display-worthy stuff.",
         status: "Concept lab • Coming soon",
         statusTone: "soon",
         description:
             "HypeWatch focuses on display pieces — graded cards, figures, magazines, watches, and other shelf-worthy collectibles — with alerts around market moves and grail finds.",
+        // 🔧 Update to your actual icon path, e.g. "/apps/hypewatch.png"
         iconSrc: "/apps/hypewatch.png",
     },
     {
         name: "Ops Toys",
+        slug: "ops-toys", // /ops-toys (adjust if your route is different)
         tagline: "Ops automation toys for infra + logs + workflow.",
         status: "Idea drawer • Coming soon",
         statusTone: "soon",
         description:
             "A drawer full of small ops toys: helpers for infra, logging, deployment hygiene, and dev workflow. Think of it as a toolbox that quietly keeps your stack less painful.",
+        // 🔧 Update to your actual icon path, e.g. "/apps/opstoys.png"
         iconSrc: "/apps/opstoys.png",
     },
 ];
@@ -107,8 +113,7 @@ export default function AppsSection() {
                 {/* Cards grid */}
                 <div className="mt-10 grid gap-6 sm:mt-12 sm:grid-cols-2">
                     {APPS.map((app) => {
-                        const hasDetail = Boolean(app.slug);
-                        const href = hasDetail ? `/${app.slug}` : undefined;
+                        const href = `/${app.slug}`;
 
                         const CardInner = (
                             <article className="group relative flex h-full flex-col rounded-2xl border border-dh-street-gray/70 bg-gradient-to-br from-dh-black/90 via-dh-black to-dh-black/80 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.75)] transition-transform duration-300 hover:-translate-y-1 hover:border-dh-electric-mint/70 hover:shadow-[0_18px_80px_rgba(30,255,203,0.40)] sm:p-5">
@@ -152,19 +157,13 @@ export default function AppsSection() {
 
                                 {/* Footer row */}
                                 <div className="mt-4 flex items-center justify-between gap-3">
-                                    {hasDetail ? (
-                                        <Link
-                                            href={href!}
-                                            className="inline-flex items-center gap-1 text-xs font-medium text-dh-electric-mint/90 underline-offset-4 hover:text-dh-electric-mint hover:underline"
-                                        >
-                                            Learn more
-                                            <span aria-hidden>→</span>
-                                        </Link>
-                                    ) : (
-                                        <span className="text-xs text-dh-street-gray/70">
-                                            Detail page coming soon.
-                                        </span>
-                                    )}
+                                    <Link
+                                        href={href}
+                                        className="inline-flex items-center gap-1 text-xs font-medium text-dh-electric-mint/90 underline-offset-4 hover:text-dh-electric-mint hover:underline"
+                                    >
+                                        Learn more
+                                        <span aria-hidden>→</span>
+                                    </Link>
 
                                     <span className="text-[10px] uppercase tracking-[0.2em] text-dh-street-gray/60">
                                         Digital Hooligan Labs
@@ -173,12 +172,7 @@ export default function AppsSection() {
                             </article>
                         );
 
-                        // Card wrapper allows future per-card links if desired
-                        return hasDetail ? (
-                            <div key={app.name} className="h-full">
-                                {CardInner}
-                            </div>
-                        ) : (
+                        return (
                             <div key={app.name} className="h-full">
                                 {CardInner}
                             </div>
