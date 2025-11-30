@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-    title: "PennyWize – Digital Hooligan Labs",
+    title: "Ops Toys – Digital Hooligan Labs",
     description:
-        "PennyWize is the penny stock scraper that surfaces high-volatility tickers with real data instead of hype.",
+        "Ops Toys is a drawer full of tiny automation tools that make infra, logging, and dev workflow less painful.",
 };
 
-export default function PennyWizePage() {
+export default function OpsToysPage() {
     return (
         <main className="min-h-screen bg-dh-black text-dh-offwhite">
             <div className="mx-auto flex max-w-4xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
@@ -17,12 +17,11 @@ export default function PennyWizePage() {
                         Hooligan Labs · Experiment
                     </p>
                     <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                        PennyWize
+                        Ops Toys
                     </h1>
                     <p className="max-w-2xl text-sm text-dh-street-gray sm:text-base">
-                        The penny stock scraper that digs through the sketchy corners of the
-                        market so you don&apos;t have to. Surfacing high-volatility penny
-                        stocks with real data instead of hype.
+                        A drawer full of tiny automation toys that keep infra, logging, and
+                        dev workflow less painful for real-world engineers.
                     </p>
                 </header>
 
@@ -32,21 +31,29 @@ export default function PennyWizePage() {
                         What it does
                     </h2>
                     <p className="text-sm text-dh-street-gray">
-                        PennyWize is your always-on penny stock scout. It scrapes multiple
-                        data sources for tiny tickers, then organizes the chaos into
-                        something a human can actually read.
+                        Ops Toys is a bundle of bite-sized utilities—log diggers, health
+                        checkers, alert shapers, and workflow helpers—that plug into your
+                        existing stack instead of replacing it.
                     </p>
                     <ul className="space-y-2 text-sm text-dh-street-gray">
-                        <li>• Scrapes price, volume, and volatility spikes across tickers.</li>
                         <li>
-                            • Pulls in filings, news, and basic sentiment signals for quick
-                            context.
+                            • Tiny log-search and summarization toys to speed up incident
+                            triage.
                         </li>
-                        <li>• Flags weird activity like sudden volume or unusual gaps.</li>
-                        <li>• Helps you build watchlists to track tickers over time.</li>
                         <li>
-                            • Designed as a tool-first workflow, not a social feed
-                            (social layer comes later).
+                            • Health and status probes you can drop in front of services or
+                            cron jobs.
+                        </li>
+                        <li>
+                            • CI/CD helpers for version bumping, changelog generation, and
+                            release notes.
+                        </li>
+                        <li>
+                            • Notification shapers that turn noisy alerts into readable
+                            summaries.
+                        </li>
+                        <li>
+                            • Designed as a tool drawer, not yet another monolithic platform.
                         </li>
                     </ul>
                 </section>
@@ -61,10 +68,10 @@ export default function PennyWizePage() {
                             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dh-electric-mint">
                                 Phase 1
                             </p>
-                            <h3 className="mt-2 text-sm font-semibold">Bot</h3>
+                            <h3 className="mt-2 text-sm font-semibold">Bots &amp; scripts</h3>
                             <p className="mt-2 text-xs text-dh-street-gray">
-                                Bots scrape data on a schedule, normalize it, and keep an
-                                internal dataset fresh.
+                                CLI and scriptable toys that plug into logs, metrics, and
+                                pipelines.
                             </p>
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/40 bg-dh-black/60 p-4">
@@ -73,8 +80,8 @@ export default function PennyWizePage() {
                             </p>
                             <h3 className="mt-2 text-sm font-semibold">Web app</h3>
                             <p className="mt-2 text-xs text-dh-street-gray">
-                                A dashboard where you filter by volume, price action, sector, or
-                                risk level and save watchlists.
+                                A small web console to configure toys, view summaries, and
+                                manage integrations.
                             </p>
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/40 bg-dh-black/60 p-4">
@@ -83,8 +90,8 @@ export default function PennyWizePage() {
                             </p>
                             <h3 className="mt-2 text-sm font-semibold">Mobile</h3>
                             <p className="mt-2 text-xs text-dh-street-gray">
-                                Mobile alerts for wild moves, new filings, and custom penny
-                                stock triggers.
+                                Lightweight mobile views for on-call status, key logs, and
+                                summarized alerts.
                             </p>
                         </div>
                     </div>
@@ -98,12 +105,12 @@ export default function PennyWizePage() {
                     <div className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/60 bg-dh-black/60 px-3 py-1 text-xs">
                         <span className="h-2 w-2 rounded-full bg-dh-electric-mint" />
                         <span className="font-semibold uppercase tracking-[0.2em]">
-                            Building
+                            Discovery
                         </span>
                     </div>
                     <p className="text-sm text-dh-street-gray">
-                        We&apos;re wiring up the scraping logic, data normalization, and
-                        the first internal dashboards before opening this up wider.
+                        We&apos;re collecting the most painful ops and dev workflow chores
+                        and picking the first toys to ship.
                     </p>
                 </section>
 
