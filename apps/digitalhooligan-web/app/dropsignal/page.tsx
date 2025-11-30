@@ -47,8 +47,12 @@ export default function DropSignalPage() {
                             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                                 Status
                             </p>
-                            <p className="mt-2 font-medium text-emerald-300">
-                                Early experiment • Private lab toy
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
+                                Assist mode now • Add-to-cart later
+                            </p>
+                            <p className="mt-1 text-xs text-slate-300">
+                                Today: alerts + deep links. Later: clean handoff to cart on
+                                supported retailers.
                             </p>
                         </div>
                     </div>
@@ -104,6 +108,15 @@ export default function DropSignalPage() {
                                     willing to pay,
                                 </span>{" "}
                                 and it only taps you when the market lines up.
+                            </p>
+                            <p className="mt-3 text-sm text-slate-300 sm:text-[15px]">
+                                In early phases it lives in{" "}
+                                <span className="text-slate-100">assist mode</span> — sending
+                                you context and clean links so you can check out on official
+                                retailer and marketplace sites yourself. If it earns it, later
+                                phases explore a safe,{" "}
+                                <span className="text-slate-100">grown-up add-to-cart mode</span>{" "}
+                                on supported platforms.
                             </p>
                         </div>
 
@@ -164,8 +177,8 @@ export default function DropSignalPage() {
                                 </div>
                             </div>
                             <p className="pt-1 text-[11px] text-slate-500">
-                                All examples. Actual integrations + alert channels are still in
-                                lab mode.
+                                All examples. Actual integrations, retailers, and alert
+                                channels are still in lab mode.
                             </p>
                         </div>
                     </div>
@@ -212,8 +225,10 @@ export default function DropSignalPage() {
                                 3 • You get the signal
                             </p>
                             <p className="mt-3 text-sm text-slate-200">
-                                Alerts hit a single lane (email / DM style) with context: last
-                                floor, recent trend, and why this drop matters.
+                                In assist mode, alerts hit a single lane (email / DM style) with
+                                links out to official retailer or marketplace pages so you can
+                                check out yourself. Later, grown-up mode explores safe
+                                add-to-cart flows on supported platforms.
                             </p>
                         </div>
                     </div>
@@ -284,12 +299,15 @@ export default function DropSignalPage() {
                     <div className="mt-6 grid gap-4 lg:grid-cols-3">
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                Now • Lab toy
+                                Now • Lab toy (assist mode)
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 <li>• Core concepts, UX, and flows being shaped.</li>
                                 <li>• Market watching & alert logic sketched out.</li>
-                                <li>• Validating if this feels useful vs. noisy.</li>
+                                <li>
+                                    • Focus on alerts with clean links out to official retailers
+                                    and marketplaces.
+                                </li>
                             </ul>
                         </div>
 
@@ -299,19 +317,31 @@ export default function DropSignalPage() {
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 <li>• Limited test users with tight feedback loops.</li>
-                                <li>• Focus on signal quality over flashy charts.</li>
-                                <li>• Polish alert channels and basic settings.</li>
+                                <li>• Tuning signal quality vs noise.</li>
+                                <li>
+                                    • Exploring safe add-to-cart handoff flows on supported
+                                    platforms using official integrations.
+                                </li>
                             </ul>
                         </div>
 
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                Maybe later • Productized
+                                Maybe later • Productized (grown-up mode)
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                                <li>• Public launch if it earns it.</li>
-                                <li>• Deeper integrations with apps you already use.</li>
-                                <li>• Light subscription if it actually saves you money.</li>
+                                <li>
+                                    • Public launch if it proves useful and non-sketchy for
+                                    users.
+                                </li>
+                                <li>
+                                    • Deeper integrations with the shops and marketplaces people
+                                    already trust.
+                                </li>
+                                <li>
+                                    • Light subscription if the assist + add-to-cart flow actually
+                                    saves you money and time.
+                                </li>
                             </ul>
                         </div>
                     </div>
