@@ -39,9 +39,9 @@ const experiments = [
 export default function LabsPage() {
     return (
         <main className="min-h-screen bg-dh-black text-dh-offwhite">
-            <div className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
                 {/* Header */}
-                <header className="space-y-4">
+                <header className="space-y-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dh-electric-mint">
                         Hooligan Labs
                     </p>
@@ -67,7 +67,7 @@ export default function LabsPage() {
                 </header>
 
                 {/* Experiments grid */}
-                <section className="grid gap-6 md:grid-cols-2">
+                <section className="grid gap-5 md:grid-cols-2">
                     {experiments.map((exp) => (
                         <article
                             key={exp.slug}

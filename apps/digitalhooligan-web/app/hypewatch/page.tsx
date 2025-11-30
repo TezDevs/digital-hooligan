@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function HypeWatchPage() {
     return (
         <main className="min-h-screen bg-dh-black text-dh-offwhite">
-            <div className="mx-auto flex max-w-4xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
                 {/* Hero */}
                 <header className="space-y-3">
                     <p className="text-xs font-medium uppercase tracking-[0.2em] text-dh-electric-mint">
@@ -19,7 +19,7 @@ export default function HypeWatchPage() {
                     <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                         HypeWatch
                     </h1>
-                    <p className="max-w-2xl text-sm text-dh-street-gray sm:text-base">
+                    <p className="text-sm leading-relaxed text-dh-street-gray">
                         Price tracking for collectibles you actually flex: cards, figures,
                         magazines, watches, and more.
                     </p>
