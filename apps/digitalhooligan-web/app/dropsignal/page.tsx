@@ -1,7 +1,7 @@
 export const metadata = {
     title: "DropSignal • Digital Hooligan",
     description:
-        "DropSignal is a lab experiment from Digital Hooligan — a radar for sneakerheads and collectors that watches the market and pings you when prices actually move.",
+        "DropSignal is a lab experiment from Digital Hooligan — a radar for sneakerheads and streetwear heads that watches the market and pings you when prices actually move.",
 };
 
 export default function DropSignalPage() {
@@ -19,9 +19,10 @@ export default function DropSignalPage() {
                     </h1>
 
                     <p className="mt-4 max-w-2xl text-sm text-slate-300 sm:text-base">
-                        A radar for sneakerheads and collectors. DropSignal watches
-                        marketplaces, tracks price moves, and lets you know when a pair or
-                        a grail finally hits your number — without living on refresh.
+                        A radar for sneakerheads and streetwear heads. DropSignal watches
+                        marketplaces and boutique sites, tracks price moves, and lets you
+                        know when that Jordan, Kith drop, or Mitchell &amp; Ness jersey
+                        finally hits your number — without living on refresh.
                     </p>
 
                     <div className="mt-8 grid gap-4 text-xs sm:text-sm sm:grid-cols-3">
@@ -30,7 +31,7 @@ export default function DropSignalPage() {
                                 Built for
                             </p>
                             <p className="mt-2 font-medium text-slate-100">
-                                Sneakerheads, slab collectors, and deal hunters
+                                Sneakerheads, streetwear addicts, and deal hunters
                             </p>
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/60 bg-dh-black/70 p-4">
@@ -38,8 +39,8 @@ export default function DropSignalPage() {
                                 Signal, not noise
                             </p>
                             <p className="mt-2 font-medium text-slate-100">
-                                Focused alerts when prices actually move — not every listing
-                                that pops up.
+                                Focused alerts when prices actually move — not every random
+                                listing that pops up.
                             </p>
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/60 bg-dh-black/70 p-4">
@@ -66,17 +67,18 @@ export default function DropSignalPage() {
                                 Watch the market without babysitting tabs
                             </h2>
                             <p className="mt-3 text-sm text-slate-300 sm:text-[15px]">
-                                Right now, staying on top of sneaker and collectible prices
+                                Right now, staying on top of sneaker and streetwear prices
                                 usually means:
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-300">
                                 <li className="flex gap-2">
                                     <span className="mt-[6px] h-1.5 w-1.5 rounded-full bg-dh-electric-mint" />
                                     <span>
-                                        Cycling between apps and marketplaces,{" "}
+                                        Cycling between apps, boutiques, and marketplaces like{" "}
                                         <span className="text-slate-100">
-                                            refreshing the same searches all day.
-                                        </span>
+                                            SNKRS, Kith, and resale platforms,
+                                        </span>{" "}
+                                        refreshing the same searches all day.
                                     </span>
                                 </li>
                                 <li className="flex gap-2">
@@ -84,7 +86,7 @@ export default function DropSignalPage() {
                                     <span>
                                         Setting generic alerts that ping you on{" "}
                                         <span className="text-slate-100">every new listing</span>,
-                                        even if the price is trash.
+                                        even when the price is trash or way above ask.
                                     </span>
                                 </li>
                                 <li className="flex gap-2">
@@ -98,7 +100,8 @@ export default function DropSignalPage() {
                             <p className="mt-4 text-sm text-slate-300 sm:text-[15px]">
                                 DropSignal flips that. You tell it{" "}
                                 <span className="text-slate-100">
-                                    what you care about and what you&apos;re willing to pay,
+                                    which pairs and pieces you care about and what you&apos;re
+                                    willing to pay,
                                 </span>{" "}
                                 and it only taps you when the market lines up.
                             </p>
@@ -129,16 +132,16 @@ export default function DropSignalPage() {
                                 <div className="flex items-center justify-between rounded-xl border border-dh-street-gray/60 bg-dh-black/80 px-4 py-3">
                                     <div>
                                         <p className="font-medium text-slate-100">
-                                            PSA 10 Charizard (alt art)
+                                            Kith hoodie (seasonal drop)
                                         </p>
                                         <p className="text-[11px] text-slate-400">
-                                            Pop control • Slab watch
+                                            Size L • Specific colorway
                                         </p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-[11px] text-slate-400">Target</p>
                                         <p className="text-sm font-semibold text-emerald-300">
-                                            -15% vs 30d avg
+                                            -20% vs retail
                                         </p>
                                     </div>
                                 </div>
@@ -146,10 +149,10 @@ export default function DropSignalPage() {
                                 <div className="flex items-center justify-between rounded-xl border border-dh-street-gray/60 bg-dh-black/80 px-4 py-3">
                                     <div>
                                         <p className="font-medium text-slate-100">
-                                            Random heat radar
+                                            Mitchell &amp; Ness throwback jersey
                                         </p>
                                         <p className="text-[11px] text-slate-400">
-                                            &quot;Any size 10 under $200&quot;
+                                            Team + player set • Size XL
                                         </p>
                                     </div>
                                     <div className="text-right">
@@ -180,7 +183,7 @@ export default function DropSignalPage() {
                     </h2>
                     <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-[15px]">
                         Think of DropSignal as a little ops toy that sits next to your
-                        sneaker and collectible habit — watching feeds, crunching numbers,
+                        sneaker and streetwear habit — watching feeds, crunching numbers,
                         and pinging you only when it matters.
                     </p>
 
@@ -190,8 +193,8 @@ export default function DropSignalPage() {
                                 1 • You set the hunt
                             </p>
                             <p className="mt-3 text-sm text-slate-200">
-                                Pick the pairs, slabs, or sets you care about. Add size, grade,
-                                and your true max price or discount.
+                                Pick the pairs, jerseys, and pieces you care about. Add size,
+                                colorway, and your true max price or discount.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
@@ -199,8 +202,9 @@ export default function DropSignalPage() {
                                 2 • It watches the feeds
                             </p>
                             <p className="mt-3 text-sm text-slate-200">
-                                Background jobs scan markets and price history, turning noisy
-                                listings into clean &quot;worth a look&quot; events.
+                                Background jobs scan markets, boutiques, and price history,
+                                turning noisy listings into clean &quot;worth a look&quot;
+                                events.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
@@ -209,7 +213,7 @@ export default function DropSignalPage() {
                             </p>
                             <p className="mt-3 text-sm text-slate-200">
                                 Alerts hit a single lane (email / DM style) with context: last
-                                floor, 30d trend, and why this drop matters.
+                                floor, recent trend, and why this drop matters.
                             </p>
                         </div>
                     </div>
@@ -227,7 +231,8 @@ export default function DropSignalPage() {
                     </h2>
                     <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-[15px]">
                         It&apos;s not a full-blown trading terminal. It&apos;s a focused toy
-                        that keeps you from missing obvious plays.
+                        that keeps you from missing obvious plays on pairs and pieces you
+                        actually want to wear.
                     </p>
 
                     <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -236,17 +241,17 @@ export default function DropSignalPage() {
                                 Sneakerheads
                             </p>
                             <p className="mt-2 text-sm text-slate-200">
-                                You know your sizes, colorways, and price bands. Let the bot
-                                babysit the market while you touch grass.
+                                You know your sizes and colorways. Let the bot babysit the
+                                market while you touch grass and rock your rotation.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                                Collectors
+                                Streetwear heads
                             </p>
                             <p className="mt-2 text-sm text-slate-200">
-                                Graded cards, sealed sets, toys — anything with floor prices and
-                                volume can be watched for soft spots.
+                                Hoodies, jerseys, and brand collabs — anything with drops,
+                                restocks, and resale floors can be watched for soft spots.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
@@ -326,7 +331,7 @@ export default function DropSignalPage() {
                                     Want to help shape DropSignal?
                                 </h3>
                                 <p className="mt-2 max-w-xl text-sm text-slate-300">
-                                    If you live in the sneaker or collectible world and like the
+                                    If you live in the sneaker or streetwear world and like the
                                     idea of automation toys doing the boring watching, reach out
                                     and mention{" "}
                                     <span className="font-semibold text-dh-electric-mint">
