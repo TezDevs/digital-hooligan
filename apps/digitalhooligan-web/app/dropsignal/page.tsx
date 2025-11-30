@@ -39,11 +39,11 @@ export default function DropSignalPage() {
                                 Format
                             </p>
                             <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-200">
-                                Automation bot + web app
+                                Bot → Web app → Mobile apps
                             </p>
                             <p className="mt-1 text-xs text-slate-300">
-                                A small ops bot doing the watching, with an app surface to
-                                review plays and tweak your hunts.
+                                Starts as a small automation bot and web surface. If it earns
+                                it, native apps follow on Apple App Store and Google Play.
                             </p>
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/60 bg-dh-black/70 p-4">
@@ -56,7 +56,7 @@ export default function DropSignalPage() {
                             <p className="mt-1 text-xs text-slate-300">
                                 Today: alerts + deep links. Later: cleaner add-to-cart handoff
                                 on supported retailers with bot + app tiers at different price
-                                points (TBD).
+                                points (pricing TBD).
                             </p>
                         </div>
                     </div>
@@ -106,12 +106,12 @@ export default function DropSignalPage() {
                                 </li>
                             </ul>
                             <p className="mt-4 text-sm text-slate-300 sm:text-[15px]">
-                                DropSignal flips that. You tell it{" "}
+                                DropSignal flips that. You tell the bot{" "}
                                 <span className="text-slate-100">
                                     which pairs and pieces you care about and what you&apos;re
                                     willing to pay,
                                 </span>{" "}
-                                and the bot quietly watches for you.
+                                and it quietly watches for you.
                             </p>
                             <p className="mt-3 text-sm text-slate-300 sm:text-[15px]">
                                 In early phases it lives in{" "}
@@ -123,7 +123,8 @@ export default function DropSignalPage() {
                                     grown-up add-to-cart mode
                                 </span>{" "}
                                 on supported platforms, with different bot/app tiers and prices
-                                once things are real (pricing TBD).
+                                once things are real (pricing TBD), and eventually mobile apps
+                                if that makes sense.
                             </p>
                         </div>
 
@@ -236,7 +237,7 @@ export default function DropSignalPage() {
                                 links out to official retailer or marketplace pages so you can
                                 check out yourself. Later, grown-up modes explore safe
                                 add-to-cart flows on supported platforms, likely as higher-tier
-                                bot/app plans.
+                                bot/app plans and eventually mobile app flows.
                             </p>
                         </div>
                     </div>
@@ -307,7 +308,7 @@ export default function DropSignalPage() {
                     <div className="mt-6 grid gap-4 lg:grid-cols-3">
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                Now • Lab toy (assist mode)
+                                Now • Bot + web (assist mode)
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 <li>• Core concepts, UX, and flows being shaped.</li>
@@ -335,7 +336,7 @@ export default function DropSignalPage() {
 
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                Maybe later • Productized (bot + app tiers)
+                                Maybe later • Productized (bot + app tiers & mobile)
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 <li>
@@ -347,8 +348,8 @@ export default function DropSignalPage() {
                                     already trust.
                                 </li>
                                 <li>
-                                    • Different bot/app tiers at varying price points once
-                                    everything is real and tested (pricing TBD).
+                                    • Different bot/app tiers and eventual iOS + Android apps if
+                                    it earns that level of investment (pricing TBD).
                                 </li>
                             </ul>
                         </div>
