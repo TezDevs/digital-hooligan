@@ -1,7 +1,7 @@
 export const metadata = {
     title: "DropSignal • Digital Hooligan",
     description:
-        "DropSignal is a lab experiment from Digital Hooligan — a radar for sneakerheads and streetwear heads that watches the market and pings you when prices actually move.",
+        "DropSignal is a lab experiment from Digital Hooligan — a small automation bot + app for sneakerheads and streetwear heads that watches the market and pings you when prices actually move.",
 };
 
 export default function DropSignalPage() {
@@ -11,7 +11,7 @@ export default function DropSignalPage() {
             <section className="border-b border-dh-street-gray/60 bg-gradient-to-br from-dh-black via-black to-dh-electric-mint/10">
                 <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
                     <span className="inline-flex items-center rounded-full border border-dh-electric-mint/60 bg-dh-black/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-dh-electric-mint">
-                        Hooligan Labs • Ops Toy
+                        Hooligan Labs • Ops Toy • Bot + App
                     </span>
 
                     <h1 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
@@ -36,23 +36,27 @@ export default function DropSignalPage() {
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/60 bg-dh-black/70 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                Signal, not noise
+                                Format
                             </p>
-                            <p className="mt-2 font-medium text-slate-100">
-                                Focused alerts when prices actually move — not every random
-                                listing that pops up.
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-200">
+                                Automation bot + web app
+                            </p>
+                            <p className="mt-1 text-xs text-slate-300">
+                                A small ops bot doing the watching, with an app surface to
+                                review plays and tweak your hunts.
                             </p>
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/60 bg-dh-black/70 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                Status
+                                Status & pricing
                             </p>
                             <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
-                                Assist mode now • Add-to-cart later
+                                Assist mode now • Grown-up later
                             </p>
                             <p className="mt-1 text-xs text-slate-300">
-                                Today: alerts + deep links. Later: clean handoff to cart on
-                                supported retailers.
+                                Today: alerts + deep links. Later: cleaner add-to-cart handoff
+                                on supported retailers with bot + app tiers at different price
+                                points (TBD).
                             </p>
                         </div>
                     </div>
@@ -107,7 +111,7 @@ export default function DropSignalPage() {
                                     which pairs and pieces you care about and what you&apos;re
                                     willing to pay,
                                 </span>{" "}
-                                and it only taps you when the market lines up.
+                                and the bot quietly watches for you.
                             </p>
                             <p className="mt-3 text-sm text-slate-300 sm:text-[15px]">
                                 In early phases it lives in{" "}
@@ -115,8 +119,11 @@ export default function DropSignalPage() {
                                 you context and clean links so you can check out on official
                                 retailer and marketplace sites yourself. If it earns it, later
                                 phases explore a safe,{" "}
-                                <span className="text-slate-100">grown-up add-to-cart mode</span>{" "}
-                                on supported platforms.
+                                <span className="text-slate-100">
+                                    grown-up add-to-cart mode
+                                </span>{" "}
+                                on supported platforms, with different bot/app tiers and prices
+                                once things are real (pricing TBD).
                             </p>
                         </div>
 
@@ -195,7 +202,7 @@ export default function DropSignalPage() {
                         How DropSignal behaves in your stack
                     </h2>
                     <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-[15px]">
-                        Think of DropSignal as a little ops toy that sits next to your
+                        Think of DropSignal as a little ops bot that sits next to your
                         sneaker and streetwear habit — watching feeds, crunching numbers,
                         and pinging you only when it matters.
                     </p>
@@ -212,7 +219,7 @@ export default function DropSignalPage() {
                         </div>
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                2 • It watches the feeds
+                                2 • The bot watches the feeds
                             </p>
                             <p className="mt-3 text-sm text-slate-200">
                                 Background jobs scan markets, boutiques, and price history,
@@ -227,8 +234,9 @@ export default function DropSignalPage() {
                             <p className="mt-3 text-sm text-slate-200">
                                 In assist mode, alerts hit a single lane (email / DM style) with
                                 links out to official retailer or marketplace pages so you can
-                                check out yourself. Later, grown-up mode explores safe
-                                add-to-cart flows on supported platforms.
+                                check out yourself. Later, grown-up modes explore safe
+                                add-to-cart flows on supported platforms, likely as higher-tier
+                                bot/app plans.
                             </p>
                         </div>
                     </div>
@@ -245,9 +253,9 @@ export default function DropSignalPage() {
                         Who DropSignal is meant to enable
                     </h2>
                     <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-[15px]">
-                        It&apos;s not a full-blown trading terminal. It&apos;s a focused toy
-                        that keeps you from missing obvious plays on pairs and pieces you
-                        actually want to wear.
+                        It&apos;s not a full-blown trading terminal. It&apos;s a focused bot
+                        + app that keeps you from missing obvious plays on pairs and pieces
+                        you actually want to wear.
                     </p>
 
                     <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -327,7 +335,7 @@ export default function DropSignalPage() {
 
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                Maybe later • Productized (grown-up mode)
+                                Maybe later • Productized (bot + app tiers)
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 <li>
@@ -339,8 +347,8 @@ export default function DropSignalPage() {
                                     already trust.
                                 </li>
                                 <li>
-                                    • Light subscription if the assist + add-to-cart flow actually
-                                    saves you money and time.
+                                    • Different bot/app tiers at varying price points once
+                                    everything is real and tested (pricing TBD).
                                 </li>
                             </ul>
                         </div>
@@ -362,8 +370,8 @@ export default function DropSignalPage() {
                                 </h3>
                                 <p className="mt-2 max-w-xl text-sm text-slate-300">
                                     If you live in the sneaker or streetwear world and like the
-                                    idea of automation toys doing the boring watching, reach out
-                                    and mention{" "}
+                                    idea of automation bots and apps doing the boring watching,
+                                    reach out and mention{" "}
                                     <span className="font-semibold text-dh-electric-mint">
                                         &quot;DropSignal alpha&quot;
                                     </span>
