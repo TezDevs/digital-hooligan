@@ -33,6 +33,16 @@ const APPS: AppCard[] = [
         iconAlt: "DropSignal app icon",
     },
     {
+        name: "HypeWatch",
+        tagline:
+            "Collection health and price tracker for cards, toys, and any other collectible.",
+        status: "Concept",
+        badge: "Collectors & Graded Slabs",
+        href: "/hypewatch",
+        iconSrc: "/apps/hypewatch-icon.png",
+        iconAlt: "HypeWatch app icon",
+    },
+    {
         name: "Ops Toys (R&D)",
         tagline:
             "Internal tools & experiments that may never see the light of day.",
