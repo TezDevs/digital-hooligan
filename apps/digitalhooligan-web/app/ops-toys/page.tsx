@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function OpsToysPage() {
     return (
         <main className="min-h-screen bg-dh-black text-dh-offwhite">
-            <div className="mx-auto flex max-w-4xl flex-col gap-12 px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
                 {/* Hero */}
                 <header className="space-y-3">
                     <p className="text-xs font-medium uppercase tracking-[0.2em] text-dh-electric-mint">
@@ -19,7 +19,7 @@ export default function OpsToysPage() {
                     <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                         Ops Toys
                     </h1>
-                    <p className="max-w-2xl text-sm text-dh-street-gray sm:text-base">
+                    <p className="text-sm leading-relaxed text-dh-street-gray">
                         A drawer full of tiny automation toys that keep infra, logging, and
                         dev workflow less painful for real-world engineers.
                     </p>
@@ -30,7 +30,7 @@ export default function OpsToysPage() {
                     <h2 className="text-lg font-semibold text-dh-offwhite">
                         What it does
                     </h2>
-                    <p className="text-sm text-dh-street-gray">
+                    <p className="text-sm leading-relaxed text-dh-street-gray">
                         Ops Toys is a bundle of bite-sized utilities—log diggers, health
                         checkers, alert shapers, and workflow helpers—that plug into your
                         existing stack instead of replacing it.
@@ -108,7 +108,7 @@ export default function OpsToysPage() {
                             Discovery
                         </span>
                     </div>
-                    <p className="text-sm text-dh-street-gray">
+                    <p className="text-sm leading-relaxed text-dh-street-gray">
                         We&apos;re collecting the most painful ops and dev workflow chores
                         and picking the first toys to ship.
                     </p>
