@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import Container from "../layout/Container";
 
 type AppCard = {
     name: string;
@@ -51,7 +50,8 @@ export default function AppsSection() {
             id="apps"
             className="border-t border-dh-street-gray/60 bg-gradient-to-b from-dh-black via-dh-black to-black/90"
         >
-            <Container>
+            {/* Local container instead of shared <Container> component */}
+            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 <div className="py-12 sm:py-14 lg:py-16">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
@@ -124,7 +124,7 @@ export default function AppsSection() {
                         ))}
                     </div>
                 </div>
-            </Container>
+            </div>
         </section>
     );
 }
