@@ -1,95 +1,122 @@
-import Container from "@/components/Container";
+import Image from "next/image";
+import Link from "next/link";
 
-type LabTrack = {
-    name: string;
-    focus: string;
-    status: string;
-    notes: string;
-};
-
-const LAB_TRACKS: LabTrack[] = [
+const experiments = [
     {
+        slug: "pennywize",
         name: "PennyWize",
-        focus: "Penny stock radar signals",
-        status: "Tuning signal quality • Web UI next",
-        notes:
-            "Right now, the main work is refining which metrics actually matter for the types of traders PennyWize will serve — volume spikes, float, unusual options flow, and good old-fashioned price action.",
+        phase: "Building",
+        tagline:
+            "The penny stock scraper that digs through the sketchy corners of the market so you don’t have to.",
+        icon: "/apps/pennywize.png",
     },
     {
+        slug: "dropsignal",
         name: "DropSignal",
-        focus: "Sneakers & streetwear drop tracking",
-        status: "Bot prototyping • Retail integrations research",
-        notes:
-            "Testing different sources and tracking strategies so we can build assist-mode alerts first, and add-to-cart flows later via official retailers and marketplaces.",
+        phase: "Discovery → Building",
+        tagline:
+            "Bot-powered radar for sneaker and streetwear deals before your size disappears.",
+        icon: "/apps/dropsignal.png",
     },
     {
+        slug: "hypewatch",
         name: "HypeWatch",
-        focus: "Collectibles market experiments",
-        status: "Data sourcing • Scoring experiments",
-        notes:
-            "Playing with price history, grading tiers, and pop reports to explore how a 'hype score' might look for things like cards, figures, magazines, and watches.",
+        phase: "Discovery",
+        tagline:
+            "Price tracking for collectibles you actually flex: cards, figures, magazines, watches, and more.",
+        icon: "/apps/hypewatch.png",
     },
     {
+        slug: "ops-toys",
         name: "Ops Toys",
-        focus: "Developer experience and ops helpers",
-        status: "Idea backlog • Tiny prototypes",
-        notes:
-            "Collecting pain points across infra, logging, and workflow, then building small toys that reduce friction: log scrapers, status dashboards, and deployment helpers.",
+        phase: "Discovery",
+        tagline:
+            "A drawer full of tiny automation toys that keep infra, logging, and dev workflow less painful.",
+        icon: "/apps/ops-toys.png",
     },
 ];
 
 export default function LabsPage() {
     return (
-        <main className="min-h-screen bg-dh-black pt-16 pb-24">
-            <Container>
-                <header className="max-w-3xl">
-                    <p className="text-xs font-mono uppercase tracking-[0.2em] text-dh-graffiti-yellow/80">
+        <main className="min-h-screen bg-dh-black text-dh-offwhite">
+            <div className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
+                {/* Header */}
+                <header className="space-y-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dh-electric-mint">
                         Hooligan Labs
                     </p>
-                    <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                        Where the weird experiments live.
+                    <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                        The experiment bench.
                     </h1>
-                    <p className="mt-4 text-sm text-dh-street-gray/80 sm:text-base">
-                        Labs is the sandbox for Digital Hooligan — the place where bots,
-                        scrapers, dashboards, and strange little utilities get built out in
-                        the open. Not everything here will ship as a full product, but
-                        everything here teaches us something useful.
+                    <p className="max-w-2xl text-sm text-dh-street-gray sm:text-base">
+                        This is where Digital Hooligan tools are born. Most start as bots
+                        and scrapers, then graduate into proper apps once they prove they
+                        can pull their weight.
                     </p>
-                    <p className="mt-3 text-xs text-dh-street-gray/70">
-                        Expect rough edges, broken ideas, and strange prototypes. If you
-                        land here, you&apos;re seeing work before it&apos;s had a chance to
-                        put on a suit.
-                    </p>
+                    <div className="inline-flex flex-wrap gap-2 text-[11px] text-dh-street-gray">
+                        <span className="rounded-full border border-dh-street-gray/40 px-2 py-0.5">
+                            Discovery = ideas and prototypes
+                        </span>
+                        <span className="rounded-full border border-dh-street-gray/40 px-2 py-0.5">
+                            Building = wiring up real workflows
+                        </span>
+                        <span className="rounded-full border border-dh-street-gray/40 px-2 py-0.5">
+                            Polishing = almost ready for prime time
+                        </span>
+                    </div>
                 </header>
 
-                <section className="mt-10 space-y-6 sm:mt-12">
-                    {LAB_TRACKS.map((lab) => (
+                {/* Experiments grid */}
+                <section className="grid gap-6 md:grid-cols-2">
+                    {experiments.map((exp) => (
                         <article
-                            key={lab.name}
-                            className="rounded-2xl border border-dh-street-gray/70 bg-gradient-to-br from-dh-black/95 via-dh-black to-dh-black/85 p-5 shadow-[0_16px_60px_rgba(0,0,0,0.75)] sm:p-6"
+                            key={exp.slug}
+                            className="group flex flex-col justify-between rounded-2xl border border-dh-street-gray/40 bg-gradient-to-br from-dh-black/80 to-dh-black/40 p-4 transition duration-200 hover:border-dh-electric-mint/70 hover:shadow-[0_0_24px_rgba(30,255,203,0.25)]"
                         >
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                <div>
-                                    <h2 className="text-lg font-semibold text-white sm:text-xl">
-                                        {lab.name}
-                                    </h2>
-                                    <p className="mt-1 text-xs font-mono uppercase tracking-[0.2em] text-dh-graffiti-yellow/80">
-                                        {lab.focus}
-                                    </p>
+                            <div className="flex items-start gap-3">
+                                <div className="mt-1 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-dh-street-gray/30 bg-dh-black/80">
+                                    <Image
+                                        src={exp.icon}
+                                        alt={`${exp.name} icon`}
+                                        width={32}
+                                        height={32}
+                                        className="h-8 w-8 object-contain"
+                                    />
                                 </div>
-
-                                <div className="rounded-full border border-dh-electric-mint/40 bg-dh-black px-3 py-1.5 text-[11px] font-medium text-dh-electric-mint/90">
-                                    {lab.status}
+                                <div className="flex-1 space-y-2">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <h2 className="text-sm font-semibold text-dh-offwhite sm:text-base">
+                                            {exp.name}
+                                        </h2>
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-dh-electric-mint/60 bg-dh-black/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-dh-electric-mint">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint" />
+                                            {exp.phase}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-dh-street-gray sm:text-sm">
+                                        {exp.tagline}
+                                    </p>
                                 </div>
                             </div>
 
-                            <p className="mt-4 text-sm leading-relaxed text-dh-street-gray/80">
-                                {lab.notes}
-                            </p>
+                            <div className="mt-4 flex items-center justify-between text-xs">
+                                <Link
+                                    href={`/${exp.slug}`}
+                                    className="font-medium text-dh-electric-mint group-hover:translate-x-0.5 group-hover:text-dh-electric-mint/90"
+                                >
+                                    View details →
+                                </Link>
+                                <Link
+                                    href="/"
+                                    className="text-dh-street-gray hover:text-dh-electric-mint/80"
+                                >
+                                    Back to home
+                                </Link>
+                            </div>
                         </article>
                     ))}
                 </section>
-            </Container>
+            </div>
         </main>
     );
 }
