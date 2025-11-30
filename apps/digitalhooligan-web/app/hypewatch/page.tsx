@@ -1,7 +1,7 @@
 export const metadata = {
     title: "HypeWatch • Digital Hooligan",
     description:
-        "HypeWatch is a lab experiment from Digital Hooligan — a small automation bot + app for collectors who care about the display case: graded cards, figures, watches, magazines, and more.",
+        "HypeWatch is a lab experiment from Digital Hooligan — a small automation bot + app for display collectibles like graded cards, figures, watches, and magazines.",
 };
 
 export default function HypeWatchPage() {
@@ -39,11 +39,12 @@ export default function HypeWatchPage() {
                                 Format
                             </p>
                             <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-200">
-                                Automation bot + web app
+                                Bot → Web app → Mobile apps
                             </p>
                             <p className="mt-1 text-xs text-slate-300">
-                                A small ops bot doing the watching, with an app surface to
-                                review plays and tune your watchlists.
+                                Starts as a small automation bot and web surface watching your
+                                grails. If it earns it, native apps follow on Apple App Store
+                                and Google Play.
                             </p>
                         </div>
                         <div className="rounded-xl border border-dh-street-gray/60 bg-dh-black/70 p-4">
@@ -54,9 +55,9 @@ export default function HypeWatchPage() {
                                 Assist mode now • Grown-up later
                             </p>
                             <p className="mt-1 text-xs text-slate-300">
-                                Today: alerts + deep links. Later: cleaner add-to-cart handoff
-                                on supported marketplaces with bot + app tiers at different
-                                price points (TBD).
+                                Today: alerts + deep links. Later: cleaner add-to-cart / bid
+                                handoff on supported marketplaces with bot + app tiers at
+                                different price points (pricing TBD).
                             </p>
                         </div>
                     </div>
@@ -118,10 +119,11 @@ export default function HypeWatchPage() {
                                 official marketplace and auction platforms yourself. If it earns
                                 it, later phases explore a safe,{" "}
                                 <span className="text-slate-100">
-                                    grown-up add-to-cart mode
+                                    grown-up add-to-cart / bid mode
                                 </span>{" "}
                                 on supported platforms, with different bot/app tiers and prices
-                                once things are real (pricing TBD).
+                                once things are real (pricing TBD), and eventually mobile apps
+                                if it deserves it.
                             </p>
                         </div>
 
@@ -230,9 +232,9 @@ export default function HypeWatchPage() {
                             </p>
                             <p className="mt-3 text-sm text-slate-200">
                                 In assist mode, alerts land in one lane (email / DM style) with
-                                links out to official marketplaces so you can check out
-                                yourself. Later, higher-tier plans may offer safe add-to-cart
-                                handoffs on supported platforms.
+                                links out to official marketplaces so you can check out or bid
+                                yourself. Later, higher-tier plans may offer safe add-to-cart /
+                                bid handoffs on supported platforms and eventually mobile flows.
                             </p>
                         </div>
                     </div>
@@ -304,7 +306,7 @@ export default function HypeWatchPage() {
                     <div className="mt-6 grid gap-4 lg:grid-cols-3">
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                Now • Lab toy (assist mode)
+                                Now • Bot + web (assist mode)
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 <li>• Core concepts, UX, and flows being shaped.</li>
@@ -331,7 +333,7 @@ export default function HypeWatchPage() {
 
                         <div className="rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                Maybe later • Productized (bot + app tiers)
+                                Maybe later • Productized (bot + app tiers & mobile)
                             </p>
                             <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 <li>
@@ -343,8 +345,8 @@ export default function HypeWatchPage() {
                                     platforms people already trust.
                                 </li>
                                 <li>
-                                    • Different bot/app tiers at varying price points once
-                                    everything is battle-tested (pricing TBD).
+                                    • Different bot/app tiers and eventual iOS + Android apps if
+                                    it earns that level of investment (pricing TBD).
                                 </li>
                             </ul>
                         </div>
