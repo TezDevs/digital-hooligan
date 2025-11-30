@@ -11,53 +11,49 @@ type AppCard = {
     status: string;
     statusTone: "live" | "beta" | "soon";
     description: string;
-    iconSrc?: string; // point this at your actual icon file
+    iconSrc?: string; // path under /public
 };
 
 const APPS: AppCard[] = [
     {
         name: "PennyWize",
-        slug: "pennywize", // /pennywize
+        slug: "pennywize",
         tagline: "Penny stock radar bot → web app → mobile.",
         status: "Bot first • Web app next",
         statusTone: "beta",
         description:
             "A penny stock scraper that surfaces unusual volume, price action, and watchlist ideas so you can spend less time refreshing charts and more time executing.",
-        // 🔧 Make sure this matches your real file in /public/apps
         iconSrc: "/apps/pennywize.png",
     },
     {
         name: "DropSignal",
-        slug: "dropsignal", // /dropsignal
+        slug: "dropsignal",
         tagline: "Sneakers + streetwear price-drop radar.",
         status: "Assist mode alerts • Grown-up mode later",
         statusTone: "beta",
         description:
             "DropSignal tracks price drops and restocks for sneakers and urban streetwear — think Jordans, Kith, Mitchell & Ness — starting with assist-mode alerts and later add-to-cart integrations via official retailers.",
-        // 🔧 Update if your filename is different, e.g. "/apps/dropsignal-icon.png"
         iconSrc: "/apps/dropsignal.png",
     },
     {
         name: "HypeWatch",
-        slug: "hypewatch", // /hypewatch
+        slug: "hypewatch",
         tagline: "Collectibles price tracking for display-worthy stuff.",
         status: "Concept lab • Coming soon",
         statusTone: "soon",
         description:
             "HypeWatch focuses on display pieces — graded cards, figures, magazines, watches, and other shelf-worthy collectibles — with alerts around market moves and grail finds.",
-        // 🔧 Update to your actual icon path, e.g. "/apps/hypewatch.png"
         iconSrc: "/apps/hypewatch.png",
     },
     {
         name: "Ops Toys",
-        slug: "ops-toys", // /ops-toys (adjust if your route is different)
+        slug: "ops-toys",
         tagline: "Ops automation toys for infra + logs + workflow.",
         status: "Idea drawer • Coming soon",
         statusTone: "soon",
         description:
             "A drawer full of small ops toys: helpers for infra, logging, deployment hygiene, and dev workflow. Think of it as a toolbox that quietly keeps your stack less painful.",
-        // 🔧 Update to your actual icon path, e.g. "/apps/opstoys.png"
-        iconSrc: "/apps/opstoys.png",
+        iconSrc: "/apps/ops-toys.png",
     },
 ];
 
