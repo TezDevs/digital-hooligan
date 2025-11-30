@@ -50,7 +50,7 @@ export default function Footer() {
                             Labs
                         </Link>
                         <Link
-                            href="/#about"
+                            href="/#street-card"
                             className="transition hover:text-dh-electric-mint"
                         >
                             About
