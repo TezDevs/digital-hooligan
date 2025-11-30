@@ -1,170 +1,191 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import Container from "../Container";
 
 type AppCard = {
     name: string;
+    slug?: string; // only for those with detail pages
     tagline: string;
     status: string;
-    badge?: string;
-    href: string;
-    iconSrc: string;
-    iconAlt: string;
+    statusTone: "live" | "beta" | "soon";
+    description: string;
+    iconSrc?: string; // adjust these to match your actual icon file names
 };
 
 const APPS: AppCard[] = [
     {
         name: "PennyWize",
-        tagline: "Smart cash-flow autopilot for solo builders & small teams.",
-        status: "Prototype",
-        badge: "Digital Hooligan Labs",
-        href: "/pennywize",
-        iconSrc: "/apps/pennywize-icon.png",
-        iconAlt: "PennyWize app icon",
+        slug: "pennywize",
+        tagline: "Penny stock radar bot → web app → mobile.",
+        status: "Bot first • Web app next",
+        statusTone: "beta",
+        description:
+            "A penny stock scraper that surfaces unusual volume, price action, and watchlist ideas so you can spend less time refreshing charts and more time executing.",
+        iconSrc: "/apps/pennywize.png",
     },
     {
         name: "DropSignal",
-        tagline: "Price-drop radar for sneakerheads and collectors.",
-        status: "Concept",
-        badge: "Sneaker & Collectible Ops",
-        href: "/dropsignal",
-        iconSrc: "/apps/dropsignal-icon.png",
-        iconAlt: "DropSignal app icon",
+        slug: "dropsignal",
+        tagline: "Sneakers + streetwear price-drop radar.",
+        status: "Assist mode alerts • Grown-up mode later",
+        statusTone: "beta",
+        description:
+            "DropSignal tracks price drops and restocks for sneakers and urban streetwear — think Jordans, Kith, Mitchell & Ness — starting with assist-mode alerts and later add-to-cart integrations via official retailers.",
+        iconSrc: "/apps/dropsignal.png",
     },
     {
         name: "HypeWatch",
-        tagline:
-            "Collection health and price tracker for cards, toys, and any other collectible.",
-        status: "Concept",
-        badge: "Collectors & Graded Slabs",
-        href: "/hypewatch",
-        iconSrc: "/apps/hypewatch-icon.png",
-        iconAlt: "HypeWatch app icon",
+        tagline: "Collectibles price tracking for display-worthy stuff.",
+        status: "Concept lab • Coming soon",
+        statusTone: "soon",
+        description:
+            "HypeWatch focuses on display pieces — graded cards, figures, magazines, watches, and other shelf-worthy collectibles — with alerts around market moves and grail finds.",
+        iconSrc: "/apps/hypewatch.png",
     },
     {
-        name: "Ops Toys (R&D)",
-        tagline:
-            "Internal tools & experiments that may never see the light of day.",
-        status: "Internal only",
-        badge: "Hooligan Labs",
-        href: "#",
-        iconSrc: "/apps/ops-toys-icon.png",
-        iconAlt: "Ops Toys experimental tools icon",
+        name: "Ops Toys",
+        tagline: "Ops automation toys for infra + logs + workflow.",
+        status: "Idea drawer • Coming soon",
+        statusTone: "soon",
+        description:
+            "A drawer full of small ops toys: helpers for infra, logging, deployment hygiene, and dev workflow. Think of it as a toolbox that quietly keeps your stack less painful.",
+        iconSrc: "/apps/opstoys.png",
     },
 ];
+
+function StatusPill({
+    tone,
+    children,
+}: {
+    tone: AppCard["statusTone"];
+    children: React.ReactNode;
+}) {
+    const base =
+        "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border shadow-sm";
+    const toneClasses =
+        tone === "live"
+            ? "border-emerald-500/50 text-emerald-300 bg-emerald-500/10"
+            : tone === "beta"
+                ? "border-dh-electric-mint/50 text-dh-electric-mint bg-dh-electric-mint/5"
+                : "border-yellow-400/40 text-yellow-200 bg-yellow-400/10";
+
+    return <span className={`${base} ${toneClasses}`}>{children}</span>;
+}
 
 export default function AppsSection() {
     return (
         <section
             id="apps"
-            className="border-t border-dh-street-gray/60 bg-gradient-to-b from-dh-black via-dh-black to-black/90"
+            className="border-t border-dh-street-gray/60 bg-dh-black/70 py-16 sm:py-20"
         >
-            {/* Local container instead of shared <Container> component */}
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div className="py-12 sm:py-14 lg:py-16">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                            <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-dh-electric-mint/80">
-                                Hooligan Apps
-                            </h2>
-                            <p className="mt-2 text-2xl sm:text-3xl font-semibold text-white">
-                                A small arsenal of slightly dangerous tools.
-                            </p>
-                        </div>
-                        <p className="max-w-md text-sm text-dh-street-gray/80">
-                            Built for solo founders, sneakerheads, and collectors who want
-                            more signal and less spreadsheet chaos.
+            <Container>
+                {/* Heading row */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p className="text-xs font-mono uppercase tracking-[0.2em] text-dh-electric-mint/80">
+                            Hooligan Apps
+                        </p>
+                        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                            Tools first. Apps second. Social later.
+                        </h2>
+                        <p className="mt-3 max-w-2xl text-sm text-dh-street-gray/80 sm:text-base">
+                            Everything here starts as a bot or internal tool. Once it proves
+                            itself, it graduates into a full web app and eventually a mobile
+                            app with a social layer wrapped around the data.
                         </p>
                     </div>
 
-                    {/* Cards grid */}
-                    <div className="mt-8 grid gap-4 sm:gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {APPS.map((app) => (
-                            <article
-                                key={app.name}
-                                className="group relative flex flex-col rounded-2xl border border-dh-street-gray/60 bg-dh-black/80 p-4 sm:p-5 shadow-[0_0_0_rgba(0,0,0,0.6)] transition-all duration-200 hover:-translate-y-1.5 hover:border-dh-electric-mint/80 hover:shadow-[0_0_28px_rgba(30,255,203,0.45)]"
-                            >
-                                {/* Top row: icon + metadata */}
-                                <div className="flex items-start gap-3">
-                                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-dh-street-gray/60 bg-black/60">
-                                        <Image
-                                            src={app.iconSrc}
-                                            alt={app.iconAlt}
-                                            fill
-                                            sizes="40px"
-                                            className="object-contain"
-                                        />
-                                    </div>
+                    <p className="max-w-xs text-xs text-dh-street-gray/80">
+                        Long-term, these apps plug into a shared Hooligan dashboard and API
+                        layer. For now, they&apos;re focused on doing one job extremely
+                        well.
+                    </p>
+                </div>
 
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="truncate text-sm font-semibold text-white">
-                                                {app.name}
-                                            </h3>
-                                            <span className="rounded-full border border-dh-street-gray/50 px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] text-dh-street-gray/80">
-                                                {app.status}
+                {/* Cards grid */}
+                <div className="mt-10 grid gap-6 sm:mt-12 sm:grid-cols-2">
+                    {APPS.map((app) => {
+                        const hasDetail = Boolean(app.slug);
+                        const href = hasDetail ? `/${app.slug}` : undefined;
+
+                        const CardInner = (
+                            <article className="group relative flex h-full flex-col rounded-2xl border border-dh-street-gray/70 bg-gradient-to-br from-dh-black/90 via-dh-black to-dh-black/80 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.75)] transition-transform duration-300 hover:-translate-y-1 hover:border-dh-electric-mint/70 hover:shadow-[0_18px_80px_rgba(30,255,203,0.40)] sm:p-5">
+                                {/* Glow accent */}
+                                <div className="pointer-events-none absolute inset-x-4 -top-px h-px bg-gradient-to-r from-transparent via-dh-electric-mint/80 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                                <div className="flex items-start gap-4">
+                                    {/* Icon or placeholder */}
+                                    <div className="relative flex h-12 w-12 flex-none items-center justify-center overflow-hidden rounded-xl border border-dh-street-gray/70 bg-dh-black/80 shadow-[0_0_22px_rgba(30,255,203,0.4)]">
+                                        {app.iconSrc ? (
+                                            <Image
+                                                src={app.iconSrc}
+                                                alt={app.name}
+                                                fill
+                                                className="object-contain p-1.5"
+                                            />
+                                        ) : (
+                                            <span className="text-lg font-semibold text-dh-electric-mint">
+                                                {app.name.charAt(0)}
                                             </span>
-                                        </div>
-                                        {app.badge && (
-                                            <p className="mt-1 text-[11px] text-dh-street-gray/70">
-                                                {app.badge}
-                                            </p>
                                         )}
                                     </div>
+
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h3 className="text-base font-semibold text-white sm:text-lg">
+                                                {app.name}
+                                            </h3>
+                                            <StatusPill tone={app.statusTone}>{app.status}</StatusPill>
+                                        </div>
+
+                                        <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-dh-electric-mint/80">
+                                            {app.tagline}
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {/* Tagline */}
-                                <p className="mt-3 text-sm leading-relaxed text-dh-street-gray/90">
-                                    {app.tagline}
+                                <p className="mt-4 text-sm leading-relaxed text-dh-street-gray/80">
+                                    {app.description}
                                 </p>
 
-                                {/* Footer row: learn more link */}
-                                <div className="mt-4 flex items-center justify-between text-[11px] text-dh-street-gray/70">
-                                    <span className="rounded-full bg-white/5 px-2 py-0.5">
-                                        Early stage experiment
+                                {/* Footer row */}
+                                <div className="mt-4 flex items-center justify-between gap-3">
+                                    {hasDetail ? (
+                                        <Link
+                                            href={href!}
+                                            className="inline-flex items-center gap-1 text-xs font-medium text-dh-electric-mint/90 underline-offset-4 hover:text-dh-electric-mint hover:underline"
+                                        >
+                                            Learn more
+                                            <span aria-hidden>→</span>
+                                        </Link>
+                                    ) : (
+                                        <span className="text-xs text-dh-street-gray/70">
+                                            Detail page coming soon.
+                                        </span>
+                                    )}
+
+                                    <span className="text-[10px] uppercase tracking-[0.2em] text-dh-street-gray/60">
+                                        Digital Hooligan Labs
                                     </span>
-
-                                    <LearnMoreLink href={app.href} disabled={app.href === "#"} />
                                 </div>
-
-                                {/* Glow accent on hover */}
-                                <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-100 group-hover:bg-[radial-gradient(circle_at_top,_rgba(30,255,203,0.35),_transparent_60%)]" />
                             </article>
-                        ))}
-                    </div>
+                        );
+
+                        // Card wrapper allows future per-card links if desired
+                        return hasDetail ? (
+                            <div key={app.name} className="h-full">
+                                {CardInner}
+                            </div>
+                        ) : (
+                            <div key={app.name} className="h-full">
+                                {CardInner}
+                            </div>
+                        );
+                    })}
                 </div>
-            </div>
+            </Container>
         </section>
-    );
-}
-
-type LearnMoreLinkProps = {
-    href: string;
-    disabled?: boolean;
-};
-
-function LearnMoreLink({ href, disabled }: LearnMoreLinkProps) {
-    if (disabled) {
-        return (
-            <span className="inline-flex items-center gap-1 opacity-60">
-                <span>Coming soon</span>
-            </span>
-        );
-    }
-
-    return (
-        <Link
-            href={href}
-            className="inline-flex items-center gap-1 font-medium text-dh-electric-mint/90 transition-colors group-hover:text-dh-electric-mint"
-        >
-            <span>Learn more</span>
-            <span
-                aria-hidden
-                className="transition-transform group-hover:translate-x-0.5"
-            >
-                →
-            </span>
-        </Link>
     );
 }
