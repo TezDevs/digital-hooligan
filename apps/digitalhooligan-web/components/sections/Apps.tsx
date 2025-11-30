@@ -53,7 +53,7 @@ const APPS: AppCard[] = [
         statusTone: "soon",
         description:
             "A drawer full of small ops toys: helpers for infra, logging, deployment hygiene, and dev workflow. Think of it as a toolbox that quietly keeps your stack less painful.",
-        iconSrc: "/apps/ops-toys.png",
+        iconSrc: "/apps/opstoys.png",
     },
 ];
 
