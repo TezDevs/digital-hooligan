@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     const isValid = username.trim() === envUser && password === envPass;
 
-    // Tiny debug log (server-side only)
+    // Debug log on server only
     console.log("CEO LOGIN ATTEMPT", {
         usernameEntered: username.trim(),
         hasEnvUser: Boolean(envUserRaw),
@@ -49,9 +49,13 @@ export async function POST(request: Request) {
 
     response.cookies.set("ceo_auth", "1", {
         httpOnly: true,
+        // "secure" is fine for localhost (modern browsers treat it as secure),
+        // and required in production.
         secure: true,
         sameSite: "lax",
-        path: "/ceo",
+        // IMPORTANT: cookie must be sent for both /ceo and /labs/hq,
+        // so scope it to the whole site instead of just /ceo.
+        path: "/",
         maxAge: 60 * 60 * 24, // 1 day
     });
 

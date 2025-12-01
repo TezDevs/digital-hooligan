@@ -19,6 +19,7 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+    // Internal dashboards that require the ceo_auth cookie
     const needsAuth =
         pathname.startsWith("/ceo") || pathname.startsWith("/labs/hq");
 
