@@ -1,80 +1,69 @@
-import Image from "next/image";
-import Container from "../layout/Container";
+// components/sections/About.tsx
 
-export default function About() {
+export default function AboutSection() {
     return (
         <section
             id="about"
-            aria-labelledby="about-title"
-            className="border-t border-dh-street-gray/60 bg-dh-black"
+            className="relative border-t border-white/5 bg-black py-20 sm:py-24"
         >
-            <Container>
-                <div className="py-16 sm:py-20 lg:py-24">
-                    <div className="grid items-center gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)] lg:gap-16">
-                        {/* Photo */}
-                        <div className="flex justify-center md:justify-start">
-                            <div className="relative h-48 w-48 overflow-hidden rounded-3xl border border-dh-electric-mint/60 bg-dh-black/90 shadow-[0_0_40px_rgba(30,255,203,0.35)] sm:h-56 sm:w-56">
-                                <Image
-                                    src="/about/tez-headshot.jpg"
-                                    alt="Courtez “Tez” Cannady, founder of Digital Hooligan"
-                                    fill
-                                    sizes="(min-width: 768px) 14rem, 12rem"
-                                    className="object-cover"
-                                    priority
-                                />
-                            </div>
-                        </div>
-
-                        {/* Copy */}
-                        <div>
-                            <p className="text-xs font-mono uppercase tracking-[0.25em] text-dh-electric-mint">
-                                About the Hooligan
-                            </p>
-                            <h2
-                                id="about-title"
-                                className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl"
-                            >
-                                I build dangerous little tools with serious fundamentals.
-                            </h2>
-
-                            <p className="mt-4 max-w-2xl text-sm text-dh-street-gray md:text-base">
-                                I&apos;m Courtez (&quot;Tez&quot;), the founder of Digital Hooligan. I was born
-                                in Charleston, SC and built my career around systems where failure isn&apos;t an
-                                option—defense, government, and payment operations.
-                            </p>
-
-                            <p className="mt-3 max-w-2xl text-sm text-dh-street-gray md:text-base">
-                                I hold a B.S. in Information Technology Management and certifications including
-                                AWS Certified Cloud Practitioner, AWS Certified Solutions Architect, Google
-                                Professional Project Management, PSPO, and CSM. That mix of engineering,
-                                architecture, and delivery discipline shapes every app that ships from this studio.
-                            </p>
-
-                            <p className="mt-3 max-w-2xl text-sm text-dh-street-gray md:text-base">
-                                I currently live in Virginia and when I&apos;m not building, you&apos;ll catch me
-                                strength training, watching anime, reading manga, gaming, or experimenting with new
-                                web stacks.
-                            </p>
-
-                            {/* Quick tags */}
-                            <div className="mt-5 flex flex-wrap gap-2">
-                                <span className="inline-flex items-center rounded-full border border-dh-electric-mint/40 bg-dh-electric-mint/10 px-3 py-1 text-[0.7rem] font-mono uppercase tracking-[0.18em] text-dh-electric-mint">
-                                    Founder / Engineer
-                                </span>
-                                <span className="inline-flex items-center rounded-full border border-dh-street-gray/60 bg-dh-black/80 px-3 py-1 text-[0.7rem] font-mono uppercase tracking-[0.18em] text-dh-street-gray">
-                                    Defense &amp; Gov Ops
-                                </span>
-                                <span className="inline-flex items-center rounded-full border border-dh-street-gray/60 bg-dh-black/80 px-3 py-1 text-[0.7rem] font-mono uppercase tracking-[0.18em] text-dh-street-gray">
-                                    Payments &amp; Real-time
-                                </span>
-                                <span className="inline-flex items-center rounded-full border border-dh-street-gray/60 bg-dh-black/80 px-3 py-1 text-[0.7rem] font-mono uppercase tracking-[0.18em] text-dh-street-gray">
-                                    Anime / Manga / Games
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+            <div className="mx-auto flex max-w-5xl flex-col gap-10 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-start">
+                <div className="flex-1">
+                    <p className="text-xs font-mono uppercase tracking-[0.25em] text-emerald-400/80">
+                        About
+                    </p>
+                    <h2 className="mt-3 text-3xl sm:text-4xl font-semibold text-white">
+                        The hooligan behind the keyboard
+                    </h2>
+                    <p className="mt-4 text-sm sm:text-base text-zinc-300 leading-relaxed">
+                        I&apos;m a U.S. Marine Corps veteran and technologist, born in
+                        Charleston, SC and currently based in Virginia. I hold a Bachelor
+                        of Science in Information Technology Management and I&apos;m
+                        certified as an AWS Certified Cloud Practitioner, AWS Certified
+                        Solutions Architect, Google Professional Project Manager, PSPO, and
+                        CSM.
+                    </p>
+                    <p className="mt-3 text-sm sm:text-base text-zinc-300 leading-relaxed">
+                        When I&apos;m not building tools and automation, you&apos;ll usually
+                        find me strength training, watching anime, reading manga, gaming, or
+                        experimenting with new ideas in web development. Digital Hooligan is
+                        where all of that energy shows up as apps, bots, APIs, and ops toys
+                        that make founders&apos; lives easier.
+                    </p>
                 </div>
-            </Container>
+
+                <div className="w-full max-w-sm rounded-2xl border border-white/5 bg-zinc-950/70 p-5 text-sm text-zinc-200 shadow-[0_0_40px_rgba(0,0,0,0.7)]">
+                    <h3 className="text-xs font-mono uppercase tracking-[0.25em] text-emerald-400/80">
+                        Snapshot
+                    </h3>
+                    <dl className="mt-4 space-y-3">
+                        <div className="flex justify-between gap-4">
+                            <dt className="text-zinc-400">Background</dt>
+                            <dd className="text-right">
+                                U.S. Marine Corps veteran, IT management, product &amp; ops
+                            </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                            <dt className="text-zinc-400">Focus</dt>
+                            <dd className="text-right">
+                                Product management, APIs, automation, and dashboards
+                            </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                            <dt className="text-zinc-400">Stack</dt>
+                            <dd className="text-right">
+                                Next.js, TypeScript, Tailwind, AWS, Stripe, modern APIs
+                            </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                            <dt className="text-zinc-400">Off-duty</dt>
+                            <dd className="text-right">
+                                Strength training, anime, manga, games, and tinkering with new
+                                tools
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
         </section>
     );
 }

@@ -5,17 +5,23 @@ import AboutSection from "../components/sections/About";
 import StreetCredSection from "../components/sections/StreetCred";
 import CTASection from "../components/sections/CTA";
 import ContactSection from "../components/sections/Contact";
+import ServicesSection from "../components/sections/Services";
+
 
 export default function HomePage() {
   return (
-    <main className="bg-dh-black text-dh-offwhite">
+    <main className="...">
       <Hero />
       <AppsSection />
       <LabsSection />
       <AboutSection />
+
+      <ServicesSection />
+
       <StreetCredSection />
       <CTASection />
       <ContactSection />
     </main>
   );
 }
+
