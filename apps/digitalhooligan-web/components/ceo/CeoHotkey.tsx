@@ -14,7 +14,11 @@ export default function CeoHotkey() {
 
     useEffect(() => {
         function onKeyDown(event: KeyboardEvent) {
-            const key = event.key.toLowerCase();
+            // Some events may not have a key; guard against undefined
+            const rawKey = event.key;
+            if (typeof rawKey !== "string") return;
+
+            const key = rawKey.toLowerCase();
 
             const hasModifier = (event.metaKey || event.ctrlKey) && event.shiftKey;
             const isCombo = hasModifier && key === "c";
