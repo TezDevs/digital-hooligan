@@ -262,17 +262,23 @@ export default function ServicesPage() {
                     ))}
                 </div>
 
-                <footer className="mt-14 border-t border-white/5 pt-6 text-sm text-zinc-400">
+                <footer className="mt-14 border-t border-white/5 pt-6 text-sm text-zinc-400 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p>
                         Have something in mind that doesn&apos;t fit cleanly into a box?{" "}
                         <a
-                            href="#contact"
+                            href="/#contact"
                             className="font-medium text-emerald-400 hover:text-emerald-300"
                         >
-                            Reach out
+                            Reach out via the contact form
                         </a>{" "}
                         and we can design a custom engagement.
                     </p>
+                    <a
+                        href="/"
+                        className="text-xs sm:text-sm font-medium text-zinc-300 hover:text-emerald-300 underline underline-offset-4"
+                    >
+                        ← Back to the Digital Hooligan homepage
+                    </a>
                 </footer>
             </div>
         </div>
