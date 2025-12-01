@@ -7,70 +7,128 @@ export default function Footer() {
     const year = new Date().getFullYear();
 
     return (
-        <footer className="border-t border-dh-street-gray/60 bg-dh-black/95 py-8">
+        <footer className="border-t border-dh-street-gray/40 bg-dh-black/95 px-4 py-8 sm:px-6 lg:px-8">
             <Container>
-                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                    {/* Brand + tagline */}
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                            <div className="h-7 w-7 rounded-lg border border-dh-electric-mint/60 bg-dh-black shadow-[0_0_14px_rgba(30,255,203,0.7)]" />
-                            <div className="flex flex-col leading-tight">
-                                <span className="text-sm font-semibold text-white">
-                                    Digital Hooligan
-                                </span>
-                                <span className="text-[10px] font-mono uppercase tracking-[0.22em] text-dh-street-gray">
-                                    App Studio · Hooligan Labs
-                                </span>
+                <div className="mx-auto max-w-6xl space-y-8 text-sm text-dh-street-gray">
+                    {/* Top grid */}
+                    <div className="grid gap-8 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+                        {/* Brand blurb */}
+                        <div className="space-y-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-dh-electric-mint">
+                                Digital Hooligan LLC
+                            </p>
+                            <p className="max-w-md text-sm leading-relaxed">
+                                A one-person studio shipping scrappy tools, bots, and apps
+                                around money, sneakers, collectibles, and ops — with an ops-first
+                                mindset and a little bit of chaos.
+                            </p>
+                        </div>
+
+                        {/* Nav */}
+                        <div className="space-y-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-dh-offwhite/80">
+                                Navigate
+                            </p>
+                            <nav className="flex flex-col gap-1 text-sm">
+                                <Link
+                                    href="/#apps"
+                                    className="hover:text-dh-electric-mint/80"
+                                >
+                                    Apps
+                                </Link>
+                                <Link
+                                    href="/labs"
+                                    className="hover:text-dh-electric-mint/80"
+                                >
+                                    Labs
+                                </Link>
+                                <Link
+                                    href="/#street-cred"
+                                    className="hover:text-dh-electric-mint/80"
+                                >
+                                    About
+                                </Link>
+                                <Link
+                                    href="/#contact"
+                                    className="hover:text-dh-electric-mint/80"
+                                >
+                                    Contact
+                                </Link>
+                                <Link
+                                    href="/ceo"
+                                    className="hover:text-dh-electric-mint/80"
+                                >
+                                    CEO console
+                                </Link>
+                            </nav>
+                        </div>
+
+                        {/* Contact + socials */}
+                        <div className="space-y-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-dh-offwhite/80">
+                                Contact
+                            </p>
+                            <div className="space-y-1 text-sm">
+                                <p>Virginia, USA</p>
+                                <p>
+                                    <a
+                                        href="tel:+15402876266"
+                                        className="hover:text-dh-electric-mint/80"
+                                    >
+                                        540-287-6266
+                                    </a>
+                                </p>
+                                <p>
+                                    <a
+                                        href="mailto:hello@digitalhooligan.io"
+                                        className="hover:text-dh-electric-mint/80"
+                                    >
+                                        hello@digitalhooligan.io
+                                    </a>
+                                </p>
+                            </div>
+
+                            <div className="space-y-1 text-sm">
+                                <a
+                                    href="https://github.com/TezDevs"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-dh-electric-mint/80"
+                                >
+                                    TezDevs on GitHub
+                                </a>
+                                <a
+                                    href="https://www.linkedin.com/in/courtez-cannady-a"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-dh-electric-mint/80"
+                                >
+                                    Courtez M. Cannady on LinkedIn
+                                </a>
                             </div>
                         </div>
-                        <p className="text-[11px] text-dh-street-gray">
-                            Small, sharp tools for misfits, hustlers, and collectors of the
-                            internet.
-                        </p>
                     </div>
 
-                    {/* Quick nav */}
-                    <nav className="flex flex-wrap gap-4 text-xs font-medium text-dh-street-gray">
-                        <Link
-                            href="/"
-                            className="transition hover:text-dh-electric-mint"
-                        >
-                            Home
-                        </Link>
-                        <Link
-                            href="/#apps"
-                            className="transition hover:text-dh-electric-mint"
-                        >
-                            Apps
-                        </Link>
-                        <Link
-                            href="/labs"
-                            className="transition hover:text-dh-electric-mint"
-                        >
-                            Labs
-                        </Link>
-                        <Link
-                            href="/#street-card"
-                            className="transition hover:text-dh-electric-mint"
-                        >
-                            About
-                        </Link>
-                        <Link
-                            href="/#contact"
-                            className="transition hover:text-dh-electric-mint"
-                        >
-                            Contact
-                        </Link>
-                    </nav>
-                </div>
-
-                <div className="mt-6 flex flex-col gap-2 border-t border-dh-street-gray/40 pt-4 text-[11px] text-dh-street-gray md:flex-row md:items-center md:justify-between">
-                    <p>
-                        © {year} Digital Hooligan. Built by Courtez Cannady · TezDevs.
-                    </p>
-                    <p className="text-[10px]">
-                        Break the rules. Ship dangerous ideas. Keep the uptime respectable.
-                    </p>
+                    {/* Bottom row */}
+                    <div className="flex flex-col items-start justify-between gap-3 border-t border-dh-street-gray/40 pt-4 text-[11px] sm:flex-row sm:items-center">
+                        <p className="text-dh-street-gray">
+                            © {year} Digital Hooligan LLC. All rights reserved.
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                            <Link
+                                href="/terms"
+                                className="hover:text-dh-electric-mint/80"
+                            >
+                                Terms
+                            </Link>
+                            <Link
+                                href="/privacy"
+                                className="hover:text-dh-electric-mint/80"
+                            >
+                                Privacy
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </Container>
         </footer>
