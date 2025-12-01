@@ -1,103 +1,177 @@
+"use client";
+
 import Link from "next/link";
-import CeoHotkey from "../ceo/CeoHotkey";
 
 export default function Footer() {
-    return (
-        <footer className="border-t border-slate-900 bg-slate-950">
-            {/* Hotkey listener lives here so it runs on every page that includes the footer */}
-            <CeoHotkey />
+    const year = new Date().getFullYear();
 
-            <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-sm text-slate-400 md:flex-row md:items-start md:justify-between">
-                <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Digital Hooligan LLC
+    return (
+        <footer className="border-t border-zinc-800 bg-black/80 text-zinc-400 backdrop-blur">
+            <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8 lg:flex-row lg:items-start lg:justify-between">
+                {/* Brand / tagline */}
+                <div className="space-y-3">
+                    <Link href="/" className="inline-flex items-center gap-2">
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-emerald-500/60 bg-emerald-500/10 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                            DH
+                        </span>
+                        <span className="text-sm font-semibold text-zinc-100">
+                            Digital Hooligan
+                        </span>
+                    </Link>
+                    <p className="max-w-sm text-xs text-zinc-500">
+                        Digital Hooligan LLC – a small, loud lab for ops toys, bots, and
+                        web apps that make infrastructure, price watching, and workflows a
+                        little less painful.
                     </p>
-                    <p className="max-w-md text-xs text-slate-500">
-                        Solo dev shop turning scrappy ideas into apps, bots, APIs, and
-                        automation toys – one experiment at a time.
-                    </p>
-                    <div className="mt-2 space-y-1 text-xs">
-                        <p>
-                            Phone:{" "}
-                            <a
-                                href="tel:15402876266"
-                                className="text-slate-300 hover:text-emerald-300"
-                            >
-                                (540) 287-6266
-                            </a>
-                        </p>
-                        <p>
-                            Email:{" "}
-                            <a
-                                href="mailto:ceo@digitalhooligan.io"
-                                className="text-slate-300 hover:text-emerald-300"
-                            >
-                                ceo@digitalhooligan.io
-                            </a>
-                        </p>
-                    </div>
                 </div>
 
-                <div className="flex flex-col items-start gap-4 text-xs md:items-end">
-                    <div className="flex flex-wrap gap-4">
-                        <Link
-                            href="/#apps"
-                            className="hover:text-emerald-300 hover:underline"
-                        >
-                            Apps
-                        </Link>
-                        <Link
-                            href="/labs"
-                            className="hover:text-emerald-300 hover:underline"
-                        >
-                            Hooligan Labs
-                        </Link>
-                        <Link
-                            href="/services"
-                            className="hover:text-emerald-300 hover:underline"
-                        >
-                            Services
-                        </Link>
-                        <Link
-                            href="/#contact"
-                            className="hover:text-emerald-300 hover:underline"
-                        >
-                            Contact
-                        </Link>
+                {/* Internal navigation */}
+                <div className="flex flex-1 flex-wrap gap-8 text-xs sm:text-sm">
+                    <div className="space-y-3">
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+                            Site
+                        </h3>
+                        <ul className="space-y-2">
+                            <li>
+                                <Link
+                                    href="/#apps"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    Apps
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/labs"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    Hooligan Labs
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/#street-cred"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    Street Cred
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/#contact"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    Contact
+                                </Link>
+                            </li>
+                        </ul>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <a
-                            href="https://github.com/TezDevs"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="hover:text-emerald-300"
-                        >
-                            GitHub
-                        </a>
-                        <a
-                            href="https://www.linkedin.com/in/courtez-cannady-a"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="hover:text-emerald-300"
-                        >
-                            LinkedIn
-                        </a>
+                    <div className="space-y-3">
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+                            Experiments
+                        </h3>
+                        <ul className="space-y-2">
+                            <li>
+                                <Link
+                                    href="/pennywize"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    PennyWize
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/dropsignal"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    DropSignal
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/hypewatch"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    HypeWatch
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/ops-toys"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    Ops Toys
+                                </Link>
+                            </li>
+                        </ul>
                     </div>
 
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                        <span>© {new Date().getFullYear()} Digital Hooligan LLC</span>
-                        <span className="text-slate-700">·</span>
-
-                        {/* Tiny, subtle CEO entry link – blends in for visitors */}
-                        <Link
-                            href="/ceo/login"
-                            className="text-[10px] text-slate-800 transition hover:text-emerald-300 hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400"
-                            aria-label="Internal CEO login"
-                        >
-                            internal
-                        </Link>
+                    <div className="space-y-3">
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+                            Connect
+                        </h3>
+                        <ul className="space-y-2">
+                            <li>
+                                <a
+                                    href="https://github.com/TezDevs"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    GitHub – TezDevs
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="https://www.linkedin.com/in/courtez-cannady-a"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    LinkedIn – Courtez M. Cannady
+                                </a>
+                            </li>
+                        </ul>
                     </div>
+
+                    <div className="space-y-3">
+                        <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+                            Legal
+                        </h3>
+                        <ul className="space-y-2">
+                            <li>
+                                <Link
+                                    href="/privacy"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    Privacy Policy
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/terms"
+                                    className="transition hover:text-emerald-300"
+                                >
+                                    Terms of Use
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="border-t border-zinc-800">
+                <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 text-[11px] text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+                    <p>
+                        © {year} Digital Hooligan LLC. All rights reserved. Built in the lab
+                        and deployed to the streets.
+                    </p>
+                    <p className="text-[11px] text-zinc-600">
+                        Nothing here is financial, investment, tax, or legal advice. Use
+                        your own judgment and talk to a professional when in doubt.
+                    </p>
                 </div>
             </div>
         </footer>
