@@ -168,10 +168,22 @@ export default function Footer() {
                         © {year} Digital Hooligan LLC. All rights reserved. Built in the lab
                         and deployed to the streets.
                     </p>
-                    <p className="text-[11px] text-zinc-600">
-                        Nothing here is financial, investment, tax, or legal advice. Use
-                        your own judgment and talk to a professional when in doubt.
-                    </p>
+
+                    <div className="flex items-center gap-3">
+                        <p className="text-[11px] text-zinc-600">
+                            Nothing here is financial, investment, tax, or legal advice. Use
+                            your own judgment and talk to a professional when in doubt.
+                        </p>
+
+                        {/* Hidden-ish CEO login */}
+                        <Link
+                            href="/ceo/login"
+                            aria-label="CEO login"
+                            className="text-[10px] text-zinc-700 underline decoration-zinc-900 underline-offset-4 hover:text-emerald-300 hover:decoration-emerald-400"
+                        >
+                            ceo
+                        </Link>
+                    </div>
                 </div>
             </div>
         </footer>
