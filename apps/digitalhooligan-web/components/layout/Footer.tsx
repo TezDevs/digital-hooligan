@@ -1,136 +1,105 @@
-"use client";
-
 import Link from "next/link";
-import Container from "./Container";
+import CeoHotkey from "../ceo/CeoHotkey";
 
 export default function Footer() {
-    const year = new Date().getFullYear();
-
     return (
-        <footer className="border-t border-dh-street-gray/40 bg-dh-black/95 px-4 py-8 sm:px-6 lg:px-8">
-            <Container>
-                <div className="mx-auto max-w-6xl space-y-8 text-sm text-dh-street-gray">
-                    {/* Top grid */}
-                    <div className="grid gap-8 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
-                        {/* Brand blurb */}
-                        <div className="space-y-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-dh-electric-mint">
-                                Digital Hooligan LLC
-                            </p>
-                            <p className="max-w-md text-sm leading-relaxed">
-                                A one-person studio shipping scrappy tools, bots, and apps
-                                around money, sneakers, collectibles, and ops — with an ops-first
-                                mindset and a little bit of chaos.
-                            </p>
-                        </div>
+        <footer className="border-t border-slate-900 bg-slate-950">
+            {/* Hotkey listener lives here so it runs on every page that includes the footer */}
+            <CeoHotkey />
 
-                        {/* Nav */}
-                        <div className="space-y-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-dh-offwhite/80">
-                                Navigate
-                            </p>
-                            <nav className="flex flex-col gap-1 text-sm">
-                                <Link
-                                    href="/#apps"
-                                    className="hover:text-dh-electric-mint/80"
-                                >
-                                    Apps
-                                </Link>
-                                <Link
-                                    href="/labs"
-                                    className="hover:text-dh-electric-mint/80"
-                                >
-                                    Labs
-                                </Link>
-                                <Link
-                                    href="/#street-cred"
-                                    className="hover:text-dh-electric-mint/80"
-                                >
-                                    About
-                                </Link>
-                                <Link
-                                    href="/#contact"
-                                    className="hover:text-dh-electric-mint/80"
-                                >
-                                    Contact
-                                </Link>
-                                <Link
-                                    href="/ceo"
-                                    className="hover:text-dh-electric-mint/80"
-                                >
-                                    CEO console
-                                </Link>
-                            </nav>
-                        </div>
-
-                        {/* Contact + socials */}
-                        <div className="space-y-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-dh-offwhite/80">
-                                Contact
-                            </p>
-                            <div className="space-y-1 text-sm">
-                                <p>Virginia, USA</p>
-                                <p>
-                                    <a
-                                        href="tel:+15402876266"
-                                        className="hover:text-dh-electric-mint/80"
-                                    >
-                                        540-287-6266
-                                    </a>
-                                </p>
-                                <p>
-                                    <a
-                                        href="mailto:hello@digitalhooligan.io"
-                                        className="hover:text-dh-electric-mint/80"
-                                    >
-                                        hello@digitalhooligan.io
-                                    </a>
-                                </p>
-                            </div>
-
-                            <div className="space-y-1 text-sm">
-                                <a
-                                    href="https://github.com/TezDevs"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="hover:text-dh-electric-mint/80"
-                                >
-                                    TezDevs on GitHub
-                                </a>
-                                <a
-                                    href="https://www.linkedin.com/in/courtez-cannady-a"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="hover:text-dh-electric-mint/80"
-                                >
-                                    Courtez M. Cannady on LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Bottom row */}
-                    <div className="flex flex-col items-start justify-between gap-3 border-t border-dh-street-gray/40 pt-4 text-[11px] sm:flex-row sm:items-center">
-                        <p className="text-dh-street-gray">
-                            © {year} Digital Hooligan LLC. All rights reserved.
+            <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-sm text-slate-400 md:flex-row md:items-start md:justify-between">
+                <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Digital Hooligan LLC
+                    </p>
+                    <p className="max-w-md text-xs text-slate-500">
+                        Solo dev shop turning scrappy ideas into apps, bots, APIs, and
+                        automation toys – one experiment at a time.
+                    </p>
+                    <div className="mt-2 space-y-1 text-xs">
+                        <p>
+                            Phone:{" "}
+                            <a
+                                href="tel:15402876266"
+                                className="text-slate-300 hover:text-emerald-300"
+                            >
+                                (540) 287-6266
+                            </a>
                         </p>
-                        <div className="flex flex-wrap gap-3">
-                            <Link
-                                href="/terms"
-                                className="hover:text-dh-electric-mint/80"
+                        <p>
+                            Email:{" "}
+                            <a
+                                href="mailto:ceo@digitalhooligan.io"
+                                className="text-slate-300 hover:text-emerald-300"
                             >
-                                Terms
-                            </Link>
-                            <Link
-                                href="/privacy"
-                                className="hover:text-dh-electric-mint/80"
-                            >
-                                Privacy
-                            </Link>
-                        </div>
+                                ceo@digitalhooligan.io
+                            </a>
+                        </p>
                     </div>
                 </div>
-            </Container>
+
+                <div className="flex flex-col items-start gap-4 text-xs md:items-end">
+                    <div className="flex flex-wrap gap-4">
+                        <Link
+                            href="/#apps"
+                            className="hover:text-emerald-300 hover:underline"
+                        >
+                            Apps
+                        </Link>
+                        <Link
+                            href="/labs"
+                            className="hover:text-emerald-300 hover:underline"
+                        >
+                            Hooligan Labs
+                        </Link>
+                        <Link
+                            href="/services"
+                            className="hover:text-emerald-300 hover:underline"
+                        >
+                            Services
+                        </Link>
+                        <Link
+                            href="/#contact"
+                            className="hover:text-emerald-300 hover:underline"
+                        >
+                            Contact
+                        </Link>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <a
+                            href="https://github.com/TezDevs"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:text-emerald-300"
+                        >
+                            GitHub
+                        </a>
+                        <a
+                            href="https://www.linkedin.com/in/courtez-cannady-a"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:text-emerald-300"
+                        >
+                            LinkedIn
+                        </a>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        <span>© {new Date().getFullYear()} Digital Hooligan LLC</span>
+                        <span className="text-slate-700">·</span>
+
+                        {/* Tiny, subtle CEO entry link – blends in for visitors */}
+                        <Link
+                            href="/ceo/login"
+                            className="text-[10px] text-slate-800 transition hover:text-emerald-300 hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400"
+                            aria-label="Internal CEO login"
+                        >
+                            internal
+                        </Link>
+                    </div>
+                </div>
+            </div>
         </footer>
     );
 }
