@@ -1,67 +1,151 @@
-"use client";
-
-import Image from "next/image";
-import Container from "../Container";
+import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section
-      id="hero"
-      className="border-b border-dh-street-gray/60 bg-dh-black"
-    >
-      <Container>
-        <div className="grid gap-6 py-6 sm:gap-7 sm:py-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-center md:gap-10 md:py-12 lg:py-14">
-          {/* Text side */}
-          <div className="space-y-3 sm:space-y-4 md:space-y-6">
-            <p className="inline-flex items-center gap-2 rounded-full border border-dh-electric-mint/40 bg-dh-black/80 px-3 py-1 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-dh-electric-mint/80 sm:text-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint shadow-[0_0_12px_rgba(30,255,203,0.9)]" />
-              Digital Hooligan • App Studio
-            </p>
+    <section className="relative overflow-hidden border-b border-zinc-800 bg-gradient-to-b from-black via-zinc-950 to-black">
+      {/* Glow / background accents */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+      >
+        <div className="absolute -left-32 top-[-6rem] h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl" />
+        <div className="absolute right-[-4rem] top-40 h-64 w-64 rounded-full bg-fuchsia-500/10 blur-3xl" />
+      </div>
 
-            <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.1rem]">
-              Break the rules.
-              <span className="block text-dh-electric-mint">
-                Ship dangerous ideas.
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-20 pt-16 sm:px-6 sm:pt-20 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:pb-24 lg:pt-24">
+        {/* Left: copy / CTAs */}
+        <div className="max-w-xl space-y-6">
+          {/* Tagline + NAICS chip */}
+          <div className="space-y-3">
+            <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-400">
+              <span className="inline-flex h-6 items-center rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 text-[10px] font-semibold tracking-[0.25em]">
+                Digital Hooligan LLC
               </span>
-            </h1>
-
-            <p className="max-w-xl text-sm leading-relaxed text-dh-street-gray/80 sm:text-[0.95rem] sm:leading-relaxed">
-              Digital Hooligan is a one-person app studio for misfit builders
-              and collectors. Sneaker drops, collectibles, and money-saving
-              tools — built fast, loud, and a little bit reckless.
             </p>
-
-            <div className="flex flex-wrap items-center gap-2.5 pt-1 sm:gap-3 sm:pt-2">
-              <a
-                href="#apps"
-                className="inline-flex items-center justify-center rounded-xl border border-dh-electric-mint/80 bg-dh-electric-mint px-4 py-2 text-sm font-semibold text-dh-black shadow-[0_0_22px_rgba(30,255,203,0.7)] transition hover:translate-y-[1px] hover:bg-dh-electric-mint/95 sm:px-5 sm:py-2.5"
-              >
-                Explore the apps
-              </a>
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center rounded-xl border border-dh-street-gray/60 bg-dh-black px-3.5 py-1.5 text-xs font-medium text-dh-street-gray/90 transition hover:border-dh-electric-mint/60 hover:text-white sm:px-4 sm:py-2 sm:text-sm"
-              >
-                Talk to the hooligan
-              </a>
-            </div>
+            <p className="inline-flex items-center gap-2 text-[11px] text-zinc-400">
+              <span className="rounded-full border border-zinc-700 bg-zinc-900/70 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-300">
+                NAICS 541511
+              </span>
+              <span className="hidden sm:inline text-[11px] text-zinc-500">
+                Custom Computer Programming Services
+              </span>
+            </p>
           </div>
 
-          {/* Image side */}
-          <div className="relative h-52 sm:h-60 md:h-72 lg:h-80">
-            <div className="pointer-events-none absolute inset-0 rounded-3xl border border-dh-electric-mint/30 bg-gradient-to-br from-dh-black via-dh-black to-dh-electric-mint/10 shadow-[0_0_40px_rgba(30,255,203,0.55)]" />
-            <div className="relative h-full w-full p-2.5 sm:p-3.5 md:p-4">
-              <Image
-                src="/hero/digital-hooligan-hero.png"
-                alt="Digital Hooligan hero artwork"
-                fill
-                className="rounded-2xl object-contain"
-                priority
-              />
+          {/* Main heading */}
+          <h1 className="text-balance text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl">
+            Rebel software,
+            <span className="block text-emerald-300">
+              grown-up custom builds.
+            </span>
+          </h1>
+
+          {/* Subcopy */}
+          <p className="text-balance text-sm text-zinc-400 sm:text-base">
+            Digital Hooligan is a single-member software studio focused on{" "}
+            <span className="font-medium text-zinc-100">
+              NAICS 541511 custom builds
+            </span>
+            : web apps and internal portals, APIs and integrations, automation
+            scripts and bots, operational dashboards, and the product sites
+            (like PennyWize) that sit in front of them.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/#apps"
+              className="inline-flex items-center justify-center rounded-xl border border-emerald-500/70 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-200 shadow-[0_0_40px_rgba(16,185,129,0.45)] transition hover:bg-emerald-500/25 hover:text-emerald-50"
+            >
+              Explore the apps
+            </Link>
+
+            <Link
+              href="/#contact"
+              className="inline-flex items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900/80 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:border-emerald-500/60 hover:text-emerald-100"
+            >
+              Talk about a build
+            </Link>
+
+            <Link
+              href="/company"
+              className="inline-flex items-center justify-center text-xs text-zinc-500 underline decoration-zinc-600 underline-offset-4 hover:text-emerald-200 hover:decoration-emerald-400"
+            >
+              View company profile (541511) →
+            </Link>
+          </div>
+
+          {/* Small “what we actually do” line */}
+          <p className="max-w-md text-xs text-zinc-500">
+            Ideal for small, focused efforts where you want to work directly
+            with the engineer building the thing: prototypes, internal tools,
+            automations, dashboards, and integrations that don&apos;t fit
+            off-the-shelf.
+          </p>
+        </div>
+
+        {/* Right: simple visual block for now (can swap for art later) */}
+        <div className="relative w-full max-w-md self-stretch lg:max-w-sm">
+          <div className="mt-2 h-full rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4 shadow-[0_0_80px_rgba(16,185,129,0.30)] sm:p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-zinc-400">
+              541511 Snapshot
+            </p>
+            <div className="mt-4 space-y-3 text-xs text-zinc-300">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-medium text-zinc-100">
+                    Custom builds
+                  </p>
+                  <p className="text-[11px] text-zinc-500">
+                    Web apps, portals, APIs, automations, dashboards.
+                  </p>
+                </div>
+                <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-300">
+                  541511
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-2">
+                  <p className="font-semibold text-zinc-100">Ops & infra</p>
+                  <p className="mt-1 text-zinc-500">
+                    Ops Toys-style automations and tools.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-2">
+                  <p className="font-semibold text-zinc-100">Signals & data</p>
+                  <p className="mt-1 text-zinc-500">
+                    PennyWize / DropSignal / HypeWatch patterns.
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-2 text-[11px] text-zinc-400">
+                <p>
+                  Built by{" "}
+                  <span className="font-medium text-zinc-100">
+                    Courtez M. Cannady (TezDevs)
+                  </span>{" "}
+                  – engineer + founder. No mystery team, just direct access to
+                  the person shipping your code.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-zinc-500">
+              <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
+                Single-member LLC
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
+                Custom dev, not templates
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
+                Ops / traders / collectors
+              </span>
             </div>
           </div>
         </div>
-      </Container>
+      </div>
     </section>
   );
 }
