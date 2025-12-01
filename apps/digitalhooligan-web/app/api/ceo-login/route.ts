@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
  * Handles POST from the CEO login form.
  *
  * - Checks username/password against env vars.
+ * - If env vars are missing, falls back to default dev creds.
  * - On success: sets an httpOnly cookie and redirects to /ceo (or ?from=).
  * - On failure: redirects back to /ceo/login?error=1.
  */
@@ -14,10 +15,25 @@ export async function POST(request: Request) {
     const password = String(formData.get("password") ?? "");
     const from = String(formData.get("from") ?? "/ceo");
 
-    const envUser = (process.env.CEO_DASH_USERNAME ?? "").trim();
-    const envPass = process.env.CEO_DASH_PASSWORD ?? "";
+    const fallbackUser = "tez";
+    const fallbackPass = "super-secret-password-change-me";
+
+    const envUserRaw = process.env.CEO_DASH_USERNAME;
+    const envPassRaw = process.env.CEO_DASH_PASSWORD;
+
+    const envUser = (envUserRaw || fallbackUser).trim();
+    const envPass = envPassRaw || fallbackPass;
 
     const isValid = username.trim() === envUser && password === envPass;
+
+    // Tiny debug log (server-side only)
+    console.log("CEO LOGIN ATTEMPT", {
+        usernameEntered: username.trim(),
+        hasEnvUser: Boolean(envUserRaw),
+        hasEnvPass: Boolean(envPassRaw),
+        usingFallback: !envUserRaw || !envPassRaw,
+        success: isValid,
+    });
 
     if (!isValid) {
         const url = new URL(request.url);
