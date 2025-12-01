@@ -63,6 +63,33 @@ const recentEvents = [
     },
 ];
 
+const internalDashboards = [
+    {
+        name: "CEO Dashboard",
+        path: "/ceo",
+        role: "Top-level view",
+        description:
+            "Revenue, runway, product health, ops, and today’s focus for Digital Hooligan.",
+        status: "You are here",
+    },
+    {
+        name: "Labs HQ",
+        path: "/labs/hq",
+        role: "Experiments",
+        description:
+            "Status of PennyWize, DropSignal, HypeWatch, and Ops Toys plus the Labs pipeline.",
+        status: "Live",
+    },
+    {
+        name: "Future dashboards",
+        path: "",
+        role: "To be decided",
+        description:
+            "Room for future internal views: billing console, ops SRE wallboard, or client dashboards.",
+        status: "Planned",
+    },
+];
+
 export default function CeoDashboardPage() {
     return (
         <main className="min-h-screen bg-slate-950 text-slate-50">
@@ -145,6 +172,74 @@ export default function CeoDashboardPage() {
                         <p className="mt-1 text-xs text-slate-500">
                             Labs detail, PennyWize, DropSignal assist mode.
                         </p>
+                    </div>
+                </section>
+
+                {/* Internal dashboards index */}
+                <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-5">
+                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                        <div>
+                            <h2 className="text-sm font-semibold text-slate-100">
+                                Internal dashboards
+                            </h2>
+                            <p className="mt-1 text-xs text-slate-500">
+                                The private control room for Digital Hooligan. Start here, jump
+                                into Labs HQ, and keep room for future internal views.
+                            </p>
+                        </div>
+                        <p className="text-[11px] text-slate-500">
+                            All of these are protected by the same CEO login.
+                        </p>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                        {internalDashboards.map((dash) => {
+                            const isLink = Boolean(dash.path);
+                            const isCurrent = dash.path === "/ceo";
+
+                            const cardContent = (
+                                <div className="flex h-full flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/40 p-4 text-xs">
+                                    <div className="space-y-1.5">
+                                        <p className="text-[11px] uppercase tracking-wide text-slate-400">
+                                            {dash.role}
+                                        </p>
+                                        <p className="text-sm font-semibold text-slate-50">
+                                            {dash.name}
+                                        </p>
+                                        <p className="text-slate-300">{dash.description}</p>
+                                    </div>
+                                    <div className="mt-3 flex items-center justify-between gap-2">
+                                        <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300">
+                                            {dash.status}
+                                        </span>
+                                        {isLink && (
+                                            <span className="text-[11px] text-emerald-300">
+                                                {isCurrent ? "Current view" : "Open →"}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+
+                            if (!isLink) {
+                                return (
+                                    <article key={dash.name} className="opacity-70">
+                                        {cardContent}
+                                    </article>
+                                );
+                            }
+
+                            return (
+                                <article key={dash.name} className="h-full">
+                                    <Link
+                                        href={dash.path}
+                                        className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                                    >
+                                        {cardContent}
+                                    </Link>
+                                </article>
+                            );
+                        })}
                     </div>
                 </section>
 
