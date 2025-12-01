@@ -49,7 +49,8 @@ const recentEvents = [
         type: "Company",
     },
     {
-        label: "Initial Labs apps pages live (PennyWize, DropSignal, Ops Toys, HypeWatch)",
+        label:
+            "Initial Labs apps pages live (PennyWize, DropSignal, Ops Toys, HypeWatch)",
         type: "Product",
     },
     {
@@ -83,12 +84,14 @@ export default function CeoDashboardPage() {
                                 CEO Dashboard
                             </h1>
                             <p className="mt-1 max-w-xl text-sm text-slate-400">
-                                One place to see where Digital Hooligan is headed: revenue, burn,
-                                product health, ops, and what Future You should focus on today.
+                                One place to see where Digital Hooligan is headed: revenue,
+                                burn, product health, ops, and what Future You should focus on
+                                today.
                             </p>
                         </div>
                     </div>
-                    <div className="space-y-2 text-sm text-right text-slate-400">
+
+                    <div className="space-y-2 text-right text-sm text-slate-400">
                         <div className="inline-flex items-center justify-end gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                             Phase 1 · Static dashboard shell
@@ -96,6 +99,12 @@ export default function CeoDashboardPage() {
                         <p className="text-xs text-slate-500">
                             Future: wire this to live Stripe, infra, and app metrics.
                         </p>
+                        <Link
+                            href="/ceo/logout"
+                            className="text-xs text-slate-500 underline-offset-2 hover:text-emerald-300 hover:underline"
+                        >
+                            Logout
+                        </Link>
                     </div>
                 </header>
 
@@ -373,9 +382,9 @@ export default function CeoDashboardPage() {
                         simple static copy.
                     </p>
                     <div className="mt-3 rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-xs text-slate-300">
-                        Digital Hooligan is still in builder mode. Goal: make this dashboard
-                        the single source of truth for money, momentum, and risk across the
-                        entire Hooligan universe.
+                        Digital Hooligan is still in builder mode. Goal: make this
+                        dashboard the single source of truth for money, momentum, and risk
+                        across the entire Hooligan universe.
                     </div>
                 </section>
 

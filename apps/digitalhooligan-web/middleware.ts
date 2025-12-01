@@ -5,13 +5,16 @@ import type { NextRequest } from "next/server";
  * Middleware to protect the CEO dashboard.
  *
  * - Any path under /ceo/* requires a valid "ceo_auth" cookie.
- * - /ceo/login is always allowed so you can reach the login form.
+ * - /ceo/login and /ceo/logout are always allowed.
  */
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Allow the login page itself without auth
-    if (pathname.startsWith("/ceo/login")) {
+    // Allow login & logout pages without auth
+    if (
+        pathname.startsWith("/ceo/login") ||
+        pathname.startsWith("/ceo/logout")
+    ) {
         return NextResponse.next();
     }
 
@@ -21,7 +24,7 @@ export function middleware(request: NextRequest) {
 
         if (authCookie !== "1") {
             const loginUrl = new URL("/ceo/login", request.url);
-            // Optional: remember where you were going
+            // Remember where you were going
             loginUrl.searchParams.set("from", pathname);
             return NextResponse.redirect(loginUrl);
         }
@@ -31,6 +34,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    // Run this middleware only on /ceo/* paths
     matcher: ["/ceo/:path*"],
 };

@@ -3,6 +3,7 @@ import Link from "next/link";
 type SearchParams = {
     error?: string;
     from?: string;
+    loggedOut?: string;
 };
 
 export default async function CeoLoginPage({
@@ -12,6 +13,7 @@ export default async function CeoLoginPage({
 }) {
     const params = await searchParams;
     const hasError = Boolean(params?.error);
+    const isLoggedOut = params?.loggedOut === "1";
 
     return (
         <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-8 text-slate-50">
@@ -37,8 +39,15 @@ export default async function CeoLoginPage({
                     </Link>
                 </div>
 
+                {isLoggedOut && (
+                    <div className="mb-3 rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-[11px] text-sky-100">
+                        You&apos;ve been logged out of the CEO dashboard. Sign in again to
+                        re-enter.
+                    </div>
+                )}
+
                 {hasError && (
-                    <div className="mb-4 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-100">
+                    <div className="mb-3 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-[11px] text-rose-100">
                         Incorrect username or password. Please try again.
                     </div>
                 )}
