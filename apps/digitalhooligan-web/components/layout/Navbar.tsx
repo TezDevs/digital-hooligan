@@ -22,7 +22,7 @@ export default function Navbar() {
           <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-2xl border border-emerald-500/70 bg-emerald-500/10 shadow-[0_0_32px_rgba(16,185,129,0.55)]">
             {/* ⬇️ use the same path you use for the Hooligan Labs icon elsewhere */}
             <Image
-              src="/icons/hooligan-labs.png"
+              src="/apps/hooligan-labs.png"
               alt="Hooligan Labs icon"
               fill
               sizes="36px"
