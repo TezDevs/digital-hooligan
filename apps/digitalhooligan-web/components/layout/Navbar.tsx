@@ -8,12 +8,13 @@ type NavItem = {
   label: string;
 };
 
-const NAV_ITEMS: NavItem[] = [
-  { href: "#apps", label: "Apps" },
-  { href: "#labs", label: "Labs" },
-  { href: "#about", label: "About" }, // <-- new About nav → #about
-  { href: "#street-cred", label: "Street Cred" },
-  { href: "#contact", label: "Contact" },
+const NAV_ITEMS = [
+  { href: "/#apps", label: "Apps" },
+  { href: "/services", label: "Services" },
+  { href: "/company", label: "Company" },
+  { href: "/labs", label: "Labs" },
+  { href: "/#street-cred", label: "Street Cred" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 const OBSERVED_SECTIONS = ["hero", "apps", "labs", "about", "street-cred", "contact"];
