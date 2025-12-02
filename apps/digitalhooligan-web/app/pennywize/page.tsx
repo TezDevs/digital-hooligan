@@ -89,11 +89,11 @@ export default function PennyWizePage() {
                             <li>• Builders who want a clean API surface later.</li>
                         </ul>
                         <p className="pt-2 text-[11px] text-slate-500">
-                            Initial versions are focused on{" "}
+                            Early versions are focused on{" "}
                             <span className="font-medium text-slate-100">
                                 internal use and small test groups
                             </span>
-                            , wired straight into Hooligan Labs and the CEO dashboard.
+                            , with public details evolving as the product matures.
                         </p>
                     </aside>
                 </div>
@@ -158,7 +158,7 @@ export default function PennyWizePage() {
                 </div>
             </section>
 
-            {/* Roadmap & phases */}
+            {/* Rollout & status (no CEO/AI text) */}
             <section className="border-b border-white/5 bg-slate-950 px-4 py-12 sm:px-6 md:py-16 lg:px-8">
                 <div className="mx-auto max-w-5xl grid gap-8 md:grid-cols-[minmax(0,1.3fr),minmax(0,1fr)]">
                     <div className="space-y-3">
@@ -199,21 +199,16 @@ export default function PennyWizePage() {
 
                     <aside className="space-y-3 rounded-2xl border border-slate-800 bg-black/80 p-4 text-xs text-slate-300">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
-                            TIED INTO THE CEO DASHBOARD
+                            WHERE IT IS TODAY
                         </p>
                         <p>
-                            Inside <span className="font-medium text-slate-100">/ceo</span>,
-                            PennyWize shows up as:
-                        </p>
-                        <ul className="mt-1 space-y-1.5">
-                            <li>• A card with current build status and milestones.</li>
-                            <li>• Tasks associated with upcoming features and fixes.</li>
-                            <li>• A future “PennyWize health” snapshot: uptime, jobs, errors.</li>
-                        </ul>
-                        <p className="pt-2 text-[11px] text-slate-500">
-                            The AI assistant will use this data to suggest what to work on
-                            next, how to schedule tasks, and when to push PennyWize closer to
-                            launch.
+                            PennyWize is currently in{" "}
+                            <span className="font-medium text-slate-100">
+                                early Labs stages
+                            </span>
+                            , with internal prototypes and evolving flows. As it matures,
+                            this page will reflect invite-only access and, later, public
+                            rollout details.
                         </p>
                     </aside>
                 </div>
