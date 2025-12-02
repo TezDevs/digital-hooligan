@@ -1,167 +1,199 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+    title: "Terms of Use · Digital Hooligan",
+    description:
+        "Terms of use for Digital Hooligan LLC, covering this site and early-stage apps and experiments.",
+};
+
 export default function TermsPage() {
     return (
-        <main className="min-h-screen bg-black px-4 pb-16 pt-24 text-zinc-100 sm:px-6 lg:px-8">
-            <div className="mx-auto flex max-w-3xl flex-col gap-8">
-                <header className="space-y-3">
-                    <p className="text-xs font-mono uppercase tracking-[0.25em] text-emerald-400">
-                        Digital Hooligan LLC
+        <main className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black text-slate-50">
+            <section className="border-b border-white/5 px-4 py-10 sm:px-6 md:py-14 lg:px-8">
+                <div className="mx-auto max-w-4xl space-y-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+                        TERMS OF USE
                     </p>
-                    <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                        Terms of Use
+                    <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+                        The ground rules for using Digital Hooligan.
                     </h1>
-                    <p className="text-xs text-zinc-500">
-                        Last updated: {new Date().getFullYear()}
+                    <p className="text-sm text-slate-300 sm:text-base">
+                        These Terms of Use (&quot;Terms&quot;) govern your use of the
+                        Digital Hooligan LLC (&quot;Digital Hooligan&quot;, &quot;we&quot;,
+                        &quot;us&quot;, or &quot;our&quot;) website and any early-stage
+                        experiments, apps, or tools we expose through it.
                     </p>
-                    <p className="text-sm text-zinc-400">
-                        These Terms of Use (&quot;Terms&quot;) govern your access to and use
-                        of the Digital Hooligan website and any apps, tools, or services we
-                        make available (collectively, the &quot;Services&quot;). By using
-                        the Services, you agree to these Terms.
+                    <p className="text-xs text-slate-500">
+                        By accessing or using this site, you agree to these Terms. If you do
+                        not agree, please do not use the site.
                     </p>
-                </header>
+                </div>
+            </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        1. Who we are
-                    </h2>
-                    <p className="text-zinc-400">
-                        Digital Hooligan LLC is a single-member software studio focused on
-                        building tools, web experiences, and automation-heavy apps for
-                        internal ops, traders, collectors, and similar users.
-                    </p>
-                </section>
+            <section className="border-b border-white/5 bg-slate-950/80 px-4 py-8 sm:px-6 md:py-12 lg:px-8">
+                <div className="mx-auto max-w-4xl space-y-6 text-sm text-slate-300">
+                    {/* 1. Use of the site */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            1. Use of this site
+                        </h2>
+                        <p>
+                            This site is currently focused on sharing information about
+                            Digital Hooligan, showcasing early products, and providing a way
+                            to get in touch. You agree to use the site only for lawful
+                            purposes and in a way that does not harm the site, services, or
+                            other users.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        2. Acceptable use
-                    </h2>
-                    <p className="text-zinc-400">
-                        You agree to use the Services only for lawful purposes and in a way
-                        that does not harm Digital Hooligan, its infrastructure, or other
-                        users. In particular, you agree not to:
-                    </p>
-                    <ul className="list-disc space-y-1 pl-5 text-zinc-400">
-                        <li>
-                            Attempt to gain unauthorized access to systems, data, or accounts.
-                        </li>
-                        <li>
-                            Reverse-engineer, probe, or overload the Services in a way that
-                            impacts stability.
-                        </li>
-                        <li>
-                            Use the Services to send spam, launch attacks, or violate any
-                            applicable laws or regulations.
-                        </li>
-                    </ul>
-                </section>
+                    {/* 2. No financial or investment advice */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            2. No financial or investment advice
+                        </h2>
+                        <p>
+                            Some Digital Hooligan experiments and future apps (such as
+                            PennyWize) may involve financial data, stock information, or
+                            market signals. Any such information is provided{" "}
+                            <span className="font-semibold text-slate-100">
+                                for informational and experimental purposes only
+                            </span>{" "}
+                            and does not constitute financial, investment, trading, or
+                            legal advice.
+                        </p>
+                        <p>
+                            You are solely responsible for any decisions you make based on
+                            information from Digital Hooligan projects. Always do your own
+                            research and, where appropriate, consult a qualified professional.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        3. Experimental tools & no guarantees
-                    </h2>
-                    <p className="text-zinc-400">
-                        Many Digital Hooligan projects (like PennyWize, DropSignal,
-                        HypeWatch, Ops Toys, and other &quot;lab&quot; work) are
-                        experimental and may change, break, or be removed without notice.
-                        These tools are not guaranteed to be accurate, uninterrupted, or
-                        suitable for any particular purpose.
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                        You are responsible for how you use any information surfaced by
-                        these tools, including financial or operational decisions.
-                    </p>
-                </section>
+                    {/* 3. No guarantees */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            3. Early-stage nature and no guarantees
+                        </h2>
+                        <p>
+                            Many Digital Hooligan tools and experiments, including Hooligan
+                            Labs projects like PennyWize, DropSignal, HypeWatch, and Ops Toys,
+                            are early-stage and may change, break, or be discontinued at any
+                            time.
+                        </p>
+                        <p>
+                            The site and any exposed tools are provided on an{" "}
+                            <span className="font-semibold text-slate-100">
+                                &quot;as is&quot; and &quot;as available&quot;
+                            </span>{" "}
+                            basis, without warranties of any kind, whether express or implied.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        4. No financial, legal, or investment advice
-                    </h2>
-                    <p className="text-zinc-400">
-                        Unless explicitly stated otherwise, nothing provided by Digital
-                        Hooligan should be treated as financial, legal, tax, or investment
-                        advice. Any charts, signals, alerts, or price information are for
-                        informational and experimental use only.
-                    </p>
-                </section>
+                    {/* 4. Intellectual property */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            4. Intellectual property
+                        </h2>
+                        <p>
+                            Unless otherwise noted, the content on this site—including text,
+                            graphics, logos, and designs—is owned by or licensed to Digital
+                            Hooligan and is protected by applicable intellectual property
+                            laws.
+                        </p>
+                        <p>
+                            You may not copy, modify, distribute, or create derivative works
+                            from this content without prior written permission, except for
+                            limited personal, non-commercial use consistent with these Terms.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        5. Intellectual property
-                    </h2>
-                    <p className="text-zinc-400">
-                        Unless we say otherwise, the content, design, and code for the
-                        Services are owned by Digital Hooligan LLC or its licensors. You may
-                        not copy, redistribute, or reuse substantial parts of the Services
-                        without permission, except as allowed by applicable law.
-                    </p>
-                </section>
+                    {/* 5. Third-party links */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            5. Third-party links and services
+                        </h2>
+                        <p>
+                            The site may link to or integrate with third-party websites,
+                            services, APIs, or retailers. We do not control and are not
+                            responsible for their content, policies, or availability. Your use
+                            of third-party services is at your own risk and may be governed by
+                            separate terms.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        6. Third-party services & links
-                    </h2>
-                    <p className="text-zinc-400">
-                        Some parts of the Services may integrate with or link to
-                        third-party services (for example, payment providers, data sources,
-                        or authentication). Digital Hooligan is not responsible for those
-                        third-party sites or services, and your use of them is governed by
-                        their own terms and policies.
-                    </p>
-                </section>
+                    {/* 6. Limitation of liability */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            6. Limitation of liability
+                        </h2>
+                        <p>
+                            To the fullest extent permitted by law, Digital Hooligan will not
+                            be liable for any indirect, incidental, special, consequential, or
+                            punitive damages, or any loss of profits or data, arising out of
+                            or relating to your use of the site or any experiments, apps, or
+                            tools we provide.
+                        </p>
+                        <p>
+                            In any case where liability cannot be excluded, it will be limited
+                            to the amount you paid (if any) to use the relevant service.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        7. Disclaimer of warranties
-                    </h2>
-                    <p className="text-zinc-400">
-                        The Services are provided on an &quot;as is&quot; and &quot;as
-                        available&quot; basis. To the fullest extent permitted by law,
-                        Digital Hooligan disclaims all warranties, whether express or
-                        implied, including any implied warranties of merchantability, fitness
-                        for a particular purpose, and non-infringement.
-                    </p>
-                </section>
+                    {/* 7. Indemnity */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            7. Your responsibilities
+                        </h2>
+                        <p>
+                            You agree to use Digital Hooligan projects responsibly and not to
+                            misuse any tools, data, or integrations. You are responsible for
+                            complying with any applicable laws, regulations, or policies that
+                            apply to your use of the site or apps.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        8. Limitation of liability
-                    </h2>
-                    <p className="text-zinc-400">
-                        To the fullest extent permitted by law, Digital Hooligan will not be
-                        liable for any indirect, incidental, special, consequential, or
-                        punitive damages arising out of or related to your use of the
-                        Services.
-                    </p>
-                </section>
+                    {/* 8. Changes to the terms */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            8. Changes to these Terms
+                        </h2>
+                        <p>
+                            We may update these Terms from time to time as the business and
+                            products evolve. When we do, we will update the &quot;Last
+                            updated&quot; date at the bottom of this page. Your continued use
+                            of the site after changes are posted means you accept the updated
+                            Terms.
+                        </p>
+                    </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        9. Changes to these Terms
-                    </h2>
-                    <p className="text-zinc-400">
-                        Digital Hooligan may update these Terms from time to time. When we
-                        do, we&apos;ll update the &quot;Last updated&quot; date above. If
-                        you continue to use the Services after changes take effect, you
-                        accept the revised Terms.
-                    </p>
-                </section>
+                    {/* 9. Contact */}
+                    <section className="space-y-2">
+                        <h2 className="text-base font-semibold text-slate-50">
+                            9. Contact
+                        </h2>
+                        <p>
+                            If you have questions about these Terms or how they apply to a
+                            particular Digital Hooligan project, you can reach out through the
+                            contact section on the homepage.
+                        </p>
+                    </section>
+                </div>
+            </section>
 
-                <section className="space-y-2 text-sm text-zinc-300">
-                    <h2 className="text-sm font-semibold text-zinc-100">
-                        10. Contact
-                    </h2>
-                    <p className="text-zinc-400">
-                        If you have questions about these Terms, reach out through the
-                        contact options on the main site.
-                    </p>
-                </section>
-
-                <p className="text-[11px] text-zinc-500">
-                    These Terms are intended as a reasonable, plain-language baseline for
-                    a small software studio. For specific contracting work, written
-                    agreements will control over anything on this page.
-                </p>
-            </div>
+            {/* Footer nav */}
+            <section className="bg-black px-4 py-8 sm:px-6 lg:px-8">
+                <div className="mx-auto flex max-w-4xl flex-col gap-3 border-t border-slate-800 pt-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+                    <p>Last updated: 2025.</p>
+                    <div className="flex flex-wrap gap-2">
+                        <Link
+                            href="/"
+                            className="rounded-full border border-slate-700 bg-slate-950 px-4 py-2 font-medium text-slate-100 hover:border-emerald-400/80"
+                        >
+                            Back to homepage
+                        </Link>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }
