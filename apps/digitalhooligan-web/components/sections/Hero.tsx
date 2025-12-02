@@ -2,126 +2,146 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-zinc-900 bg-black">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_#ef44441a,_transparent_60%),radial-gradient(circle_at_bottom,_#22c55e1a,_transparent_55%)]" />
+    <section className="relative overflow-hidden bg-black text-zinc-50">
+      {/* Soft radial background glow */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#22c55e26,_transparent_55%),radial-gradient(circle_at_bottom_right,_#22c55e1a,_transparent_55%)]" />
 
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-6 py-16 md:flex-row md:items-center md:py-24">
-        {/* Left: copy */}
+        {/* Left column: main copy */}
         <div className="max-w-xl">
-          <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">
-            Digital Hooligan LLC
+          {/* Studio pill */}
+          <div className="inline-flex items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-[11px] font-medium tracking-[0.2em] text-emerald-300">
+            DIGITAL HOOLIGAN
+          </div>
+
+          {/* Tagline */}
+          <p className="mt-4 text-xs uppercase tracking-[0.25em] text-zinc-500">
+            Out-of-the-box software &amp; web design studio for people who hate
+            boring tools and forgettable sites.
           </p>
 
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl">
-            Out-of-the-box thinking for{" "}
-            <span className="text-red-500">
-              apps, bots &amp; internal tools
-            </span>
-            .
+          {/* Main headline */}
+          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-zinc-50 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.05]">
+            Build things that{" "}
+            <span className="text-emerald-400">don&apos;t look corporate.</span>
           </h1>
 
-          <p className="mt-4 text-sm text-zinc-300 sm:text-base">
-            A tiny, veteran-led web studio blending graffiti energy with clean
-            engineering. We build street-smart tools, dashboards, and automation
-            for people who actually ship things.
+          {/* Lead paragraph */}
+          <p className="mt-5 text-sm text-zinc-300 sm:text-base">
+            Digital Hooligan blends brand-first web design with hands-on
+            engineering. Studio work ranges from custom marketing sites and
+            product pages to internal tools, dashboards, automations, and the
+            apps in the lab—PennyWize, DropSignal, HypeWatch, Ops Toys.
           </p>
 
-          {/* Tagline chips */}
-          <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-medium uppercase tracking-wide text-zinc-300">
-            <span className="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1">
-              Out-of-the-box thinking
-            </span>
-            <span className="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1">
-              Web design + engineering
-            </span>
-            <span className="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1">
-              Apps, sites &amp; internal tools
-            </span>
-            <span className="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1">
-              Bots, scrapers &amp; automation
-            </span>
-          </div>
-
           {/* Primary CTAs */}
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-7 flex flex-wrap items-center gap-3">
             <Link
               href="/apps"
-              className="inline-flex items-center rounded-full border border-red-500 bg-red-500/10 px-5 py-2.5 text-sm font-medium text-red-100 shadow-[0_0_25px_rgba(248,113,113,0.45)] transition hover:bg-red-500/20"
+              className="inline-flex items-center rounded-full border border-emerald-500 bg-emerald-500 px-5 py-2.5 text-sm font-medium text-black shadow-[0_0_25px_rgba(16,185,129,0.45)] transition hover:bg-emerald-400"
             >
-              View apps &amp; experiments
+              Explore the apps
             </Link>
 
             <Link
-              href="/labs"
-              className="inline-flex items-center rounded-full border border-zinc-800 px-4 py-2 text-xs font-medium text-zinc-300 transition hover:bg-zinc-900"
+              href="/services"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900 px-4 py-2 text-xs font-medium text-zinc-200 transition hover:bg-zinc-800"
             >
-              Explore Hooligan Labs
+              See what we offer
+            </Link>
+
+            <Link
+              href="/#contact"
+              className="inline-flex items-center rounded-full border border-transparent px-3 py-2 text-xs font-medium text-zinc-300 transition hover:text-zinc-100"
+            >
+              <span className="mr-1.5">Talk about a project</span>
+              <span aria-hidden>→</span>
             </Link>
           </div>
 
-          {/* Subtle Gov link */}
-          <p className="mt-3 text-xs text-zinc-500">
-            Working with government or enterprise teams?{" "}
-            <Link
-              href="/gov"
-              className="underline underline-offset-4 hover:text-zinc-300"
-            >
-              View the Gov &amp; Enterprise overview
-            </Link>
-            .
+          {/* Supporting line */}
+          <p className="mt-6 max-w-lg text-xs text-zinc-500">
+            From public-facing web design to internal tools and automations,
+            every build is opinionated, brand-aware, and wired for real-world
+            workflows—across both public and private sectors.
           </p>
         </div>
 
-        {/* Right: abstract panel */}
+        {/* Right column: Hooligan Playbook card */}
         <div className="flex flex-1 justify-center md:justify-end">
-          <div className="relative h-64 w-full max-w-sm rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4 shadow-[0_0_40px_rgba(0,0,0,0.85)] backdrop-blur">
-            <div className="flex items-center justify-between text-xs text-zinc-400">
-              <span className="font-mono uppercase tracking-wide">
-                Hooligan Ops View
-              </span>
-              <span className="rounded-full border border-zinc-800 px-2 py-0.5 text-[10px] text-emerald-300">
-                Online
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/80 px-3 py-2">
-                <div>
-                  <p className="text-xs text-zinc-400">PennyWize</p>
-                  <p className="text-[11px] text-zinc-300">
-                    Penny-stock radar / scrapers
-                  </p>
-                </div>
-                <span className="text-[11px] text-emerald-400">Live</span>
+          <div className="w-full max-w-sm rounded-3xl border border-zinc-800 bg-zinc-950/80 p-5 shadow-[0_0_40px_rgba(0,0,0,0.9)] backdrop-blur">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+                  Hooligan Playbook
+                </p>
+                <p className="mt-2 text-sm font-medium text-zinc-100">
+                  Brand-first web
+                </p>
+                <p className="mt-1 text-[11px] text-zinc-400">
+                  Custom sites, landing pages, and product microsites that
+                  actually feel like your brand.
+                </p>
               </div>
-
-              <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/80 px-3 py-2">
-                <div>
-                  <p className="text-xs text-zinc-400">DropSignal</p>
-                  <p className="text-[11px] text-zinc-300">
-                    Sneaker &amp; streetwear price alerts
-                  </p>
-                </div>
-                <span className="text-[11px] text-yellow-400">In build</span>
-              </div>
-
-              <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950/80 px-3 py-2">
-                <div>
-                  <p className="text-xs text-zinc-400">Ops Toys</p>
-                  <p className="text-[11px] text-zinc-300">
-                    Internal ops automation drawer
-                  </p>
-                </div>
-                <span className="text-[11px] text-sky-400">Labs</span>
+              <div className="mt-1 inline-flex items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-[10px] font-medium text-emerald-300">
+                Web &amp; UI
               </div>
             </div>
 
-            <div className="mt-4 h-[1px] w-full bg-gradient-to-r from-transparent via-zinc-700/70 to-transparent" />
+            {/* Two columns: tools & data */}
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-3 py-3">
+                <p className="text-[11px] font-medium text-zinc-200">
+                  Tools &amp; ops
+                </p>
+                <p className="mt-1 text-[11px] text-zinc-400">
+                  Internal dashboards, workflow helpers, and small automations
+                  inspired by Ops Toys.
+                </p>
+              </div>
 
-            <p className="mt-3 text-[11px] text-zinc-400">
-              Built for high-signal work: dashboards, bots, and internal tools
-              that keep you out of spreadsheets and into shipping.
-            </p>
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-3 py-3">
+                <p className="text-[11px] font-medium text-zinc-200">
+                  Data &amp; signals
+                </p>
+                <p className="mt-1 text-[11px] text-zinc-400">
+                  Patterns from PennyWize, DropSignal, HypeWatch—alerts, watch
+                  lists, and price tracking.
+                </p>
+              </div>
+            </div>
+
+            {/* Founder blurb */}
+            <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950/80 px-3 py-3">
+              <p className="text-[11px] text-zinc-300">
+                Everything is built by{" "}
+                <span className="font-medium">
+                  Courtez M. Cannady (TezDevs)
+                </span>
+                : one studio, one brain, direct access to the person shipping
+                your code and your visuals.
+              </p>
+            </div>
+
+            {/* Chips */}
+            <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-medium text-zinc-300">
+              <span className="rounded-full border border-zinc-800 bg-zinc-950/80 px-3 py-1">
+                Out-of-the-box thinking
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950/80 px-3 py-1">
+                Web design + engineering
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950/80 px-3 py-1">
+                Apps, sites &amp; internal tools
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950/80 px-3 py-1">
+                Custom automations &amp; dashboards
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950/80 px-3 py-1">
+                Public &amp; private sector friendly
+              </span>
+            </div>
           </div>
         </div>
       </div>
