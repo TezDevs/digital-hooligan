@@ -1,189 +1,187 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
-export default function ServicesPage() {
-    const year = new Date().getFullYear();
+export const metadata: Metadata = {
+    title: "Services · Digital Hooligan",
+    description:
+        "Services offered by Digital Hooligan LLC – tool-first apps, bots, internal dashboards, and gov/enterprise-ready prototypes.",
+};
 
+export default function ServicesPage() {
     return (
-        <main className="min-h-screen bg-black px-4 pb-20 pt-24 text-zinc-100 sm:px-6 lg:px-8">
-            <div className="mx-auto flex max-w-6xl flex-col gap-10">
-                {/* Header */}
-                <header className="space-y-4">
-                    <p className="text-[11px] font-mono uppercase tracking-[0.25em] text-emerald-400">
-                        Digital Hooligan Studio · Services
+        <main className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black text-slate-50">
+            {/* Intro */}
+            <section className="border-b border-white/5 px-4 py-12 sm:px-6 md:py-16 lg:px-8">
+                <div className="mx-auto max-w-5xl space-y-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300">
+                        SERVICES
                     </p>
                     <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-                        What Digital Hooligan can build for you.
+                        Tool-first builds for teams that actually ship.
                     </h1>
-                    <p className="max-w-3xl text-sm text-zinc-400 sm:text-base">
-                        Digital Hooligan is a small, opinionated software and web design
-                        studio. Work spans brand-first websites, product pages, and internal
-                        tools all the way to custom automations, dashboards, and the kinds
-                        of glue code that keep real-world systems moving.
-                    </p>
-                </header>
-
-                {/* Grid of offerings */}
-                <section className="grid gap-4 md:grid-cols-2">
-                    {/* Custom web apps & portals */}
-                    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                            Web apps & internal portals
-                        </p>
-                        <h2 className="text-sm font-semibold text-zinc-100">
-                            Custom tools that feel like your brand
-                        </h2>
-                        <p className="text-sm text-zinc-400">
-                            Focused web apps and internal portals for ops, analysts, traders,
-                            or field teams. Think small, sharp products—not bloated platforms.
-                        </p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-zinc-400">
-                            <li>Internal dashboards and command centers</li>
-                            <li>Role-based, authenticated tools for small teams</li>
-                            <li>Lightweight “single-purpose” apps to replace spreadsheets</li>
-                        </ul>
-                    </div>
-
-                    {/* Marketing sites & product pages */}
-                    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                            Marketing sites & product pages
-                        </p>
-                        <h2 className="text-sm font-semibold text-zinc-100">
-                            Brand-first web design with teeth
-                        </h2>
-                        <p className="text-sm text-zinc-400">
-                            Opinionated marketing sites, landing pages, and product detail
-                            pages that look like you—leveraging the same visual language as
-                            Digital Hooligan itself.
-                        </p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-zinc-400">
-                            <li>Single-page or multi-section marketing sites</li>
-                            <li>Product launch pages and feature breakdowns</li>
-                            <li>Portfolio, studio, or capability sites</li>
-                        </ul>
-                    </div>
-
-                    {/* APIs & system integrations */}
-                    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                            APIs & system integrations
-                        </p>
-                        <h2 className="text-sm font-semibold text-zinc-100">
-                            Glue code between the tools you already use
-                        </h2>
-                        <p className="text-sm text-zinc-400">
-                            Connect the things that don&apos;t talk nicely on their own:
-                            internal systems, third-party APIs, and custom data feeds.
-                        </p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-zinc-400">
-                            <li>REST/JSON APIs for internal or partner use</li>
-                            <li>Data ingestion and transformation pipelines</li>
-                            <li>Bridging legacy tools with modern dashboards</li>
-                        </ul>
-                    </div>
-
-                    {/* Automation & workflows */}
-                    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                            Automation & workflows
-                        </p>
-                        <h2 className="text-sm font-semibold text-zinc-100">
-                            Make the boring parts of your job less painful
-                        </h2>
-                        <p className="text-sm text-zinc-400">
-                            Small, targeted automations and scripts that do the tedious
-                            string-pulling: data checks, notifications, and “if this, then
-                            that” workflows.
-                        </p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-zinc-400">
-                            <li>Scheduled jobs and monitoring scripts</li>
-                            <li>Alerting & signal-based notifications</li>
-                            <li>Ops Toys–style helper tools for infra and logging</li>
-                        </ul>
-                    </div>
-
-                    {/* Dashboards & data views */}
-                    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                            Dashboards & reporting
-                        </p>
-                        <h2 className="text-sm font-semibold text-zinc-100">
-                            Signals, not noise
-                        </h2>
-                        <p className="text-sm text-zinc-400">
-                            Lightweight dashboards and reporting views inspired by PennyWize,
-                            DropSignal, and HypeWatch: clear signals instead of clutter.
-                        </p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-zinc-400">
-                            <li>KPIs and health views for ops or product teams</li>
-                            <li>Alert-driven views for prices, inventory, or events</li>
-                            <li>Readable charts for people who don&apos;t live in BI tools</li>
-                        </ul>
-                    </div>
-
-                    {/* UX/UI & product support */}
-                    <div className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                            UX/UI & product support
-                        </p>
-                        <h2 className="text-sm font-semibold text-zinc-100">
-                            Front-end craft from someone who ships their own apps
-                        </h2>
-                        <p className="text-sm text-zinc-400">
-                            User flows, low-friction interfaces, and UI polish for existing
-                            products—especially where dev teams are busy and design has
-                            drifted.
-                        </p>
-                        <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-zinc-400">
-                            <li>Interface refactors and component systems</li>
-                            <li>Interaction tweaks and mobile-first passes</li>
-                            <li>Design/dev pairing on new features or tools</li>
-                        </ul>
-                    </div>
-                </section>
-
-                {/* Gov / enterprise note */}
-                <section className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-300">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                        For public-sector & enterprise buyers
-                    </p>
-                    <p className="mt-2 text-sm text-zinc-400">
-                        Digital Hooligan LLC can support custom development work under{" "}
-                        <span className="font-medium text-zinc-100">
-                            NAICS 541511 – Custom Computer Programming Services
+                    <p className="max-w-2xl text-sm text-slate-300 sm:text-base">
+                        Digital Hooligan LLC is a{" "}
+                        <span className="font-medium text-slate-100">
+                            small, focused studio
                         </span>{" "}
-                        when needed for contracting, while still operating as a
-                        design-forward studio. The same skills used to build PennyWize,
-                        DropSignal, HypeWatch, and Ops Toys apply to internal portals,
-                        dashboards, and automation inside larger organizations.
+                        that designs, builds, and operates web apps, bots, dashboards, and
+                        automation toys. Ideal for sneaker/collectible data plays, internal
+                        tools, and early gov/enterprise prototypes that need discipline
+                        without the bureaucracy.
                     </p>
-                    <p className="mt-2 text-xs text-zinc-500">
-                        If you&apos;re exploring contracts, teaming arrangements, or pilot
-                        projects, reach out for a capabilities snapshot or to talk through
-                        scope.
-                    </p>
-                </section>
+                </div>
+            </section>
 
-                {/* CTA row */}
-                <section className="flex flex-wrap gap-3 text-sm">
-                    <Link
-                        href="/#contact"
-                        className="inline-flex items-center justify-center rounded-xl border border-emerald-500/70 bg-emerald-500/15 px-4 py-2 text-sm font-medium text-emerald-200 shadow-[0_0_40px_rgba(16,185,129,0.45)] transition hover:bg-emerald-500/25 hover:text-emerald-50"
-                    >
-                        Talk about a project
-                    </Link>
-                    <Link
-                        href="/company"
-                        className="inline-flex items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900/80 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:border-emerald-500/60 hover:text-emerald-100"
-                    >
-                        View company profile
-                    </Link>
-                    <p className="text-xs text-zinc-500">
-                        Prefer email or a capabilities sheet? Use the contact form and
-                        mention what you&apos;re trying to ship in {year}.
-                    </p>
-                </section>
-            </div>
+            {/* Three core service buckets */}
+            <section className="border-b border-white/5 bg-slate-950/70 px-4 py-12 sm:px-6 md:py-16 lg:px-8">
+                <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+                    {/* 1. Short focused builds */}
+                    <div className="space-y-2 rounded-2xl border border-slate-800 bg-black/80 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            SHORT, FOCUSED BUILDS
+                        </p>
+                        <h2 className="text-sm font-semibold text-slate-50">
+                            MVPs, dashboards & proof-of-concepts
+                        </h2>
+                        <p className="text-xs text-slate-300">
+                            4–8 week projects that get you from idea to{" "}
+                            <span className="font-medium text-slate-100">clickable reality</span>{" "}
+                            with metrics and observability baked in from day one.
+                        </p>
+                        <ul className="mt-2 space-y-1 text-[11px] text-slate-400">
+                            <li>• Web dashboards for internal programs</li>
+                            <li>• Data scrapers and price watchers</li>
+                            <li>• Simple APIs & internal tools</li>
+                        </ul>
+                    </div>
+
+                    {/* 2. Labs-style experiments */}
+                    <div className="space-y-2 rounded-2xl border border-slate-800 bg-black/80 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            LABS-STYLE EXPERIMENTS
+                        </p>
+                        <h2 className="text-sm font-semibold text-slate-50">
+                            Experiments with a real upgrade path
+                        </h2>
+                        <p className="text-xs text-slate-300">
+                            Build small, weird, and controlled first. If it works, promote it
+                            into a public app, mobile experience, or partner integration
+                            instead of throwing it away.
+                        </p>
+                        <ul className="mt-2 space-y-1 text-[11px] text-slate-400">
+                            <li>• Hype-testing new ideas</li>
+                            <li>• “Shadow mode” tools alongside existing systems</li>
+                            <li>• Internal-only dashboards with clear success metrics</li>
+                        </ul>
+                    </div>
+
+                    {/* 3. Gov & enterprise */}
+                    <div className="space-y-2 rounded-2xl border border-slate-800 bg-black/80 p-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                            GOV & ENTERPRISE READY
+                        </p>
+                        <h2 className="text-sm font-semibold text-slate-50">
+                            Prototypes for serious environments
+                        </h2>
+                        <p className="text-xs text-slate-300">
+                            Background in defense/government work, used to requirements, test
+                            plans, and paperwork. NAICS 541511, SAM.gov in progress, with an
+                            eye on future task orders and contracts.
+                        </p>
+                        <ul className="mt-2 space-y-1 text-[11px] text-slate-400">
+                            <li>• Internal portals and dashboards</li>
+                            <li>• Data visualization & alerting surfaces</li>
+                            <li>• Early-stage tools ahead of full contracts</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            {/* How projects run */}
+            <section className="border-b border-white/5 bg-black px-4 py-12 sm:px-6 md:py-16 lg:px-8">
+                <div className="mx-auto max-w-5xl grid gap-8 md:grid-cols-[minmax(0,1.2fr),minmax(0,1fr)]">
+                    <div className="space-y-3">
+                        <h2 className="text-lg font-semibold text-slate-50">
+                            How projects usually run
+                        </h2>
+                        <ol className="space-y-2 text-sm text-slate-300">
+                            <li>
+                                <span className="font-semibold text-slate-100">
+                                    1. Quick discovery
+                                </span>{" "}
+                                – A short email or call to clarify the problem, environment, and
+                                constraints.
+                            </li>
+                            <li>
+                                <span className="font-semibold text-slate-100">
+                                    2. Lightweight plan
+                                </span>{" "}
+                                – Milestones, rough timeline, and what “done” looks like. Just
+                                enough structure; no 80-page decks.
+                            </li>
+                            <li>
+                                <span className="font-semibold text-slate-100">
+                                    3. Build & iterate
+                                </span>{" "}
+                                – Short build cycles with demos and adjustments instead of
+                                disappearing for months.
+                            </li>
+                            <li>
+                                <span className="font-semibold text-slate-100">
+                                    4. Handoff or ongoing care
+                                </span>{" "}
+                                – Clear documentation and handoff, with the option for
+                                maintenance or future improvements.
+                            </li>
+                        </ol>
+                    </div>
+
+                    <aside className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4 text-xs text-slate-300">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                            GOOD FIT PROJECTS
+                        </p>
+                        <ul className="space-y-1.5">
+                            <li>• You want a focused, opinionated builder.</li>
+                            <li>• You care about dashboards, observability, and uptime.</li>
+                            <li>• You&apos;re okay starting small and upgrading if it works.</li>
+                            <li>• You&apos;re willing to give feedback during the build.</li>
+                        </ul>
+                        <p className="pt-2 text-[11px] text-slate-500">
+                            Future state: projects and tasks from here will surface inside the
+                            internal CEO dashboard, with the AI assistant helping schedule and
+                            prioritize work.
+                        </p>
+                    </aside>
+                </div>
+            </section>
+
+            {/* CTA row */}
+            <section className="bg-slate-950 px-4 py-10 sm:px-6 lg:px-8">
+                <div className="mx-auto flex max-w-5xl flex-col gap-4 border-t border-slate-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1 text-sm text-slate-200">
+                        <p className="font-semibold text-slate-50">
+                            Ready to talk about a project?
+                        </p>
+                        <p className="text-xs text-slate-400">
+                            A short, honest email with your constraints and goals is perfect.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <Link
+                            href="/#contact"
+                            className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-xs font-semibold text-black shadow shadow-emerald-500/40 hover:bg-emerald-300"
+                        >
+                            Jump to contact
+                        </Link>
+                        <Link
+                            href="/"
+                            className="inline-flex items-center justify-center rounded-full border border-slate-700 bg-black px-4 py-2 text-xs font-semibold text-slate-100 hover:border-emerald-400/70"
+                        >
+                            Back to homepage
+                        </Link>
+                    </div>
+                </div>
+            </section>
         </main>
     );
 }
