@@ -1,102 +1,136 @@
-"use client";
+type AppCard = {
+    name: string;
+    tagline: string;
+    niche: string;
+    status: string;
+    href: string;
+    primaryCta: string;
+    phase: string;
+};
 
-import Image from "next/image";
-import Link from "next/link";
-
-const apps = [
+const apps: AppCard[] = [
     {
-        slug: "pennywize",
         name: "PennyWize",
-        phase: "Building",
-        tagline:
-            "The penny stock scraper that digs through the sketchy corners of the market so you don’t have to.",
-        icon: "/apps/pennywize.png",
+        tagline: "Penny stock scraper with a social layer around the tickers.",
+        niche: "Retail traders · penny stocks · data-first insights",
+        status: "Bot + web app first, mobile later",
+        href: "/pennywize",
+        primaryCta: "View PennyWize",
+        phase: "Phase 1: web app · Phase 2: iOS & Android",
     },
     {
-        slug: "dropsignal",
         name: "DropSignal",
-        phase: "Discovery → Building",
-        tagline:
-            "Bot-powered radar for sneaker and streetwear deals before your size disappears.",
-        icon: "/apps/dropsignal.png",
+        tagline: "Sneaker & streetwear price-drop radar with assist-mode alerts.",
+        niche: "Sneakerheads · streetwear · Jordans · Kith · Mitchell & Ness",
+        status: "Alerts first, add-to-cart flows in grown-up mode",
+        href: "/dropsignal",
+        primaryCta: "View DropSignal",
+        phase: "Phase 1: bot alerts · Phase 2: web app · Phase 3: mobile",
     },
     {
-        slug: "hypewatch",
         name: "HypeWatch",
-        phase: "Discovery",
-        tagline:
-            "Price tracking for collectibles you actually flex: cards, figures, magazines, watches, and more.",
-        icon: "/apps/hypewatch.png",
+        tagline: "Collectible price watcher for cards, figures, mags & flex pieces.",
+        niche: "Collectibles · slabs · figures · watches & display toys",
+        status: "Starts inside Labs, then graduates to its own app",
+        href: "/labs",
+        primaryCta: "View in Labs",
+        phase: "Phase 0: Labs experiment · Phase 1: web · Phase 2: mobile",
     },
     {
-        slug: "ops-toys",
         name: "Ops Toys",
-        phase: "Discovery",
-        tagline:
-            "A drawer full of tiny automation toys that keep infra, logging, and dev workflow less painful.",
-        icon: "/apps/ops-toys.png",
+        tagline: "Automation toys for infra, logging, deployments & dev workflow.",
+        niche: "DevOps · SRE · internal tools & dashboards",
+        status: "Internal-first, with public tools where it makes sense",
+        href: "/labs",
+        primaryCta: "View Ops Toys in Labs",
+        phase: "Phase 0: internal use · Phase 1: curated public tools",
     },
 ];
 
-export default function AppsSection() {
+export default function Apps() {
     return (
         <section
             id="apps"
-            className="border-t border-dh-street-gray/40 bg-dh-black/90 px-4 py-16 sm:px-6 lg:px-8"
+            className="border-b border-white/5 bg-slate-950/70 px-4 py-16 sm:px-6 md:py-20 lg:px-8"
         >
             <div className="mx-auto max-w-6xl">
-                <header className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dh-electric-mint">
-                            Hooligan Apps
-                        </p>
-                        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-dh-offwhite sm:text-3xl">
-                            Tools first. Apps with attitude.
+                        <h2 className="text-balance text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">
+                            Hooligan apps & bots
                         </h2>
-                        <p className="mt-2 max-w-2xl text-sm text-dh-street-gray">
-                            Each app starts life as a scrappy bot in Hooligan Labs, then grows
-                            into a full web app and eventually a mobile experience.
+                        <p className="mt-2 max-w-xl text-sm text-slate-300 sm:text-base">
+                            Every app starts as a{" "}
+                            <span className="font-medium text-slate-100">tool-first bot</span>{" "}
+                            or dashboard. Once it proves it’s useful, it{" "}
+                            <span className="font-medium text-slate-100">
+                                graduates to a full web app
+                            </span>{" "}
+                            and eventually a mobile app on the Apple & Google Play stores.
                         </p>
                     </div>
-                </header>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                    <p className="max-w-sm text-xs text-slate-400">
+                        Nothing here is a hype landing page with no brain behind it. Each
+                        project is wired for data, automation, and a future social layer
+                        wrapped around the numbers.
+                    </p>
+                </div>
+
+                <div className="mt-8 grid gap-5 md:grid-cols-2">
                     {apps.map((app) => (
-                        <Link
-                            key={app.slug}
-                            href={`/${app.slug}`}
-                            className="group rounded-2xl border border-dh-street-gray/40 bg-gradient-to-br from-dh-black/80 to-dh-black/40 p-4 transition duration-200 hover:border-dh-electric-mint/70 hover:shadow-[0_0_24px_rgba(30,255,203,0.25)]"
+                        <article
+                            key={app.name}
+                            className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-950 to-black p-5 shadow-[0_18px_45px_rgba(0,0,0,0.7)] transition-transform hover:-translate-y-1 hover:border-emerald-400/60"
                         >
-                            <div className="flex items-start gap-3">
-                                <div className="mt-1 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-dh-street-gray/30 bg-dh-black/80">
-                                    <Image
-                                        src={app.icon}
-                                        alt={`${app.name} icon`}
-                                        width={32}
-                                        height={32}
-                                        className="h-8 w-8 object-contain"
-                                    />
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.14),transparent_60%)] opacity-0 transition-opacity group-hover:opacity-100" />
+                            <div className="relative flex h-full flex-col justify-between gap-4">
+                                <header className="space-y-2">
+                                    <div className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-slate-400">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                        Hooligan Labs · App
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-slate-50">
+                                        {app.name}
+                                    </h3>
+                                    <p className="text-sm text-slate-300">{app.tagline}</p>
+                                </header>
+
+                                <div className="space-y-2 text-xs">
+                                    <p className="text-slate-400">
+                                        <span className="font-semibold text-slate-200">
+                                            Niche:
+                                        </span>{" "}
+                                        {app.niche}
+                                    </p>
+                                    <p className="text-slate-400">
+                                        <span className="font-semibold text-slate-200">
+                                            Roadmap:
+                                        </span>{" "}
+                                        {app.phase}
+                                    </p>
+                                    <p className="text-slate-400">
+                                        <span className="font-semibold text-slate-200">
+                                            Status:
+                                        </span>{" "}
+                                        {app.status}
+                                    </p>
                                 </div>
 
-                                <div className="flex-1 space-y-2">
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <h3 className="text-sm font-semibold text-dh-offwhite sm:text-base">
-                                            {app.name}
-                                        </h3>
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-dh-electric-mint/60 bg-dh-black/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-dh-electric-mint">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint" />
-                                            {app.phase}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-dh-street-gray sm:text-sm">
-                                        {app.tagline}
-                                    </p>
-                                    <p className="text-xs font-medium text-dh-electric-mint group-hover:translate-x-0.5 group-hover:text-dh-electric-mint/90">
-                                        Learn more →
-                                    </p>
-                                </div>
+                                <footer className="mt-3 flex items-center justify-between gap-4">
+                                    <a
+                                        href={app.href}
+                                        className="inline-flex items-center gap-1 rounded-full bg-emerald-400 px-3.5 py-1.5 text-xs font-semibold text-black shadow shadow-emerald-500/40 transition group-hover:bg-emerald-300"
+                                    >
+                                        {app.primaryCta}
+                                        <span aria-hidden="true">↗</span>
+                                    </a>
+                                    <span className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                                        Assist mode → add-to-cart mode
+                                    </span>
+                                </footer>
                             </div>
-                        </Link>
+                        </article>
                     ))}
                 </div>
             </div>
