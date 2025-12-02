@@ -1,12 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import Container from "./Container";
-
-type NavItem = {
-  href: string;
-  label: string;
-};
+import Link from "next/link";
+import Image from "next/image";
 
 const NAV_ITEMS = [
   { href: "/#apps", label: "Apps" },
@@ -17,97 +10,49 @@ const NAV_ITEMS = [
   { href: "/#contact", label: "Contact" },
 ];
 
-const OBSERVED_SECTIONS = ["hero", "apps", "labs", "about", "street-cred", "contact"];
-
 export default function Navbar() {
-  const [activeId, setActiveId] = useState<string>("hero");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const handleIntersection: IntersectionObserverCallback = (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          const id = entry.target.id;
-          if (OBSERVED_SECTIONS.includes(id)) {
-            setActiveId(id);
-          }
-        }
-      }
-    };
-
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: null,
-      rootMargin: "-45% 0px -55% 0px", // focus middle of viewport
-      threshold: 0.2,
-    });
-
-    const elements: HTMLElement[] = [];
-
-    OBSERVED_SECTIONS.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) {
-        observer.observe(el);
-        elements.push(el);
-      }
-    });
-
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-      observer.disconnect();
-    };
-  }, []);
-
   return (
-    <header className="sticky top-0 z-40 border-b border-dh-street-gray/60 bg-dh-black/80 backdrop-blur">
-      <Container>
-        <div className="flex h-16 items-center justify-between gap-6">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg border border-dh-electric-mint/60 bg-dh-black shadow-[0_0_18px_rgba(30,255,203,0.7)]" />
-            <div className="flex flex-col leading-none">
-              <span className="text-[0.65rem] font-mono uppercase tracking-[0.3em] text-dh-street-gray">
-                Digital
-              </span>
-              <span className="text-sm font-semibold tracking-tight text-white">
-                Hooligan
-              </span>
-            </div>
+    <header className="sticky top-0 z-40 border-b border-zinc-900 bg-black/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        {/* Brand: icon + DIGITAL / Hooligan */}
+        <Link
+          href="/"
+          className="flex items-center gap-3 rounded-xl px-1 py-1 hover:bg-zinc-900/60"
+        >
+          <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-2xl border border-emerald-500/70 bg-emerald-500/10 shadow-[0_0_32px_rgba(16,185,129,0.55)]">
+            {/* ⬇️ Update src to whatever path you already use for the Hooligan Labs icon */}
+            <Image
+              src="/apps/hooligan-labs.png"
+              alt="Hooligan Labs icon"
+              fill
+              sizes="36px"
+              className="object-contain"
+              priority
+            />
           </div>
+          <div className="leading-tight">
+            <span className="block text-[10px] font-medium uppercase tracking-[0.35em] text-zinc-500">
+              Digital
+            </span>
+            <span className="block text-sm font-semibold text-zinc-100">
+              Hooligan
+            </span>
+          </div>
+        </Link>
 
-          {/* Nav */}
-          <nav className="flex flex-1 justify-end">
-            <ul className="flex items-center gap-4 text-xs font-medium uppercase tracking-[0.18em] text-dh-street-gray md:gap-6">
-              {NAV_ITEMS.map((item) => {
-                const targetId = item.href.replace("#", "");
-                const isActive = activeId === targetId;
-
-                return (
-                  <li key={item.href}>
-                    <a
-                      href={item.href}
-                      className={[
-                        "relative inline-flex items-center transition-colors",
-                        "hover:text-dh-electric-mint",
-                        isActive ? "text-dh-electric-mint" : "",
-                      ].join(" ")}
-                    >
-                      {item.label}
-                      <span
-                        className={[
-                          "absolute -bottom-1 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-dh-electric-mint transition-transform",
-                          isActive ? "scale-x-100" : "",
-                        ].join(" ")}
-                        aria-hidden="true"
-                      />
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </div>
-      </Container>
+        {/* Nav items */}
+        <nav className="flex items-center gap-6 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500">
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="transition hover:text-emerald-300"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
     </header>
   );
 }
