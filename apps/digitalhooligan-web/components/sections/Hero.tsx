@@ -62,7 +62,7 @@ export default function Hero() {
               Single-member LLC · Software, SaaS & automation
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1">
-              NAICS 541511 · SAM.gov in progress
+              NAICS 541511 · SAM.gov in registered
             </span>
           </div>
         </div>
