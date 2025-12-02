@@ -127,6 +127,7 @@ export default function Hero() {
               </div>
             </div>
 
+            {/* Capability chips */}
             <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-zinc-500">
               <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
                 Out-of-the-box thinking
@@ -136,6 +137,12 @@ export default function Hero() {
               </span>
               <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
                 Apps, sites & internal tools
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
+                Custom automations & dashboards
+              </span>
+              <span className="rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
+                Public & private sector friendly
               </span>
             </div>
           </div>
