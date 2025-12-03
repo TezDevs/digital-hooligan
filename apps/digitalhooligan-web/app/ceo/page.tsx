@@ -93,7 +93,7 @@ export default function CeoDashboardPage() {
                         </a>
                     </nav>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         <button
                             type="button"
                             className="hidden sm:inline-flex items-center gap-1 rounded-full border border-emerald-400/60 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-100 hover:bg-emerald-500/20"
@@ -101,15 +101,24 @@ export default function CeoDashboardPage() {
                             <span className="text-xs">🤖</span>
                             <span>Ask AI</span>
                         </button>
-                        <div className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-2 py-1">
-                            <div className="h-6 w-6 rounded-full bg-slate-700 text-[10px] flex items-center justify-center">
-                                T
+
+                        <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-2 py-1">
+                                <div className="h-6 w-6 rounded-full bg-slate-700 text-[10px] flex items-center justify-center">
+                                    T
+                                </div>
+                                <div className="text-[11px] leading-tight">
+                                    <div className="font-medium text-slate-100">Tez</div>
+                                    <div className="text-[10px] text-slate-400">CEO • Owner</div>
+                                </div>
+                                <span className="text-[10px] text-slate-500">▼</span>
                             </div>
-                            <div className="text-[11px] leading-tight">
-                                <div className="font-medium text-slate-100">Tez</div>
-                                <div className="text-[10px] text-slate-400">CEO • Owner</div>
-                            </div>
-                            <span className="text-[10px] text-slate-500">▼</span>
+                            <a
+                                href="/api/ceo/logout"
+                                className="text-[10px] text-slate-500 hover:text-rose-300"
+                            >
+                                Log out
+                            </a>
                         </div>
                     </div>
                 </div>
