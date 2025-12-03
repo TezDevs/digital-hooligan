@@ -147,8 +147,8 @@ export default function CeoDashboardPage() {
                                 </div>
                                 <span
                                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${securityStatus.posture === "Good"
-                                            ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
-                                            : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
+                                        ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
+                                        : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
                                         }`}
                                 >
                                     <span className="text-[10px]">🔒</span>
@@ -527,8 +527,8 @@ function SnapshotCard({
     return (
         <div
             className={`rounded-2xl border bg-slate-900/70 px-3 py-3 text-[11px] ${highlight
-                    ? "border-amber-500/60 shadow-[0_0_0_1px_rgba(245,158,11,0.3)]"
-                    : "border-slate-800"
+                ? "border-amber-500/60 shadow-[0_0_0_1px_rgba(245,158,11,0.3)]"
+                : "border-slate-800"
                 }`}
         >
             <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-slate-500">
@@ -551,8 +551,8 @@ function PipelineStagePill({
     return (
         <div
             className={`flex items-center justify-between rounded-full border px-3 py-1 ${accent
-                    ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
-                    : "border-slate-800 bg-slate-900/80 text-slate-300"
+                ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
+                : "border-slate-800 bg-slate-900/80 text-slate-300"
                 } text-[11px]`}
         >
             <span>{label}</span>
@@ -561,7 +561,11 @@ function PipelineStagePill({
     );
 }
 
-function HealthDot({ health }: { health: ProductHealth }) {
+function HealthDot({
+    health
+}: {
+    health: "GREEN" | "YELLOW" | "RED";
+}) {
     const color =
         health === "GREEN"
             ? "bg-emerald-400"
@@ -584,8 +588,8 @@ function StatusRow({ label, ok, text }: { label: string; ok?: boolean; text?: st
             {typeof ok === "boolean" ? (
                 <span
                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${ok
-                            ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
-                            : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
+                        ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
+                        : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
                         }`}
                 >
                     {ok ? "✅ Active" : "⚠ Check"}
