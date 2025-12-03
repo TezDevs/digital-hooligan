@@ -1,48 +1,44 @@
 // lib/ceoDashboardData.ts
 
-export type TaskStatus = "INBOX" | "THIS_WEEK" | "IN_PROGRESS" | "BLOCKED" | "DONE";
+// --- Types ---
 
-export type TaskType = "PRODUCT" | "ADMIN" | "OPS" | "SALES" | "LEARNING";
+export type TaskStatus =
+    | "INBOX"
+    | "THIS_WEEK"
+    | "IN_PROGRESS"
+    | "BLOCKED"
+    | "DONE";
+
+export type TaskType = "ADMIN" | "PRODUCT" | "SALES" | "OPS" | "FINANCE";
 
 export interface Task {
     id: string;
     title: string;
     type: TaskType;
     status: TaskStatus;
-    dueDate?: string; // ISO date
-    linkedProductId?: string;
-    linkedDealId?: string;
+    dueDate?: string; // YYYY-MM-DD
     notes?: string;
+    priority?: "LOW" | "MEDIUM" | "HIGH";
 }
 
-export type DealType = "GOV" | "FREELANCE" | "PRODUCT" | "PARTNERSHIP";
-
-export type DealStage = "LEAD" | "PROPOSAL" | "NEGOTIATION" | "WON" | "LOST";
+export type DealStage = "LEAD" | "PROPOSAL" | "NEGOTIATION" | "WON";
 
 export interface Deal {
     id: string;
     name: string;
-    type: DealType;
-    source: "UPWORK" | "GUN_IO" | "SAM_GOV" | "DIRECT" | "OTHER";
     stage: DealStage;
-    expectedValue: number; // in USD for now
-    expectedStartDate?: string; // ISO
-    probability?: number; // 0–1
-    notes?: string;
+    value: number;
+    source: "GOV" | "FREELANCE" | "DIRECT";
+    probability: number; // 0–1
 }
-
-export type ProductStage = "IDEA" | "EXPERIMENT" | "BETA" | "LIVE" | "INTERNAL";
-
-export type ProductHealth = "GREEN" | "YELLOW" | "RED";
 
 export interface Product {
     id: string;
-    name: string;
     code: string;
-    category: "APP" | "BOT" | "INTERNAL_TOOL" | "SITE";
-    stage: ProductStage;
-    health: ProductHealth;
+    name: string;
     description: string;
+    stage: "IDEA" | "BUILDING" | "LAUNCHED" | "ON_HOLD";
+    health: "GREEN" | "YELLOW" | "RED";
     currentFocus?: string;
     nextStep?: string;
 }
@@ -50,170 +46,164 @@ export interface Product {
 export interface AdminStatus {
     llcActive: boolean;
     einActive: boolean;
-    navyFedStatus: "PENDING" | "ACTIVE" | "NOT_STARTED";
-    samStatus: "NOT_STARTED" | "IN_REVIEW" | "ACTIVE";
-    vsobStatus: "NOT_STARTED" | "PLANNED" | "ACTIVE";
-    upcomingDates: {
-        label: string;
-        date: string;
-    }[];
+    navyFedStatus: "ACTIVE" | "PENDING" | "NOT_STARTED";
+    samStatus: "ACTIVE" | "IN_REVIEW" | "NOT_STARTED";
+    vsobStatus: "ACTIVE" | "PLANNED" | "NOT_STARTED";
+    upcomingDates: { label: string; date: string }[];
     riskFlags: string[];
 }
 
-export interface DecisionLogEntry {
+export interface DecisionEntry {
     id: string;
-    date: string; // ISO
+    date: string;
     title: string;
     details?: string;
 }
 
-// --- Mock data for Day 1 / local dev ---
+// --- Mock data ---
 
 export const mockProducts: Product[] = [
     {
-        id: "prod-pw",
-        name: "PennyWize",
+        id: "pennywize",
         code: "PW",
-        category: "APP",
-        stage: "EXPERIMENT",
-        health: "YELLOW",
-        description: "Penny stock intel tool with alerting.",
-        currentFocus: "Designing alert v0 and onboarding.",
-        nextStep: "Ship first internal alert experiment."
+        name: "PennyWize",
+        description: "Penny stock intel + alerts with future social layer around the data.",
+        stage: "BUILDING",
+        health: "GREEN",
+        currentFocus: "Landing page + data model",
+        nextStep: "Scraper prototype + alert pipeline"
     },
     {
-        id: "prod-ds",
-        name: "DropSignal",
+        id: "dropsignal",
         code: "DS",
-        category: "BOT",
+        name: "DropSignal",
+        description:
+            "Sneaker & streetwear price-drop bot (assist mode first, grown-up add-to-cart later).",
+        stage: "BUILDING",
+        health: "YELLOW",
+        currentFocus: "Retailer integrations + roadmap copy",
+        nextStep: "MVP alert rules for top retailers"
+    },
+    {
+        id: "hypewatch",
+        code: "HW",
+        name: "HypeWatch",
+        description:
+            "Collectibles & display pieces price tracker (cards, figures, magazines, watches).",
         stage: "IDEA",
         health: "YELLOW",
-        description: "Sneaker & streetwear price-drop alerts.",
-        currentFocus: "Locking in assist-mode flow.",
-        nextStep: "Define MVP sources and alert triggers."
+        currentFocus: "Clarify niche vs DropSignal",
+        nextStep: "Wireframe monitoring views"
     },
     {
-        id: "prod-hw",
-        name: "HypeWatch",
-        code: "HW",
-        category: "BOT",
-        stage: "IDEA",
-        health: "GREEN",
-        description: "Collectibles & hype asset price watcher.",
-        currentFocus: "Clarify collectibles scope.",
-        nextStep: "Draft initial product spec."
-    },
-    {
-        id: "prod-ops",
+        id: "ops-toys",
+        code: "OT",
         name: "Ops Toys",
-        code: "OPS",
-        category: "INTERNAL_TOOL",
-        stage: "INTERNAL",
+        description:
+            "Internal drawer of infra, logging, and dev workflow automation tools for DH.",
+        stage: "BUILDING",
         health: "GREEN",
-        description: "Infra, logging & workflow toys.",
-        currentFocus: "Define first infra & logging helpers.",
-        nextStep: "Wire basic logging view into Ops HQ."
-    },
-    {
-        id: "prod-web",
-        name: "Digital Hooligan Site",
-        code: "WEB",
-        category: "SITE",
-        stage: "LIVE",
-        health: "GREEN",
-        description: "Public-facing site & brand hub.",
-        currentFocus: "Polish gov & enterprise story.",
-        nextStep: "Add dedicated gov services page."
-    }
-];
-
-export const mockDeals: Deal[] = [
-    {
-        id: "deal-sam-bot-pilot",
-        name: "SAM.gov bot pilot",
-        type: "GOV",
-        source: "SAM_GOV",
-        stage: "PROPOSAL",
-        expectedValue: 8000,
-        expectedStartDate: "2026-02-10",
-        probability: 0.4,
-        notes: "Simple MVP focused on NAICS 541511 opportunities."
-    },
-    {
-        id: "deal-upwork-retainer",
-        name: "Upwork startup retainer",
-        type: "FREELANCE",
-        source: "UPWORK",
-        stage: "NEGOTIATION",
-        expectedValue: 5000,
-        expectedStartDate: "2026-01-15",
-        probability: 0.6,
-        notes: "Dashboard + automation work."
-    },
-    {
-        id: "deal-gunio-build",
-        name: "Gun.io dashboard build",
-        type: "FREELANCE",
-        source: "GUN_IO",
-        stage: "LEAD",
-        expectedValue: 3000,
-        probability: 0.3
-    },
-    {
-        id: "deal-pw-mvp",
-        name: "PennyWize paid MVP",
-        type: "PRODUCT",
-        source: "DIRECT",
-        stage: "WON",
-        expectedValue: 1200,
-        expectedStartDate: "2025-12-15",
-        probability: 1,
-        notes: "First paid batch of early users."
+        currentFocus: "Define automation inventory",
+        nextStep: "Prioritize 1–2 toys for MVP"
     }
 ];
 
 export const mockTasks: Task[] = [
     {
-        id: "task-ship-pw-v0",
-        title: "Ship PennyWize alert v0",
+        id: "t-1",
+        title: "Finish CEO dashboard shell + navigation",
         type: "PRODUCT",
         status: "IN_PROGRESS",
-        dueDate: "2025-12-10",
-        linkedProductId: "prod-pw",
-        notes: "Internal-only for now."
+        dueDate: "2025-12-05",
+        notes: "Main snapshot, tasks, pipeline, admin snapshot."
     },
     {
-        id: "task-navyfed-docs",
-        title: "Complete Navy Federal business docs",
+        id: "t-2",
+        title: "Navy Federal business account follow-up",
         type: "ADMIN",
         status: "THIS_WEEK",
-        dueDate: "2025-12-07"
+        dueDate: "2025-12-06",
+        notes: "Check approval status and confirm limits.",
+        priority: "HIGH"
     },
     {
-        id: "task-sam-routine",
-        title: "Define SAM.gov search & tagging routine",
-        type: "SALES",
-        status: "THIS_WEEK",
-        dueDate: "2025-12-08"
+        id: "t-3",
+        title: "SAM.gov entity review + documentation",
+        type: "ADMIN",
+        status: "INBOX",
+        notes: "Capture notes on NAICS, UEI and renewal schedule."
     },
     {
-        id: "task-hero-copy",
-        title: "Refine hero + gov services messaging",
+        id: "t-4",
+        title: "Define PennyWize MVP feature list",
         type: "PRODUCT",
-        status: "INBOX"
+        status: "THIS_WEEK",
+        dueDate: "2025-12-07",
+        notes: "Focus on scraper + alerts; social later."
     },
     {
-        id: "task-log-setup",
-        title: "Decide initial logging target (Vercel / external)",
+        id: "t-5",
+        title: "Map revenue model across apps + freelance",
+        type: "FINANCE",
+        status: "IN_PROGRESS",
+        notes: "Gov contracts, Gun.io, Upwork, direct clients."
+    },
+    {
+        id: "t-6",
+        title: "Ops Toys: shortlist internal automations",
         type: "OPS",
-        status: "INBOX"
+        status: "INBOX",
+        notes: "Logging, deploy helpers, health checks."
     },
     {
-        id: "task-llc-done",
-        title: "LLC registered",
+        id: "t-7",
+        title: "Write /privacy and /terms pass 1",
         type: "ADMIN",
+        status: "BLOCKED",
+        notes: "Waiting on final product wording and data flows.",
+        priority: "MEDIUM"
+    },
+    {
+        id: "t-8",
+        title: "Outline AI assistant capabilities",
+        type: "PRODUCT",
         status: "DONE",
-        dueDate: "2025-11-29"
+        notes: "Strategy, ops, code refactor, gov bid support."
+    }
+];
+
+export const mockDeals: Deal[] = [
+    {
+        id: "d-1",
+        name: "Small SAM.gov web/app modernization",
+        stage: "LEAD",
+        value: 15000,
+        source: "GOV",
+        probability: 0.25
+    },
+    {
+        id: "d-2",
+        name: "Gun.io senior engineer slot",
+        stage: "PROPOSAL",
+        value: 28000,
+        source: "FREELANCE",
+        probability: 0.5
+    },
+    {
+        id: "d-3",
+        name: "Upwork booking-style app build",
+        stage: "NEGOTIATION",
+        value: 18000,
+        source: "FREELANCE",
+        probability: 0.6
+    },
+    {
+        id: "d-4",
+        name: "Direct client: internal dashboard",
+        stage: "WON",
+        value: 12000,
+        source: "DIRECT",
+        probability: 1
     }
 ];
 
@@ -224,117 +214,106 @@ export const mockAdminStatus: AdminStatus = {
     samStatus: "IN_REVIEW",
     vsobStatus: "PLANNED",
     upcomingDates: [
-        {
-            label: "SAM.gov recheck",
-            date: "2025-12-20"
-        },
-        {
-            label: "State annual report (est)",
-            date: "2026-01-15"
-        },
-        {
-            label: "Q1 estimated taxes (placeholder)",
-            date: "2026-04-15"
-        }
+        { label: "SAM.gov follow-up", date: "2025-12-10" },
+        { label: "Navy Federal review", date: "2025-12-12" }
     ],
-    riskFlags: [
-        "SAM.gov still under review.",
-        "Navy Federal business account pending.",
-        "Runway assumptions not yet formalized."
-    ]
+    riskFlags: ["SAM.gov still in review", "Navy Federal account pending approval"]
 };
 
-export const mockDecisions: DecisionLogEntry[] = [
+export const mockDecisions: DecisionEntry[] = [
     {
-        id: "dec-naics-541511",
+        id: "dec-1",
+        date: "2025-11-30",
+        title: "Registered Digital Hooligan LLC and committed to gov work track.",
+        details:
+            "Set NAICS focus around 541511 with flexibility to expand as brand grows."
+    },
+    {
+        id: "dec-2",
         date: "2025-12-01",
-        title: "Selected NAICS 541511 as primary code",
-        details: "Focus on custom software / web app development with gov potential."
+        title: "Chose CEO dashboard as core internal product.",
+        details:
+            "Dashboard will be the control center for apps, revenue streams, and admin status."
     },
     {
-        id: "dec-gov-focus",
+        id: "dec-3",
         date: "2025-12-02",
-        title: "Commit to gov + product dual track",
-        details: "Immediate gov pursuit plus apps/bots roadmap (PennyWize, DropSignal, HypeWatch)."
-    },
-    {
-        id: "dec-ops-labs-split",
-        date: "2025-12-03",
-        title: "Split Ops HQ and Labs HQ",
-        details: "Ops HQ for infra/logging; Labs HQ for experiments and app ideas."
+        title: "Planned multi-stream revenue: apps, bots, freelance, and contracts.",
+        details:
+            "Short/medium-term focus on small contracts and freelance while apps ramp up."
     }
 ];
 
-// --- Simple helpers for the dashboard ---
+// --- Helpers used by CEO dashboard ---
 
 export function getRevenueLast30Days(): number {
-    // Placeholder until real data; keeps UI wired.
-    return 12300;
+    // Placeholder: future version will pull from Stripe / accounting APIs
+    return 4200;
 }
 
 export function getActiveProjectsCount(products: Product[]): number {
-    return products.filter((p) => p.stage === "EXPERIMENT" || p.stage === "BETA" || p.stage === "LIVE" || p.stage === "INTERNAL").length;
+    return products.filter(
+        (p) => p.stage === "BUILDING" || p.stage === "LAUNCHED"
+    ).length;
 }
 
 export function getOpenDealsCount(deals: Deal[]): number {
-    return deals.filter((d) => d.stage !== "WON" && d.stage !== "LOST").length;
+    return deals.filter((d) => d.stage !== "WON").length;
 }
 
 export function getTasksDueToday(tasks: Task[], todayIso: string): number {
-    return tasks.filter((t) => t.dueDate === todayIso && t.status !== "DONE").length;
+    return tasks.filter((t) => t.dueDate === todayIso).length;
 }
 
-export function getTopFocusTasks(tasks: Task[], limit = 3): Task[] {
-    const now = new Date();
-    const scored = tasks
-        .filter((t) => t.status !== "DONE")
-        .map((t) => {
-            const due = t.dueDate ? new Date(t.dueDate) : null;
-            let score = 0;
+export function getTopFocusTasks(tasks: Task[]): Task[] {
+    // Simple heuristic: show a mix of in-progress and this-week items
+    const inProgress = tasks.filter((t) => t.status === "IN_PROGRESS");
+    const thisWeek = tasks.filter((t) => t.status === "THIS_WEEK");
+    const inbox = tasks.filter((t) => t.status === "INBOX");
 
-            // Admin + Sales slightly higher by default
-            if (t.type === "ADMIN" || t.type === "SALES") score += 2;
+    const combined = [...inProgress, ...thisWeek, ...inbox];
+    const unique: Task[] = [];
+    const seen = new Set<string>();
 
-            // Sooner due date = higher score
-            if (due) {
-                const diffDays = (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-                if (diffDays <= 0) score += 5; // overdue / today
-                else if (diffDays <= 3) score += 3;
-                else if (diffDays <= 7) score += 1;
-            }
-
-            // Status bump
-            if (t.status === "IN_PROGRESS") score += 3;
-            if (t.status === "THIS_WEEK") score += 1;
-
-            return { task: t, score };
-        })
-        .sort((a, b) => b.score - a.score);
-
-    return scored.slice(0, limit).map((s) => s.task);
-}
-
-export function groupDealsByStage(deals: Deal[]): Record<DealStage, Deal[]> {
-    return deals.reduce(
-        (acc, deal) => {
-            acc[deal.stage].push(deal);
-            return acc;
-        },
-        {
-            LEAD: [] as Deal[],
-            PROPOSAL: [] as Deal[],
-            NEGOTIATION: [] as Deal[],
-            WON: [] as Deal[],
-            LOST: [] as Deal[]
+    for (const t of combined) {
+        if (!seen.has(t.id)) {
+            seen.add(t.id);
+            unique.push(t);
         }
-    );
+        if (unique.length >= 4) break;
+    }
+
+    return unique;
+}
+
+export function groupDealsByStage(
+    deals: Deal[]
+): Record<DealStage, Deal[]> {
+    return {
+        LEAD: deals.filter((d) => d.stage === "LEAD"),
+        PROPOSAL: deals.filter((d) => d.stage === "PROPOSAL"),
+        NEGOTIATION: deals.filter((d) => d.stage === "NEGOTIATION"),
+        WON: deals.filter((d) => d.stage === "WON")
+    };
 }
 
 export function calculatePipelineValue(deals: Deal[]): number {
-    return deals
-        .filter((d) => d.stage !== "WON" && d.stage !== "LOST")
-        .reduce((sum, deal) => {
-            const prob = deal.probability ?? 0.5;
-            return sum + deal.expectedValue * prob;
-        }, 0);
+    return deals.reduce(
+        (sum, deal) => sum + deal.value * deal.probability,
+        0
+    );
+}
+
+// --- New helper for /ceo/tasks ---
+
+export function groupTasksByStatus(
+    tasks: Task[]
+): Record<TaskStatus, Task[]> {
+    return {
+        INBOX: tasks.filter((t) => t.status === "INBOX"),
+        THIS_WEEK: tasks.filter((t) => t.status === "THIS_WEEK"),
+        IN_PROGRESS: tasks.filter((t) => t.status === "IN_PROGRESS"),
+        BLOCKED: tasks.filter((t) => t.status === "BLOCKED"),
+        DONE: tasks.filter((t) => t.status === "DONE")
+    };
 }
