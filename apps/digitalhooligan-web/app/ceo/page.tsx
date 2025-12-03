@@ -23,7 +23,7 @@ import {
 export const metadata: Metadata = {
     title: "CEO Overview | Digital Hooligan",
     description:
-        "High-level snapshot of products, pipeline, money, performance, and risk for the Digital Hooligan CEO dashboard."
+        "High-level snapshot of products, pipeline, money, app performance, and risk for the Digital Hooligan CEO dashboard."
 };
 
 function formatCurrency(value: number): string {
@@ -34,8 +34,7 @@ function formatCurrency(value: number): string {
     });
 }
 
-// Temporary app performance snapshot.
-// Later, this should be powered by real metrics from monitoring / analytics.
+// Temporary app performance snapshot (mock data for now).
 const appPerformanceSnapshot = {
     totalApps: 3,
     prodApps: 0,
@@ -108,7 +107,7 @@ export default function CeoOverviewPage() {
                     </div>
                 </header>
 
-                {/* Top snapshot row: now 4 high-level cards */}
+                {/* Top snapshot row: four high-level cards */}
                 <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <MoneySnapshotCard
                         revenue30={revenue30}
