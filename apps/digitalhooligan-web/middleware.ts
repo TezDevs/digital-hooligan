@@ -1,43 +1,39 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+// middleware.ts
+import { NextResponse, type NextRequest } from "next/server";
 
-/**
- * Middleware to protect internal dashboards.
- *
- * - Any path under /ceo/* requires a valid "ceo_auth" cookie.
- * - /labs/hq is also treated as an internal dashboard and uses the same cookie.
- * - /ceo/login and /ceo/logout are always allowed.
- */
+const PROTECTED_PREFIXES = ["/ceo", "/ops", "/labs", "/ai-hub"];
+
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Allow login & logout pages without auth
-    if (
-        pathname.startsWith("/ceo/login") ||
-        pathname.startsWith("/ceo/logout")
-    ) {
+    // Only care about our protected prefixes
+    const isProtected = PROTECTED_PREFIXES.some((prefix) =>
+        pathname.startsWith(prefix)
+    );
+
+    if (!isProtected) {
         return NextResponse.next();
     }
 
-    // Internal dashboards that require the ceo_auth cookie
-    const needsAuth =
-        pathname.startsWith("/ceo") || pathname.startsWith("/labs/hq");
-
-    if (needsAuth) {
-        const authCookie = request.cookies.get("ceo_auth")?.value;
-
-        if (authCookie !== "1") {
-            const loginUrl = new URL("/ceo/login", request.url);
-            // Remember where you were going (CEO or Labs HQ)
-            loginUrl.searchParams.set("from", pathname);
-            return NextResponse.redirect(loginUrl);
-        }
+    // Allow hitting the login page without a cookie
+    if (pathname === "/ceo/login" || pathname.startsWith("/ceo/login/")) {
+        return NextResponse.next();
     }
 
-    return NextResponse.next();
+    const cookie = request.cookies.get("dh_ceo_auth");
+    const isAuthed = cookie?.value === "1";
+
+    if (isAuthed) {
+        return NextResponse.next();
+    }
+
+    const loginUrl = new URL("/ceo/login", request.url);
+    loginUrl.searchParams.set("from", pathname);
+
+    return NextResponse.redirect(loginUrl);
 }
 
+// Limit middleware to the internal app areas
 export const config = {
-    // Run this middleware on CEO routes and Labs HQ only
-    matcher: ["/ceo/:path*", "/labs/hq"],
+    matcher: ["/ceo/:path*", "/ops/:path*", "/labs/:path*", "/ai-hub/:path*"]
 };

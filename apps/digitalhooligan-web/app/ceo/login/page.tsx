@@ -47,7 +47,7 @@ export default async function CeoLoginPage({ searchParams }: CeoLoginPageProps) 
                     </div>
                 )}
 
-                {/* Posts to /api/ceo/login */}
+                {/* IMPORTANT: posts to /api/ceo/login, not /ceo/login */}
                 <form method="POST" action="/api/ceo/login" className="space-y-3">
                     <div className="space-y-1 text-[11px]">
                         <label htmlFor="username" className="text-slate-300">
