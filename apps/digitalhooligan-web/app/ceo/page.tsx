@@ -23,7 +23,7 @@ import {
 export const metadata: Metadata = {
     title: "CEO Overview | Digital Hooligan",
     description:
-        "High-level snapshot of products, pipeline, money, and risk for the Digital Hooligan CEO dashboard."
+        "High-level snapshot of products, pipeline, money, app performance, and risk for the Digital Hooligan CEO dashboard."
 };
 
 function formatCurrency(value: number): string {
@@ -33,6 +33,18 @@ function formatCurrency(value: number): string {
         maximumFractionDigits: 0
     });
 }
+
+// Temporary app performance snapshot (mock data for now).
+const appPerformanceSnapshot = {
+    totalApps: 3,
+    prodApps: 0,
+    betaApps: 1,
+    devApps: 2,
+    avgUptimeProd: 99.9,
+    avgLatencyMsProd: 120,
+    totalActiveUsers: 0,
+    totalSubscriptions: 0
+};
 
 export default function CeoOverviewPage() {
     const activeProjects = getActiveProjectsCount(mockProducts);
@@ -77,7 +89,7 @@ export default function CeoOverviewPage() {
                         <p className="mt-1 text-[12px] text-slate-400">
                             One-page read on how Digital Hooligan is doing across{" "}
                             <span className="font-medium text-slate-200">
-                                products, pipeline, money, and admin / risk
+                                products, pipeline, money, app performance, and admin / risk
                             </span>{" "}
                             — with links to dive deeper via the tabs.
                         </p>
@@ -95,8 +107,8 @@ export default function CeoOverviewPage() {
                     </div>
                 </header>
 
-                {/* Top snapshot row: three high-level cards */}
-                <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {/* Top snapshot row: four high-level cards */}
+                <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <MoneySnapshotCard
                         revenue30={revenue30}
                         expenses30={expenses30}
@@ -116,6 +128,7 @@ export default function CeoOverviewPage() {
                         inProgressCount={inProgressCount}
                         blockedCount={blockedCount}
                     />
+                    <PerformanceSnapshotCard snapshot={appPerformanceSnapshot} />
                 </section>
 
                 {/* Second row: admin + workload strip */}
@@ -153,7 +166,6 @@ function MoneySnapshotCard(props: {
 }) {
     const { revenue30, expenses30, net30, runwayMonths, cashOnHand } = props;
 
-    // For the ring: cap runway at 12 months for visualization
     const runwayPercent = Math.max(
         0,
         Math.min((runwayMonths / 12) * 100, 100)
@@ -161,7 +173,8 @@ function MoneySnapshotCard(props: {
 
     const totalVolume = revenue30 + Math.abs(expenses30);
     const revenuePct = totalVolume > 0 ? (revenue30 / totalVolume) * 100 : 50;
-    const expensePct = totalVolume > 0 ? (Math.abs(expenses30) / totalVolume) * 100 : 50;
+    const expensePct =
+        totalVolume > 0 ? (Math.abs(expenses30) / totalVolume) * 100 : 50;
 
     return (
         <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
@@ -328,7 +341,8 @@ function PipelineSnapshotCard(props: {
         blockedCount
     } = props;
 
-    const inProgressPct = totalTasks > 0 ? (inProgressCount / totalTasks) * 100 : 0;
+    const inProgressPct =
+        totalTasks > 0 ? (inProgressCount / totalTasks) * 100 : 0;
     const blockedPct = totalTasks > 0 ? (blockedCount / totalTasks) * 100 : 0;
 
     return (
@@ -348,7 +362,9 @@ function PipelineSnapshotCard(props: {
                     <div className="text-[11px] font-semibold text-slate-100">
                         {openDeals}
                     </div>
-                    <div className="text-[10px] text-slate-500">Gov, freelance, direct</div>
+                    <div className="text-[10px] text-slate-500">
+                        Gov, freelance, direct
+                    </div>
                 </div>
                 <div className="rounded-xl bg-slate-950/80 p-2">
                     <div className="text-slate-500">Weighted pipeline</div>
@@ -370,11 +386,15 @@ function PipelineSnapshotCard(props: {
                 <div className="grid grid-cols-3 gap-1 text-[10px] text-slate-300">
                     <div className="rounded-md bg-slate-950/80 p-1">
                         <div className="text-slate-500">In progress</div>
-                        <div className="font-semibold text-slate-100">{inProgressCount}</div>
+                        <div className="font-semibold text-slate-100">
+                            {inProgressCount}
+                        </div>
                     </div>
                     <div className="rounded-md bg-slate-950/80 p-1">
                         <div className="text-slate-500">Blocked</div>
-                        <div className="font-semibold text-slate-100">{blockedCount}</div>
+                        <div className="font-semibold text-slate-100">
+                            {blockedCount}
+                        </div>
                     </div>
                     <div className="rounded-md bg-slate-950/80 p-1">
                         <div className="text-slate-500">Focus load</div>
@@ -389,6 +409,102 @@ function PipelineSnapshotCard(props: {
                 Full details live in{" "}
                 <span className="font-semibold text-slate-300">Tasks</span> and{" "}
                 <span className="font-semibold text-slate-300">Deals</span>.
+            </p>
+        </article>
+    );
+}
+
+function PerformanceSnapshotCard({
+    snapshot
+}: {
+    snapshot: typeof appPerformanceSnapshot;
+}) {
+    const {
+        totalApps,
+        prodApps,
+        betaApps,
+        devApps,
+        avgUptimeProd,
+        avgLatencyMsProd,
+        totalActiveUsers,
+        totalSubscriptions
+    } = snapshot;
+
+    const prodShare =
+        totalApps > 0 ? Math.round((prodApps / totalApps) * 100) : 0;
+
+    return (
+        <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+            <div>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    App performance
+                </h2>
+                <p className="mt-1 text-[11px] text-slate-400">
+                    Are the bots and apps healthy in production?
+                </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300">
+                <div className="rounded-xl bg-slate-950/80 p-2">
+                    <div className="text-slate-500">Apps / tools</div>
+                    <div className="text-[11px] font-semibold text-slate-100">
+                        {totalApps}
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                        {prodApps} prod · {betaApps} beta · {devApps} dev
+                    </div>
+                </div>
+                <div className="rounded-xl bg-slate-950/80 p-2">
+                    <div className="text-slate-500">Prod coverage</div>
+                    <div className="text-[11px] font-semibold text-slate-100">
+                        {prodShare}%
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                        of apps live in prod
+                    </div>
+                </div>
+            </div>
+
+            {/* Uptime / latency mini chart */}
+            <div className="space-y-1 text-[11px]">
+                <div className="flex items-center justify-between text-slate-300">
+                    <span>Prod uptime</span>
+                    <span className="text-[10px] text-slate-400">
+                        {avgUptimeProd.toFixed(2)}%
+                    </span>
+                </div>
+                <div className="relative h-2 overflow-hidden rounded-full bg-slate-900">
+                    <div
+                        className="absolute inset-y-0 left-0 bg-emerald-500/80"
+                        style={{ width: `${avgUptimeProd}%` }}
+                    />
+                </div>
+                <div className="flex items-center justify-between text-[10px] text-slate-400">
+                    <span>Avg latency (prod)</span>
+                    <span>{avgLatencyMsProd} ms</span>
+                </div>
+            </div>
+
+            {/* Usage row */}
+            <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-300">
+                <div className="rounded-xl bg-slate-950/80 p-2">
+                    <div className="text-slate-500">Active users</div>
+                    <div className="text-[11px] font-semibold text-slate-100">
+                        {totalActiveUsers}
+                    </div>
+                </div>
+                <div className="rounded-xl bg-slate-950/80 p-2">
+                    <div className="text-slate-500">Subscriptions</div>
+                    <div className="text-[11px] font-semibold text-slate-100">
+                        {totalSubscriptions}
+                    </div>
+                </div>
+            </div>
+
+            <p className="mt-1 text-[10px] text-slate-500">
+                Full graphs will live under{" "}
+                <span className="font-semibold text-slate-300">Performance</span> once
+                apps are in production.
             </p>
         </article>
     );
