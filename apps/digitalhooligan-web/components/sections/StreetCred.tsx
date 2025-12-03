@@ -1,73 +1,74 @@
-export default function StreetCred() {
-  const pillars = [
-    {
-      title: "Defense & gov program experience",
-      body: "Background in engineering and test management on defense/government work, used to high-stakes systems and strict requirements.",
-    },
-    {
-      title: "Tool-first mindset",
-      body: "Everything starts as a tool that solves a painful problem, then grows into a product when it earns usage and trust.",
-    },
-    {
-      title: "Dashboard-driven ops",
-      body: "Internal CEO and Labs dashboards keep an eye on uptime, alerts, builds, and experiments so nothing drifts in the dark.",
-    },
-    {
-      title: "Built for future audits",
-      body: "Thinking ahead to logging, traceability, and documentation so working with enterprises and agencies is easier later.",
-    },
-  ];
+import Link from "next/link";
 
+export default function StreetCred() {
   return (
     <section
       id="street-cred"
-      className="border-b border-white/5 bg-black px-4 py-16 sm:px-6 md:py-20 lg:px-8"
+      className="border-t border-white/5 bg-black px-4 py-12 sm:px-6 md:py-16 lg:px-8"
     >
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">
-              Street cred meets enterprise brain
-            </h2>
-            <p className="mt-2 max-w-xl text-sm text-slate-300 sm:text-base">
-              The brand looks like a graffiti-covered alley in the future, but
-              the thinking is old-school disciplined: requirements, test plans,
-              documentation, and dashboards.
-            </p>
-          </div>
-          <p className="max-w-sm text-xs text-slate-400">
-            No fake wall of logos. Just the reality of the work done so far, and
-            the systems being built to support bigger, more serious projects.
+      <div className="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:items-start md:justify-between">
+        {/* Left: Heading & copy */}
+        <div className="space-y-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+            STREET CRED
+          </p>
+          <h2 className="text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl">
+            Built by someone who&apos;s lived in test plans and ticket queues.
+          </h2>
+          <p className="max-w-md text-sm text-slate-300">
+            Digital Hooligan pulls from years of engineering and test work in
+            defense, government, and enterprise environments—requirements,
+            traceability, and &quot;did we prove it?&quot; all included.
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {pillars.map((pillar) => (
-            <div
-              key={pillar.title}
-              className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                PILLAR
-              </p>
-              <h3 className="mt-1 text-sm font-semibold text-slate-50">
-                {pillar.title}
-              </h3>
-              <p className="mt-1.5 text-xs text-slate-400">{pillar.body}</p>
+        {/* Right: Cred cards */}
+        <div className="grid max-w-md gap-3 text-xs text-slate-200">
+          {/* Gov & enterprise card with NAICS + /gov chip */}
+          <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/70 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              GOVERNMENT &amp; ENTERPRISE
+            </p>
+            <p className="text-slate-300">
+              Work history across defense and government programs, used to
+              requirements, verification, and living inside structured
+              processes when it matters. Operates as a veteran-owned small
+              business under NAICS 541511.
+            </p>
+            <div className="mt-2 inline-flex flex-wrap gap-2">
+              <span className="rounded-full border border-slate-700 bg-black px-3 py-1 text-[11px] text-slate-200">
+                NAICS 541511 · SAM.gov registered
+              </span>
+              <Link
+                href="/gov"
+                className="rounded-full border border-emerald-500/60 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold text-emerald-300 hover:border-emerald-300"
+              >
+                View gov services →
+              </Link>
             </div>
-          ))}
-        </div>
+          </div>
 
-        <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-400">
-          <span className="rounded-full border border-slate-800 bg-slate-950 px-3 py-1">
-            Gov & enterprise-ready mindset
-          </span>
-          <span className="rounded-full border border-slate-800 bg-slate-950 px-3 py-1">
-            Sneaker & collectible culture native
-          </span>
-          <span className="rounded-full border border-slate-800 bg-slate-950 px-3 py-1">
-            Automation, observability & dashboards
-          </span>
+          {/* Build style */}
+          <div className="space-y-1 rounded-2xl border border-slate-800 bg-slate-950/70 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              BUILD STYLE
+            </p>
+            <p className="text-slate-300">
+              Short, focused builds with real demos over slide decks. Strong
+              bias toward dashboards, logs, and observability from day one.
+            </p>
+          </div>
+
+          {/* Small on purpose */}
+          <div className="space-y-1 rounded-2xl border border-slate-800 bg-slate-950/70 p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              SMALL ON PURPOSE
+            </p>
+            <p className="text-slate-300">
+              You work directly with the builder. No handoffs through layers of
+              account managers before a single line of code ships.
+            </p>
+          </div>
         </div>
       </div>
     </section>
