@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
     Activity,
     AlertTriangle,
@@ -156,6 +157,13 @@ export default function PerformancePage() {
                         marketing site.
                     </p>
                 </div>
+
+                <Link
+                    href="/ceo"
+                    className="inline-flex items-center justify-center rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm transition hover:bg-muted"
+                >
+                    ← Back to overview
+                </Link>
             </header>
 
             {/* Filters */}
@@ -202,7 +210,8 @@ export default function PerformancePage() {
                     helper={
                         selectedApp === 'all'
                             ? 'Unique users across all apps'
-                            : `Users active in ${APPS.find((a) => a.key === selectedApp)?.label}`
+                            : `Users active in ${APPS.find((a) => a.key === selectedApp)?.label
+                            }`
                     }
                     icon={<Users className="h-4 w-4" />}
                     trend="up"
