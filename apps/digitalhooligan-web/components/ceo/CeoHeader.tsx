@@ -1,87 +1,71 @@
 // components/ceo/CeoHeader.tsx
 "use client";
 
-import * as React from "react";
-import { CeoAiDrawer } from "./CeoAiDrawer";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+
+const navItems = [
+    { href: "/ceo", label: "Overview" },
+    { href: "/ceo/tasks", label: "Tasks" },
+    { href: "/ceo/deals", label: "Deals" },
+    { href: "/ceo/finance", label: "Finance" },
+    { href: "/ceo/ai-hub", label: "AI Hub" }
+];
 
 export function CeoHeader() {
-    const [aiOpen, setAiOpen] = React.useState(false);
+    const pathname = usePathname();
+    const router = useRouter();
 
     return (
-        <>
-            <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-20">
-                <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xs font-semibold text-emerald-300">
-                            DH
+        <header className="border-b border-slate-900/80 bg-slate-950/80 backdrop-blur">
+            <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+                {/* Brand */}
+                <Link href="/ceo" className="flex items-center gap-2">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/10 text-[13px] font-bold text-emerald-300 border border-emerald-500/40">
+                        DH
+                    </span>
+                    <div className="leading-tight">
+                        <div className="text-xs font-semibold tracking-[0.2em] text-slate-400 uppercase">
+                            CEO dashboard
                         </div>
-                        <div>
-                            <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                                Digital Hooligan
-                            </div>
-                            <div className="text-sm font-semibold text-slate-100">
-                                CEO Dashboard
-                            </div>
-                        </div>
-                    </div>
-
-                    <nav className="hidden md:flex items-center gap-3 text-xs font-medium text-slate-400">
-                        <span className="rounded-full bg-slate-800 px-3 py-1 text-slate-100">
-                            Home
-                        </span>
-                        <a href="/ceo/tasks" className="rounded-full px-3 py-1 hover:bg-slate-800">
-                            Tasks
-                        </a>
-                        <a href="/ceo/finance" className="rounded-full px-3 py-1 hover:bg-slate-800">
-                            Finance
-                        </a>
-                        <a href="/ceo/deals" className="rounded-full px-3 py-1 hover:bg-slate-800">
-                            Deals
-                        </a>
-                        <a href="/labs/hq" className="rounded-full px-3 py-1 hover:bg-slate-800">
-                            Labs
-                        </a>
-                        <a href="/ops" className="rounded-full px-3 py-1 hover:bg-slate-800">
-                            Ops HQ
-                        </a>
-                        <a href="/ceo/settings" className="rounded-full px-3 py-1 hover:bg-slate-800">
-                            Settings
-                        </a>
-                    </nav>
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={() => setAiOpen(true)}
-                            className="hidden sm:inline-flex items-center gap-1 rounded-full border border-emerald-400/60 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-100 hover:bg-emerald-500/20"
-                        >
-                            <span className="text-xs">🤖</span>
-                            <span>Ask AI</span>
-                        </button>
-
-                        <div className="flex flex-col items-end gap-1">
-                            <div className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-2 py-1">
-                                <div className="h-6 w-6 rounded-full bg-slate-700 text-[10px] flex items-center justify-center">
-                                    T
-                                </div>
-                                <div className="text-[11px] leading-tight">
-                                    <div className="font-medium text-slate-100">Tez</div>
-                                    <div className="text-[10px] text-slate-400">CEO • Owner</div>
-                                </div>
-                                <span className="text-[10px] text-slate-500">▼</span>
-                            </div>
-                            <a
-                                href="/api/ceo/logout"
-                                className="text-[10px] text-slate-500 hover:text-rose-300"
-                            >
-                                Log out
-                            </a>
+                        <div className="text-[11px] text-slate-500">
+                            Digital Hooligan control center
                         </div>
                     </div>
-                </div>
-            </header>
+                </Link>
 
-            <CeoAiDrawer open={aiOpen} onClose={() => setAiOpen(false)} />
-        </>
+                {/* Nav */}
+                <nav className="flex items-center gap-2 text-[11px]">
+                    <div className="hidden md:flex items-center gap-1">
+                        {navItems.map((item) => {
+                            const isActive = pathname === item.href;
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={[
+                                        "rounded-full border px-3 py-1 transition-colors",
+                                        isActive
+                                            ? "border-emerald-500/70 bg-emerald-500/10 text-emerald-100"
+                                            : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-600 hover:bg-slate-900"
+                                    ].join(" ")}
+                                >
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Mobile dropdown could be added later; for now, minimal */}
+                    <button
+                        type="button"
+                        onClick={() => router.push("/ceo/logout")}
+                        className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-[11px] text-slate-300 hover:border-rose-500/60 hover:bg-rose-500/10 hover:text-rose-100"
+                    >
+                        Logout
+                    </button>
+                </nav>
+            </div>
+        </header>
     );
 }
