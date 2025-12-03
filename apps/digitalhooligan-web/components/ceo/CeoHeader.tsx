@@ -34,8 +34,9 @@ export function CeoHeader() {
                     </div>
                 </Link>
 
-                {/* Nav */}
+                {/* Nav + actions */}
                 <nav className="flex items-center gap-2 text-[11px]">
+                    {/* Main tabs (desktop) */}
                     <div className="hidden md:flex items-center gap-1">
                         {navItems.map((item) => {
                             const isActive = pathname === item.href;
@@ -56,14 +57,23 @@ export function CeoHeader() {
                         })}
                     </div>
 
-                    {/* Mobile dropdown could be added later; for now, minimal */}
-                    <button
-                        type="button"
-                        onClick={() => router.push("/ceo/logout")}
-                        className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-[11px] text-slate-300 hover:border-rose-500/60 hover:bg-rose-500/10 hover:text-rose-100"
-                    >
-                        Logout
-                    </button>
+                    {/* Actions */}
+                    <div className="flex items-center gap-1">
+                        <button
+                            type="button"
+                            onClick={() => router.push("/ceo/settings")}
+                            className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-[11px] text-slate-300 hover:border-slate-600 hover:bg-slate-900"
+                        >
+                            Settings
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/ceo/logout")}
+                            className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-[11px] text-slate-300 hover:border-rose-500/60 hover:bg-rose-500/10 hover:text-rose-100"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </nav>
             </div>
         </header>
