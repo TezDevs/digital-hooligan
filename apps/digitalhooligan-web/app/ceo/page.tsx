@@ -1,622 +1,300 @@
-// app/ceo/page.tsx
+'use client';
 
-import type { Metadata } from "next";
-import { CeoHeader } from "@/components/ceo/CeoHeader";
-import { CeoDecisionLog } from "@/components/ceo/CeoDecisionLog";
+import React from 'react';
+import Link from 'next/link';
 import {
-    mockProducts,
-    mockTasks,
-    mockDeals,
-    mockAdminStatus,
-    mockDecisions,
-    mockCashOnHand,
-    getActiveProjectsCount,
-    getOpenDealsCount,
-    getRevenueLast30Days,
-    getExpensesLast30Days,
-    getCashRunwayMonths,
-    getTasksDueToday,
-    groupTasksByStatus,
-    calculatePipelineValue
-} from "@/lib/ceoDashboardData";
+    Activity,
+    BarChart3,
+    DollarSign,
+    Package,
+    Handshake,
+    ListChecks,
+    Settings,
+    Sparkles,
+} from 'lucide-react';
 
-export const metadata: Metadata = {
-    title: "CEO Overview | Digital Hooligan",
-    description:
-        "High-level snapshot of products, pipeline, money, app performance, and risk for the Digital Hooligan CEO dashboard."
+type SnapshotProps = {
+    title: string;
+    value: string;
+    helper?: string;
+    icon: React.ReactNode;
+    href?: string;
 };
 
-function formatCurrency(value: number): string {
-    return value.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0
-    });
-}
-
-// Temporary app performance snapshot (mock data for now).
-const appPerformanceSnapshot = {
-    totalApps: 3,
-    prodApps: 0,
-    betaApps: 1,
-    devApps: 2,
-    avgUptimeProd: 99.9,
-    avgLatencyMsProd: 120,
-    totalActiveUsers: 0,
-    totalSubscriptions: 0
-};
-
-export default function CeoOverviewPage() {
-    const activeProjects = getActiveProjectsCount(mockProducts);
-    const openDeals = getOpenDealsCount(mockDeals);
-    const pipelineWeighted = calculatePipelineValue(mockDeals);
-
-    const revenue30 = getRevenueLast30Days();
-    const expenses30 = getExpensesLast30Days();
-    const net30 = revenue30 - expenses30;
-    const runwayMonths = getCashRunwayMonths(mockCashOnHand);
-
-    const todayIso = new Date().toISOString().slice(0, 10);
-    const tasksDueToday = getTasksDueToday(mockTasks, todayIso);
-    const groupedTasks = groupTasksByStatus(mockTasks);
-
-    const totalTasks = mockTasks.length;
-    const inProgressCount = groupedTasks.IN_PROGRESS.length;
-    const blockedCount = groupedTasks.BLOCKED.length;
-
-    // Product health counts
-    const healthCounts = { GREEN: 0, YELLOW: 0, RED: 0 } as {
-        GREEN: number;
-        YELLOW: number;
-        RED: number;
-    };
-    for (const p of mockProducts) {
-        healthCounts[p.health]++;
-    }
-    const totalProducts = mockProducts.length || 1; // avoid divide by 0
-
-    return (
-        <div className="min-h-screen bg-slate-950 text-slate-50">
-            <CeoHeader />
-
-            <main className="mx-auto max-w-6xl px-4 py-6 space-y-5">
-                {/* Page header */}
-                <header className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <h1 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                            CEO Overview
-                        </h1>
-                        <p className="mt-1 text-[12px] text-slate-400">
-                            One-page read on how Digital Hooligan is doing across{" "}
-                            <span className="font-medium text-slate-200">
-                                products, pipeline, money, app performance, and admin / risk
-                            </span>{" "}
-                            — with links to dive deeper via the tabs.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-[11px] text-slate-300">
-                        <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1">
-                            Active projects: {activeProjects}
-                        </span>
-                        <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1">
-                            Open deals: {openDeals}
-                        </span>
-                        <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1">
-                            Tasks today: {tasksDueToday}
-                        </span>
-                    </div>
-                </header>
-
-                {/* Top snapshot row: four high-level cards */}
-                <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <MoneySnapshotCard
-                        revenue30={revenue30}
-                        expenses30={expenses30}
-                        net30={net30}
-                        runwayMonths={runwayMonths}
-                        cashOnHand={mockCashOnHand}
-                    />
-                    <ProductsSnapshotCard
-                        activeProjects={activeProjects}
-                        healthCounts={healthCounts}
-                        totalProducts={totalProducts}
-                    />
-                    <PipelineSnapshotCard
-                        openDeals={openDeals}
-                        pipelineWeighted={pipelineWeighted}
-                        totalTasks={totalTasks}
-                        inProgressCount={inProgressCount}
-                        blockedCount={blockedCount}
-                    />
-                    <PerformanceSnapshotCard snapshot={appPerformanceSnapshot} />
-                </section>
-
-                {/* Second row: admin + workload strip */}
-                <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    <AdminGovSnapshotCard />
-                    <TodayWorkloadCard
-                        todayIso={todayIso}
-                        tasksDueToday={tasksDueToday}
-                        totalTasks={totalTasks}
-                        inProgressCount={inProgressCount}
-                        blockedCount={blockedCount}
-                    />
-                </section>
-
-                {/* Decision log at the bottom */}
-                <CeoDecisionLog decisions={mockDecisions} />
-
-                <p className="pb-4 text-[10px] text-slate-500">
-                    Idea: as Strategy AI matures, this overview becomes the place where it
-                    surfaces “you should worry about X today” using these same signals.
+function SnapshotCard({ title, value, helper, icon, href }: SnapshotProps) {
+    const content = (
+        <div className="flex h-full flex-col justify-between rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/60 hover:shadow-md sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+                <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {title}
+                    </p>
+                    <p className="mt-1 text-xl font-semibold leading-tight sm:text-2xl">
+                        {value}
+                    </p>
+                    {helper && (
+                        <p className="mt-1 text-xs text-muted-foreground">{helper}</p>
+                    )}
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
+                    {icon}
+                </div>
+            </div>
+            {href && (
+                <p className="mt-3 inline-flex items-center text-xs font-medium text-primary">
+                    View details
+                    <span className="ml-1">→</span>
                 </p>
-            </main>
+            )}
         </div>
     );
+
+    if (href) {
+        return (
+            <Link href={href} className="h-full">
+                {content}
+            </Link>
+        );
+    }
+
+    return content;
 }
 
-/* ------------------------- Card components ------------------------- */
-
-function MoneySnapshotCard(props: {
-    revenue30: number;
-    expenses30: number;
-    net30: number;
-    runwayMonths: number;
-    cashOnHand: number;
-}) {
-    const { revenue30, expenses30, net30, runwayMonths, cashOnHand } = props;
-
-    const runwayPercent = Math.max(
-        0,
-        Math.min((runwayMonths / 12) * 100, 100)
-    );
-
-    const totalVolume = revenue30 + Math.abs(expenses30);
-    const revenuePct = totalVolume > 0 ? (revenue30 / totalVolume) * 100 : 50;
-    const expensePct =
-        totalVolume > 0 ? (Math.abs(expenses30) / totalVolume) * 100 : 50;
-
-    return (
-        <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <div className="flex items-center justify-between gap-3">
-                <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                        Money &amp; runway
-                    </h2>
-                    <p className="mt-1 text-[11px] text-slate-400">
-                        Are we burning too fast, or is there room to be aggressive?
-                    </p>
-                </div>
-                {/* Runway ring */}
-                <div className="relative h-16 w-16">
-                    <div
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                            backgroundImage: `conic-gradient(#22c55e ${runwayPercent}%, rgba(15,23,42,1) ${runwayPercent}%)`
-                        }}
-                    />
-                    <div className="absolute inset-[6px] flex items-center justify-center rounded-full bg-slate-950 text-center">
-                        <span className="text-[10px] leading-tight text-slate-100">
-                            {runwayMonths.toFixed(1)}m
-                            <br />
-                            <span className="text-[9px] text-slate-500">runway</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Revenue vs expenses bar */}
-            <div className="space-y-1 text-[11px]">
-                <div className="flex items-center justify-between text-slate-300">
-                    <span>Last 30d</span>
-                    <span className="text-slate-400">
-                        {formatCurrency(revenue30)} rev · {formatCurrency(expenses30)} exp
-                    </span>
-                </div>
-                <div className="h-2 rounded-full bg-slate-900">
-                    <div
-                        className="h-2 rounded-l-full bg-emerald-500/80"
-                        style={{ width: `${revenuePct}%` }}
-                    />
-                    <div
-                        className="h-2 -mt-2 rounded-r-full bg-rose-500/70"
-                        style={{ width: `${expensePct}%` }}
-                    />
-                </div>
-                <div className="flex items-center justify-between text-[10px] text-slate-400">
-                    <span>Net 30d:</span>
-                    <span className={net30 >= 0 ? "text-emerald-300" : "text-rose-300"}>
-                        {formatCurrency(net30)}
-                    </span>
-                </div>
-            </div>
-
-            {/* Cash & runway quick row */}
-            <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-300">
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Cash on hand</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {formatCurrency(cashOnHand)}
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Runway (est.)</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {runwayMonths.toFixed(1)} months
-                    </div>
-                </div>
-            </div>
-
-            <p className="mt-1 text-[10px] text-slate-500">
-                Deep dive lives in{" "}
-                <span className="font-semibold text-slate-300">Finance</span>.
-            </p>
-        </article>
-    );
-}
-
-function ProductsSnapshotCard(props: {
-    activeProjects: number;
-    healthCounts: { GREEN: number; YELLOW: number; RED: number };
-    totalProducts: number;
-}) {
-    const { activeProjects, healthCounts, totalProducts } = props;
-
-    const greenPct = (healthCounts.GREEN / totalProducts) * 100;
-    const yellowPct = (healthCounts.YELLOW / totalProducts) * 100;
-    const redPct = (healthCounts.RED / totalProducts) * 100;
-
-    return (
-        <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <div>
-                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Products &amp; health
-                </h2>
-                <p className="mt-1 text-[11px] text-slate-400">
-                    Snapshot of PennyWize, DropSignal, HypeWatch, Ops Toys, etc.
-                </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300">
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Active projects</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {activeProjects}
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Total apps / tools</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {totalProducts}
-                    </div>
-                </div>
-            </div>
-
-            {/* Health bar */}
-            <div className="space-y-1 text-[11px]">
-                <div className="flex items-center justify-between text-slate-300">
-                    <span>Product health mix</span>
-                    <span className="text-[10px] text-slate-400">
-                        G:{healthCounts.GREEN} · Y:{healthCounts.YELLOW} · R:
-                        {healthCounts.RED}
-                    </span>
-                </div>
-                <div className="flex h-2 overflow-hidden rounded-full bg-slate-900">
-                    <div
-                        className="h-2 bg-emerald-500/80"
-                        style={{ width: `${greenPct}%` }}
-                    />
-                    <div
-                        className="h-2 bg-amber-400/80"
-                        style={{ width: `${yellowPct}%` }}
-                    />
-                    <div
-                        className="h-2 bg-rose-500/80"
-                        style={{ width: `${redPct}%` }}
-                    />
-                </div>
-            </div>
-
-            <p className="mt-1 text-[10px] text-slate-500">
-                Details live in{" "}
-                <span className="font-semibold text-slate-300">Apps / Labs</span> and
-                your product docs.
-            </p>
-        </article>
-    );
-}
-
-function PipelineSnapshotCard(props: {
-    openDeals: number;
-    pipelineWeighted: number;
-    totalTasks: number;
-    inProgressCount: number;
-    blockedCount: number;
-}) {
-    const {
-        openDeals,
-        pipelineWeighted,
-        totalTasks,
-        inProgressCount,
-        blockedCount
-    } = props;
-
-    const inProgressPct =
-        totalTasks > 0 ? (inProgressCount / totalTasks) * 100 : 0;
-    const blockedPct = totalTasks > 0 ? (blockedCount / totalTasks) * 100 : 0;
-
-    return (
-        <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <div>
-                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Deals &amp; workload
-                </h2>
-                <p className="mt-1 text-[11px] text-slate-400">
-                    Where the next money is likely to come from, and how busy you are.
-                </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300">
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Open deals</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {openDeals}
-                    </div>
-                    <div className="text-[10px] text-slate-500">
-                        Gov, freelance, direct
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Weighted pipeline</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {formatCurrency(pipelineWeighted)}
-                    </div>
-                    <div className="text-[10px] text-slate-500">probability-adjusted</div>
-                </div>
-            </div>
-
-            {/* Workload bar */}
-            <div className="space-y-1 text-[11px]">
-                <div className="flex items-center justify-between text-slate-300">
-                    <span>Workload mix</span>
-                    <span className="text-[10px] text-slate-400">
-                        Total tasks: {totalTasks}
-                    </span>
-                </div>
-                <div className="grid grid-cols-3 gap-1 text-[10px] text-slate-300">
-                    <div className="rounded-md bg-slate-950/80 p-1">
-                        <div className="text-slate-500">In progress</div>
-                        <div className="font-semibold text-slate-100">
-                            {inProgressCount}
-                        </div>
-                    </div>
-                    <div className="rounded-md bg-slate-950/80 p-1">
-                        <div className="text-slate-500">Blocked</div>
-                        <div className="font-semibold text-slate-100">
-                            {blockedCount}
-                        </div>
-                    </div>
-                    <div className="rounded-md bg-slate-950/80 p-1">
-                        <div className="text-slate-500">Focus load</div>
-                        <div className="font-semibold text-slate-100">
-                            {Math.round(inProgressPct + blockedPct)}%
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <p className="mt-1 text-[10px] text-slate-500">
-                Full details live in{" "}
-                <span className="font-semibold text-slate-300">Tasks</span> and{" "}
-                <span className="font-semibold text-slate-300">Deals</span>.
-            </p>
-        </article>
-    );
-}
-
-function PerformanceSnapshotCard({
-    snapshot
+function Tab({
+    href,
+    label,
+    isActive,
 }: {
-    snapshot: typeof appPerformanceSnapshot;
+    href: string;
+    label: string;
+    isActive?: boolean;
 }) {
-    const {
-        totalApps,
-        prodApps,
-        betaApps,
-        devApps,
-        avgUptimeProd,
-        avgLatencyMsProd,
-        totalActiveUsers,
-        totalSubscriptions
-    } = snapshot;
-
-    const prodShare =
-        totalApps > 0 ? Math.round((prodApps / totalApps) * 100) : 0;
-
     return (
-        <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <div>
-                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    App performance
-                </h2>
-                <p className="mt-1 text-[11px] text-slate-400">
-                    Are the bots and apps healthy in production?
-                </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300">
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Apps / tools</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {totalApps}
-                    </div>
-                    <div className="text-[10px] text-slate-500">
-                        {prodApps} prod · {betaApps} beta · {devApps} dev
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Prod coverage</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {prodShare}%
-                    </div>
-                    <div className="text-[10px] text-slate-500">
-                        of apps live in prod
-                    </div>
-                </div>
-            </div>
-
-            {/* Uptime / latency mini chart */}
-            <div className="space-y-1 text-[11px]">
-                <div className="flex items-center justify-between text-slate-300">
-                    <span>Prod uptime</span>
-                    <span className="text-[10px] text-slate-400">
-                        {avgUptimeProd.toFixed(2)}%
-                    </span>
-                </div>
-                <div className="relative h-2 overflow-hidden rounded-full bg-slate-900">
-                    <div
-                        className="absolute inset-y-0 left-0 bg-emerald-500/80"
-                        style={{ width: `${avgUptimeProd}%` }}
-                    />
-                </div>
-                <div className="flex items-center justify-between text-[10px] text-slate-400">
-                    <span>Avg latency (prod)</span>
-                    <span>{avgLatencyMsProd} ms</span>
-                </div>
-            </div>
-
-            {/* Usage row */}
-            <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-300">
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Active users</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {totalActiveUsers}
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Subscriptions</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {totalSubscriptions}
-                    </div>
-                </div>
-            </div>
-
-            <p className="mt-1 text-[10px] text-slate-500">
-                Full graphs will live under{" "}
-                <span className="font-semibold text-slate-300">Performance</span> once
-                apps are in production.
-            </p>
-        </article>
+        <Link
+            href={href}
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-muted'
+                }`}
+        >
+            {label}
+        </Link>
     );
 }
 
-function AdminGovSnapshotCard() {
-    return (
-        <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <div>
-                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Admin / Gov / Risk
-                </h2>
-                <p className="mt-1 text-[11px] text-slate-400">
-                    Quick health check on Digital Hooligan as an actual company.
-                </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300">
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">LLC</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {mockAdminStatus.llcActive ? "Active" : "Check status"}
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">EIN</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {mockAdminStatus.einActive ? "Active" : "Check status"}
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Navy Federal</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {mockAdminStatus.navyFedStatus}
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">SAM.gov</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {mockAdminStatus.samStatus}
-                    </div>
-                </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">VSOB / SDVOSB</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {mockAdminStatus.vsobStatus}
-                    </div>
-                </div>
-            </div>
-
-            <div className="mt-2 space-y-1 text-[10px] text-slate-500">
-                <div className="font-semibold text-slate-400">Risks</div>
-                {mockAdminStatus.riskFlags.map((flag) => (
-                    <div key={flag}>• {flag}</div>
-                ))}
-            </div>
-
-            <p className="mt-1 text-[10px] text-slate-500">
-                Deeper handling lives in future{" "}
-                <span className="font-semibold text-slate-300">Admin / Gov</span>{" "}
-                views and automations.
-            </p>
-        </article>
-    );
-}
-
-function TodayWorkloadCard(props: {
-    todayIso: string;
-    tasksDueToday: number;
-    totalTasks: number;
-    inProgressCount: number;
-    blockedCount: number;
-}) {
-    const { todayIso, tasksDueToday, totalTasks, inProgressCount, blockedCount } =
-        props;
+export default function CeoOverviewPage() {
+    // Placeholder values – you can later wire this to real data / metrics.
+    const totalMoney = '$4,250';
+    const numProducts = 3; // PennyWize, DropSignal, HypeWatch
+    const openDeals = 2;
+    const uptime = 99.92;
+    const openIncidents = 0;
 
     return (
-        <article className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <div>
-                <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                    Today &amp; this week
-                </h2>
-                <p className="mt-1 text-[11px] text-slate-400">
-                    Quick glance at how overloaded you are right now.
-                </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300">
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Today</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {todayIso}
+        <div className="space-y-6">
+            {/* Header + nav */}
+            <header className="space-y-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                            CEO dashboard
+                        </h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            One place to see money, products, deals, and app health across
+                            Digital Hooligan.
+                        </p>
                     </div>
-                    <div className="text-[10px] text-slate-500">
-                        Tasks due today: {tasksDueToday}
+                    <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        <span>Today: systems nominal</span>
                     </div>
                 </div>
-                <div className="rounded-xl bg-slate-950/80 p-2">
-                    <div className="text-slate-500">Current load</div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {totalTasks} tasks
-                    </div>
-                    <div className="text-[10px] text-slate-500">
-                        {inProgressCount} in progress · {blockedCount} blocked
+
+                <nav className="flex flex-wrap gap-2">
+                    <Tab href="/ceo" label="Overview" isActive />
+                    <Tab href="/ceo/tasks" label="Tasks" />
+                    <Tab href="/ceo/deals" label="Deals" />
+                    <Tab href="/ceo/finance" label="Finance" />
+                    <Tab href="/ceo/performance" label="Performance" />
+                    <Tab href="/ceo/ai-hub" label="AI Hub" />
+                    <Tab href="/ceo/settings" label="Settings" />
+                    <Tab href="/ceo/logout" label="Logout" />
+                </nav>
+            </header>
+
+            {/* Snapshot grid */}
+            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <SnapshotCard
+                    title="Money"
+                    value={totalMoney}
+                    helper="Est. MRR across all live products"
+                    icon={<DollarSign className="h-4 w-4" />}
+                    href="/ceo/finance"
+                />
+                <SnapshotCard
+                    title="Products"
+                    value={`${numProducts} live`}
+                    helper="PennyWize, DropSignal, HypeWatch"
+                    icon={<Package className="h-4 w-4" />}
+                    href="/ceo/products"
+                />
+                <SnapshotCard
+                    title="Deals"
+                    value={`${openDeals} open`}
+                    helper="Active opportunities + proposals"
+                    icon={<Handshake className="h-4 w-4" />}
+                    href="/ceo/deals"
+                />
+                <SnapshotCard
+                    title="App performance"
+                    value={`${uptime.toFixed(2)}%`}
+                    helper={
+                        openIncidents === 0
+                            ? 'All apps healthy · 0 open incidents'
+                            : `${openIncidents} open incidents · check details`
+                    }
+                    icon={<Activity className="h-4 w-4" />}
+                    href="/ceo/performance"
+                />
+            </section>
+
+            {/* Admin + Today row */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+                {/* Admin panel */}
+                <div className="space-y-4">
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    Admin
+                                </p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Quick admin checklist for Digital Hooligan LLC.
+                                </p>
+                            </div>
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                                <ListChecks className="h-4 w-4" />
+                            </div>
+                        </div>
+
+                        <ul className="mt-4 space-y-2 text-xs">
+                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
+                                <span>EIN + LLC paperwork</span>
+                                <span className="text-[11px] font-medium text-emerald-500">
+                                    Done
+                                </span>
+                            </li>
+                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
+                                <span>SAM.gov entity registration</span>
+                                <span className="text-[11px] font-medium text-amber-500">
+                                    In review
+                                </span>
+                            </li>
+                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
+                                <span>Navy Federal business account</span>
+                                <span className="text-[11px] font-medium text-amber-500">
+                                    In progress
+                                </span>
+                            </li>
+                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
+                                <span>VSOB / SBA certifications</span>
+                                <span className="text-[11px] font-medium text-sky-500">
+                                    Upcoming
+                                </span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </div>
 
-            <p className="mt-1 text-[10px] text-slate-500">
-                Full kanban and calendar live in{" "}
-                <span className="font-semibold text-slate-300">Tasks</span>.
-            </p>
-        </article>
+                {/* Today panel */}
+                <div className="space-y-4">
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    Today
+                                </p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    High-impact moves for future Tez.
+                                </p>
+                            </div>
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                                <Sparkles className="h-4 w-4" />
+                            </div>
+                        </div>
+
+                        <ul className="mt-4 space-y-2 text-xs">
+                            <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                                Review new opportunities on Gun.io / Upwork.
+                            </li>
+                            <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                                Polish Digital Hooligan marketing site copy.
+                            </li>
+                            <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                                Sketch next milestones for PennyWize and DropSignal.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    Settings quick link
+                                </p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Jump straight into CEO dashboard settings.
+                                </p>
+                            </div>
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                                <Settings className="h-4 w-4" />
+                            </div>
+                        </div>
+
+                        <div className="mt-3">
+                            <Link
+                                href="/ceo/settings"
+                                className="inline-flex items-center justify-center rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+                            >
+                                Open settings →
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Decision log */}
+            <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Decision log
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Lightweight history of key calls so future you remembers why.
+                        </p>
+                    </div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                        <BarChart3 className="h-4 w-4" />
+                    </div>
+                </div>
+
+                <ul className="mt-4 space-y-2 text-xs">
+                    <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                        <span className="font-medium">2025-12-03 ·</span>{' '}
+                        Lock in Digital Hooligan as a multi-app studio (PennyWize, DropSignal,
+                        HypeWatch) with shared internal dashboards.
+                    </li>
+                    <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                        <span className="font-medium">2025-12-02 ·</span>{' '}
+                        Add dedicated app performance view and tie it into the CEO dashboard.
+                    </li>
+                    <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                        <span className="font-medium">2025-11-30 ·</span>{' '}
+                        Decide to pursue both gov contracting and SaaS revenue streams.
+                    </li>
+                </ul>
+            </section>
+        </div>
     );
 }
