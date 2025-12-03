@@ -1,6 +1,10 @@
 packages:
-  - "apps/*"
-  - "apps/bots/*"
-  - "packages/*"
-  - "backend/*"
-  - "docs/*"
+  - apps/*
+  - apps/bots/*
+  - packages/*
+  - backend/*
+  - docs/*
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
