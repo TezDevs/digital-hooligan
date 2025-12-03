@@ -53,11 +53,21 @@ export interface AdminStatus {
     riskFlags: string[];
 }
 
+export type DecisionArea =
+    | "PRODUCT"
+    | "GOV"
+    | "OPS"
+    | "FINANCE"
+    | "BRAND"
+    | "OTHER";
+
 export interface DecisionEntry {
     id: string;
-    date: string;
+    date: string; // YYYY-MM-DD
     title: string;
     details?: string;
+    area: DecisionArea;
+    impact: "LOW" | "MEDIUM" | "HIGH";
 }
 
 // --- Finance-specific types ---
@@ -68,15 +78,31 @@ export interface RevenueStream {
     id: string;
     label: string;
     type: RevenueStreamType;
-    last30d: number; // revenue in last 30 days
-    mrr?: number; // monthly recurring (for future)
+    last30d: number;
+    mrr?: number;
 }
 
 export interface ExpenseCategory {
     id: string;
     label: string;
-    last30d: number; // spend in last 30 days
-    recurringMonthly: number; // expected monthly burn
+    last30d: number;
+    recurringMonthly: number;
+}
+
+// --- Meetings / calendar types ---
+
+export type MeetingType = "CLIENT" | "INTERNAL" | "GOV" | "OTHER";
+export type MeetingChannel = "CALL" | "VIDEO" | "IN_PERSON";
+
+export interface Meeting {
+    id: string;
+    title: string;
+    date: string; // YYYY-MM-DD
+    time: string; // HH:MM local
+    type: MeetingType;
+    channel: MeetingChannel;
+    relatedTo?: "DEAL" | "PRODUCT" | "ADMIN";
+    notes?: string;
 }
 
 // --- Mock data ---
@@ -86,7 +112,8 @@ export const mockProducts: Product[] = [
         id: "pennywize",
         code: "PW",
         name: "PennyWize",
-        description: "Penny stock intel + alerts with future social layer around the data.",
+        description:
+            "Penny stock intel + alerts with future social layer around the data.",
         stage: "BUILDING",
         health: "GREEN",
         currentFocus: "Landing page + data model",
@@ -245,21 +272,36 @@ export const mockDecisions: DecisionEntry[] = [
         date: "2025-11-30",
         title: "Registered Digital Hooligan LLC and committed to gov work track.",
         details:
-            "Set NAICS focus around 541511 with flexibility to expand as brand grows."
+            "Set NAICS focus around 541511 with flexibility to expand as the brand grows.",
+        area: "GOV",
+        impact: "HIGH"
     },
     {
         id: "dec-2",
         date: "2025-12-01",
-        title: "Chose CEO dashboard as core internal product.",
+        title: "Chose CEO dashboard as the core internal product.",
         details:
-            "Dashboard will be the control center for apps, revenue streams, and admin status."
+            "Dashboard will be the control center for apps, revenue streams, and admin status.",
+        area: "PRODUCT",
+        impact: "HIGH"
     },
     {
         id: "dec-3",
         date: "2025-12-02",
         title: "Planned multi-stream revenue: apps, bots, freelance, and contracts.",
         details:
-            "Short/medium-term focus on small contracts and freelance while apps ramp up."
+            "Short/medium-term focus on small contracts and freelance while apps ramp up.",
+        area: "FINANCE",
+        impact: "MEDIUM"
+    },
+    {
+        id: "dec-4",
+        date: "2025-12-03",
+        title: "Committed to AI assistants as first-class tools, not gimmicks.",
+        details:
+            "Strategy AI & Ops AI will plug into real CEO data, with clear guardrails in settings.",
+        area: "OTHER",
+        impact: "MEDIUM"
     }
 ];
 
@@ -312,6 +354,51 @@ export const mockExpenseCategories: ExpenseCategory[] = [
 
 export const mockCashOnHand = 12000;
 
+// --- Meetings / calendar mock data ---
+
+export const mockMeetings: Meeting[] = [
+    {
+        id: "m-1",
+        title: "Intro call – small gov web/app modernization",
+        date: "2025-12-04",
+        time: "10:00",
+        type: "GOV",
+        channel: "VIDEO",
+        relatedTo: "DEAL",
+        notes: "Discovery on requirements and schedule."
+    },
+    {
+        id: "m-2",
+        title: "Gun.io talent manager check-in",
+        date: "2025-12-05",
+        time: "14:30",
+        type: "CLIENT",
+        channel: "VIDEO",
+        relatedTo: "DEAL",
+        notes: "Align on availability and ideal contracts."
+    },
+    {
+        id: "m-3",
+        title: "Direct client dashboard scoping call",
+        date: "2025-12-06",
+        time: "16:00",
+        type: "CLIENT",
+        channel: "CALL",
+        relatedTo: "PRODUCT",
+        notes: "Clarify KPIs and data sources."
+    },
+    {
+        id: "m-4",
+        title: "Internal: PennyWize roadmap review",
+        date: "2025-12-07",
+        time: "11:00",
+        type: "INTERNAL",
+        channel: "VIDEO",
+        relatedTo: "PRODUCT",
+        notes: "Lock next 2 sprints."
+    }
+];
+
 // --- Helpers used by CEO dashboard ---
 
 export function getRevenueLast30Days(): number {
@@ -347,7 +434,6 @@ export function getTasksDueToday(tasks: Task[], todayIso: string): number {
 }
 
 export function getTopFocusTasks(tasks: Task[]): Task[] {
-    // Simple heuristic: show a mix of in-progress and this-week items
     const inProgress = tasks.filter((t) => t.status === "IN_PROGRESS");
     const thisWeek = tasks.filter((t) => t.status === "THIS_WEEK");
     const inbox = tasks.filter((t) => t.status === "INBOX");
@@ -385,8 +471,6 @@ export function calculatePipelineValue(deals: Deal[]): number {
     );
 }
 
-// --- New helper for /ceo/tasks ---
-
 export function groupTasksByStatus(
     tasks: Task[]
 ): Record<TaskStatus, Task[]> {
@@ -397,4 +481,14 @@ export function groupTasksByStatus(
         BLOCKED: tasks.filter((t) => t.status === "BLOCKED"),
         DONE: tasks.filter((t) => t.status === "DONE")
     };
+}
+
+export function groupMeetingsByDate(
+    meetings: Meeting[]
+): Record<string, Meeting[]> {
+    return meetings.reduce<Record<string, Meeting[]>>((acc, m) => {
+        if (!acc[m.date]) acc[m.date] = [];
+        acc[m.date].push(m);
+        return acc;
+    }, {});
 }
