@@ -60,6 +60,25 @@ export interface DecisionEntry {
     details?: string;
 }
 
+// --- Finance-specific types ---
+
+export type RevenueStreamType = "APPS" | "FREELANCE" | "GOV" | "OTHER";
+
+export interface RevenueStream {
+    id: string;
+    label: string;
+    type: RevenueStreamType;
+    last30d: number; // revenue in last 30 days
+    mrr?: number; // monthly recurring (for future)
+}
+
+export interface ExpenseCategory {
+    id: string;
+    label: string;
+    last30d: number; // spend in last 30 days
+    recurringMonthly: number; // expected monthly burn
+}
+
 // --- Mock data ---
 
 export const mockProducts: Product[] = [
@@ -244,11 +263,73 @@ export const mockDecisions: DecisionEntry[] = [
     }
 ];
 
+// --- Finance mock data ---
+
+export const mockRevenueStreams: RevenueStream[] = [
+    {
+        id: "rev-apps",
+        label: "Apps & bots (Digital Hooligan stack)",
+        type: "APPS",
+        last30d: 1500,
+        mrr: 1500
+    },
+    {
+        id: "rev-freelance",
+        label: "Freelance (Gun.io, Upwork, direct dev work)",
+        type: "FREELANCE",
+        last30d: 2000,
+        mrr: 0
+    },
+    {
+        id: "rev-gov",
+        label: "Gov work (small SAM.gov-style contracts)",
+        type: "GOV",
+        last30d: 700,
+        mrr: 0
+    }
+];
+
+export const mockExpenseCategories: ExpenseCategory[] = [
+    {
+        id: "exp-infra",
+        label: "Infra (Vercel, Cloudflare, storage, domains)",
+        last30d: 800,
+        recurringMonthly: 900
+    },
+    {
+        id: "exp-tools",
+        label: "Tools (design, AI, IDEs, subscriptions)",
+        last30d: 300,
+        recurringMonthly: 300
+    },
+    {
+        id: "exp-misc",
+        label: "Misc + admin (fees, filings, small purchases)",
+        last30d: 250,
+        recurringMonthly: 250
+    }
+];
+
+export const mockCashOnHand = 12000;
+
 // --- Helpers used by CEO dashboard ---
 
 export function getRevenueLast30Days(): number {
-    // Placeholder: future version will pull from Stripe / accounting APIs
-    return 4200;
+    return mockRevenueStreams.reduce((sum, s) => sum + s.last30d, 0);
+}
+
+export function getExpensesLast30Days(): number {
+    return mockExpenseCategories.reduce((sum, c) => sum + c.last30d, 0);
+}
+
+export function getMonthlyBurnRate(): number {
+    return mockExpenseCategories.reduce((sum, c) => sum + c.recurringMonthly, 0);
+}
+
+export function getCashRunwayMonths(cashOnHand: number): number {
+    const burn = getMonthlyBurnRate();
+    if (burn <= 0) return Infinity;
+    return cashOnHand / burn;
 }
 
 export function getActiveProjectsCount(products: Product[]): number {
