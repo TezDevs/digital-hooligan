@@ -45,7 +45,7 @@ export default function CeoDashboardPage() {
     const pipelineExpected = calculatePipelineValue(mockDeals);
 
     const securityStatus = {
-        posture: "Good", // Placeholder until we wire real checks
+        posture: "Good", // placeholder until we wire real checks
         openItems: 2,
         lastReview: "2025-12-02"
     };
@@ -147,8 +147,8 @@ export default function CeoDashboardPage() {
                                 </div>
                                 <span
                                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${securityStatus.posture === "Good"
-                                        ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
-                                        : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
+                                            ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
+                                            : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
                                         }`}
                                 >
                                     <span className="text-[10px]">🔒</span>
@@ -320,7 +320,7 @@ export default function CeoDashboardPage() {
                                             <span className="rounded-full bg-slate-800 px-2 py-0.5 text-slate-300">
                                                 {product.stage.toLowerCase()}
                                             </span>
-                                            <HealthDot health={product.health} />
+                                            <HealthDot health={product.health as "GREEN" | "YELLOW" | "RED"} />
                                         </div>
                                     </div>
                                     <p className="text-[11px] text-slate-400">{product.description}</p>
@@ -527,8 +527,8 @@ function SnapshotCard({
     return (
         <div
             className={`rounded-2xl border bg-slate-900/70 px-3 py-3 text-[11px] ${highlight
-                ? "border-amber-500/60 shadow-[0_0_0_1px_rgba(245,158,11,0.3)]"
-                : "border-slate-800"
+                    ? "border-amber-500/60 shadow-[0_0_0_1px_rgba(245,158,11,0.3)]"
+                    : "border-slate-800"
                 }`}
         >
             <div className="mb-1 text-[10px] uppercase tracking-[0.16em] text-slate-500">
@@ -551,8 +551,8 @@ function PipelineStagePill({
     return (
         <div
             className={`flex items-center justify-between rounded-full border px-3 py-1 ${accent
-                ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
-                : "border-slate-800 bg-slate-900/80 text-slate-300"
+                    ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
+                    : "border-slate-800 bg-slate-900/80 text-slate-300"
                 } text-[11px]`}
         >
             <span>{label}</span>
@@ -588,8 +588,8 @@ function StatusRow({ label, ok, text }: { label: string; ok?: boolean; text?: st
             {typeof ok === "boolean" ? (
                 <span
                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${ok
-                        ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
-                        : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
+                            ? "bg-emerald-500/10 text-emerald-200 border border-emerald-500/40"
+                            : "bg-amber-500/10 text-amber-200 border border-amber-500/40"
                         }`}
                 >
                     {ok ? "✅ Active" : "⚠ Check"}
