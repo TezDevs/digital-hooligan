@@ -3,8 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
+import { getMockMetricValue } from "@/lib/mockMetrics";
 
-// Use simple string-keyed maps so TS doesn't get fussy
+// Simple string-keyed maps so TS stays chill even if enums change.
 const KIND_LABELS: Record<string, string> = {
     "public-app": "Public app",
     "internal-tool": "Internal tool",
@@ -75,12 +76,12 @@ export default function CeoPerformancePage() {
                             App performance
                         </h1>
                         <p className="mt-2 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            Portfolio-level view of lifecycle and future metrics for every app, bot, and internal
-                            tool. Powered by the typed{" "}
+                            Portfolio-level view of lifecycle and early metrics (mocked for now) for every app,
+                            bot, and internal tool. Driven by{" "}
                             <code className="rounded bg-slate-800/80 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
                                 APP_REGISTRY
                             </code>{" "}
-                            config.
+                            and a tiny in-memory metrics adapter.
                         </p>
                     </div>
 
@@ -124,7 +125,7 @@ export default function CeoPerformancePage() {
                                     Public apps & products
                                 </h2>
                                 <p className="mt-1 text-xs text-slate-400">
-                                    Things users will touch directly. Metric keys here will later wire to Stripe,
+                                    Things users will touch directly. Metric keys here can later wire to Stripe,
                                     analytics, and uptime monitors.
                                 </p>
                             </div>
@@ -144,8 +145,8 @@ export default function CeoPerformancePage() {
                                     Internal dashboards & toys
                                 </h2>
                                 <p className="mt-1 text-xs text-slate-400">
-                                    CEO tools, Labs HQ views, and ops automation. Good place to track uptime and error
-                                    rates without exposing them publicly.
+                                    CEO tools, Labs HQ views, and ops automation. Great place to track uptime and
+                                    error rates without exposing them publicly.
                                 </p>
                             </div>
                             <span className="rounded-full bg-slate-800/80 px-2.5 py-1 text-[0.7rem] font-medium text-slate-100 ring-1 ring-slate-600/80">
@@ -163,13 +164,9 @@ export default function CeoPerformancePage() {
                         Future wiring
                     </h2>
                     <p className="mt-2">
-                        When you&apos;re ready, each{" "}
-                        <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
-                            metricsKeys
-                        </code>{" "}
-                        entry (users, MRR, uptime, latency, errors/min) can hook into real data sources:
-                        Stripe, analytics, uptime monitors, logging, and AI summaries. This page is already
-                        structured to display those values per app without changing the layout.
+                        When you&apos;re ready, swap the mock metrics adapter for real data sources: Stripe,
+                        analytics, uptime monitors, logging, and AI summaries. The layout here won&apos;t need
+                        to change – only the function that resolves metric values by key.
                     </p>
                 </section>
             </div>
@@ -262,11 +259,23 @@ function PerformanceTable({ apps }: { apps: AppRegistryEntry[] }) {
                                 )}
                             </td>
 
-                            {/* Metric columns – for now, show whether a key is defined, not actual values */}
-                            <MetricCell hasKey={!!app.metricsKeys?.users} />
-                            <MetricCell hasKey={!!app.metricsKeys?.mrr} />
-                            <MetricCell hasKey={!!app.metricsKeys?.uptime} />
-                            <MetricCell hasKey={!!app.metricsKeys?.errorsPerMin} />
+                            {/* Metric columns – now showing mock values when keys exist */}
+                            <MetricCell
+                                kind="users"
+                                metricKey={app.metricsKeys?.users ?? null}
+                            />
+                            <MetricCell
+                                kind="mrr"
+                                metricKey={app.metricsKeys?.mrr ?? null}
+                            />
+                            <MetricCell
+                                kind="uptime"
+                                metricKey={app.metricsKeys?.uptime ?? null}
+                            />
+                            <MetricCell
+                                kind="errorsPerMin"
+                                metricKey={app.metricsKeys?.errorsPerMin ?? null}
+                            />
                         </tr>
                     ))}
                 </tbody>
@@ -275,8 +284,18 @@ function PerformanceTable({ apps }: { apps: AppRegistryEntry[] }) {
     );
 }
 
-function MetricCell({ hasKey }: { hasKey: boolean }) {
-    if (!hasKey) {
+type MetricKind = "users" | "mrr" | "uptime" | "errorsPerMin";
+
+function MetricCell({
+    kind,
+    metricKey,
+}: {
+    kind: MetricKind;
+    metricKey: string | null;
+}) {
+    const raw = getMockMetricValue(metricKey);
+
+    if (raw == null) {
         return (
             <td className="px-3 py-2 align-top text-[0.7rem] text-slate-500">
                 <span className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.65rem] text-slate-500">
@@ -286,10 +305,29 @@ function MetricCell({ hasKey }: { hasKey: boolean }) {
         );
     }
 
+    let formatted: string;
+
+    switch (kind) {
+        case "users":
+            formatted = `${Math.round(raw).toLocaleString()} users`;
+            break;
+        case "mrr":
+            formatted = `$${raw.toFixed(0)}/mo`;
+            break;
+        case "uptime":
+            formatted = `${raw.toFixed(1)}%`;
+            break;
+        case "errorsPerMin":
+            formatted = `${raw.toFixed(2)}`;
+            break;
+        default:
+            formatted = raw.toString();
+    }
+
     return (
         <td className="px-3 py-2 align-top text-[0.7rem] text-slate-200">
             <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[0.65rem] text-emerald-300 ring-1 ring-emerald-500/40">
-                key set
+                {formatted}
             </span>
         </td>
     );
