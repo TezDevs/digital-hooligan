@@ -26,13 +26,13 @@ function Tab({ href, label, isActive }: TabProps) {
         <Link
             href={href}
             className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                    ? 'bg-primary/90 text-primary-foreground ring-2 ring-primary shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted'
+                    ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
+                    : 'border border-border bg-card text-muted-foreground hover:bg-muted'
                 }`}
         >
             <span>{label}</span>
             {isActive && (
-                <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             )}
         </Link>
     );
@@ -196,8 +196,8 @@ export default function PerformancePage() {
                             type="button"
                             onClick={() => setSelectedApp(key)}
                             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${selectedApp === key
-                                    ? 'bg-primary text-primary-foreground shadow-sm'
-                                    : 'border border-border bg-card text-muted-foreground hover:bg-muted'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'border border-border bg-card text-muted-foreground hover:bg-muted'
                                 }`}
                         >
                             {label}
@@ -215,8 +215,8 @@ export default function PerformancePage() {
                             type="button"
                             onClick={() => setTimeRange(range)}
                             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${timeRange === range
-                                    ? 'bg-secondary text-secondary-foreground'
-                                    : 'border border-border bg-card text-muted-foreground hover:bg-muted'
+                                ? 'bg-secondary text-secondary-foreground'
+                                : 'border border-border bg-card text-muted-foreground hover:bg-muted'
                                 }`}
                         >
                             {range === '7d'
