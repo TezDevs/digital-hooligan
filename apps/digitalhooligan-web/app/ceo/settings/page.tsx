@@ -24,8 +24,8 @@ function Tab({ href, label, isActive }: TabProps) {
         <Link
             href={href}
             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                    ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
-                    : 'border border-border bg-card text-muted-foreground hover:bg-muted'
+                ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
+                : 'border border-border bg-card text-muted-foreground hover:bg-muted'
                 }`}
         >
             <span className="flex items-center gap-1.5">
@@ -125,6 +125,7 @@ export default function CeoSettingsPage() {
                     <Tab href="/ceo/finance" label="Finance" />
                     <Tab href="/ceo/performance" label="Performance" />
                     <Tab href="/ceo/ai-hub" label="AI Hub" />
+                    <Tab href="/ceo/dev-workbench" label="Dev WB" />
                     <Tab href="/ceo/settings" label="Settings" isActive />
                     <Tab href="/ceo/logout" label="Logout" />
                 </nav>
