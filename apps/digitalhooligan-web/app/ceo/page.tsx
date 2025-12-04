@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
+
 import {
     Activity,
     Briefcase,
@@ -14,6 +16,17 @@ import {
     Bot,
 } from 'lucide-react';
 
+
+function getAppPortfolioStats(apps: AppRegistryEntry[]) {
+    const total = apps.length;
+    const liveOrBeta = apps.filter(
+        (a) => a.lifecycle === "live" || a.lifecycle === "beta",
+    ).length;
+    const internalOnly = apps.filter((a) => a.internalOnly).length;
+    const publicReady = apps.filter((a) => !a.internalOnly).length;
+
+    return { total, liveOrBeta, internalOnly, publicReady };
+}
 type TabProps = {
     href: string;
     label: string;
@@ -158,6 +171,8 @@ function appStatusColor(status: AppHealth['status']) {
 }
 
 export default function CeoOverviewPage() {
+    const { total, liveOrBeta, internalOnly, publicReady } =
+        getAppPortfolioStats(APP_REGISTRY);
     return (
         <div className="space-y-6">
             {/* Header + nav */}
@@ -276,6 +291,88 @@ export default function CeoOverviewPage() {
                     </div>
                     <div className="mt-3 text-[11px] text-muted-foreground">
                         <p>Dig deeper in App performance for latency + incidents.</p>
+                    </div>
+                </div>
+            </section>
+            {/* App portfolio snapshot – powered by APP_REGISTRY (non-destructive add) */}
+            <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-sm shadow-black/40">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                    <div>
+                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                            App portfolio snapshot
+                        </h2>
+                        <p className="mt-1 text-xs text-slate-400">
+                            Quick view of how many apps, bots, and internal tools exist in the registry. This is
+                            backed by{" "}
+                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.65rem] text-emerald-300">
+                                APP_REGISTRY
+                            </code>{" "}
+                            so it stays in sync with Labs.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1 text-right">
+                        <span className="text-xl font-semibold text-slate-50">
+                            {total}
+                        </span>
+                        <span className="text-[0.7rem] text-slate-400">
+                            total entries
+                        </span>
+                    </div>
+                </div>
+
+                <div className="mt-3 grid gap-4 text-[0.75rem] text-slate-200 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Live / Beta
+                        </p>
+                        <p className="mt-1 text-lg font-semibold text-slate-50">
+                            {liveOrBeta}
+                        </p>
+                        <p className="mt-1 text-[0.7rem] text-slate-400">
+                            Anything currently live or being dogfooded.
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Internal-only
+                        </p>
+                        <p className="mt-1 text-lg font-semibold text-slate-50">
+                            {internalOnly}
+                        </p>
+                        <p className="mt-1 text-[0.7rem] text-slate-400">
+                            CEO, Labs HQ, and ops toys that stay behind the curtain.
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Public-ready
+                        </p>
+                        <p className="mt-1 text-lg font-semibold text-slate-50">
+                            {publicReady}
+                        </p>
+                        <p className="mt-1 text-[0.7rem] text-slate-400">
+                            User-facing apps and products in the registry.
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Registry detail
+                        </p>
+                        <p className="mt-1 text-[0.8rem] text-slate-200">
+                            For lifecycle breakdowns and per-app routes, use{" "}
+                            <span className="font-mono text-[0.75rem] text-emerald-300">
+                                /ceo/apps
+                            </span>{" "}
+                            or{" "}
+                            <span className="font-mono text-[0.75rem] text-emerald-300">
+                                /labs/app-registry
+                            </span>
+                            .
+                        </p>
                     </div>
                 </div>
             </section>
