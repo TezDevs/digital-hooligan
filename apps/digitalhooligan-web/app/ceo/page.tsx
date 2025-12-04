@@ -6,28 +6,50 @@ import {
     Activity,
     BarChart3,
     DollarSign,
-    Package,
+    ShoppingBag,
     Handshake,
-    ListChecks,
+    GaugeCircle,
     Settings,
-    Sparkles,
 } from 'lucide-react';
 
-type SnapshotProps = {
-    title: string;
-    value: string;
-    helper?: string;
-    icon: React.ReactNode;
-    href?: string;
+type TabProps = {
+    href: string;
+    label: string;
+    isActive?: boolean;
 };
 
-function SnapshotCard({ title, value, helper, icon, href }: SnapshotProps) {
+function Tab({ href, label, isActive }: TabProps) {
+    return (
+        <Link
+            href={href}
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition ${isActive
+                    ? 'bg-primary/90 text-primary-foreground ring-2 ring-primary shadow-sm'
+                    : 'text-muted-foreground hover:bg-muted'
+                }`}
+        >
+            <span>{label}</span>
+            {isActive && (
+                <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+            )}
+        </Link>
+    );
+}
+
+type SnapshotCardProps = {
+    label: string;
+    value: string;
+    helper?: string;
+    href?: string;
+    icon: React.ReactNode;
+};
+
+function SnapshotCard({ label, value, helper, href, icon }: SnapshotCardProps) {
     const content = (
-        <div className="flex h-full flex-col justify-between rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/60 hover:shadow-md sm:p-5">
+        <div className="flex h-full flex-col justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-sm sm:p-5">
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        {title}
+                        {label}
                     </p>
                     <p className="mt-1 text-xl font-semibold leading-tight sm:text-2xl">
                         {value}
@@ -41,17 +63,17 @@ function SnapshotCard({ title, value, helper, icon, href }: SnapshotProps) {
                 </div>
             </div>
             {href && (
-                <p className="mt-3 inline-flex items-center text-xs font-medium text-primary">
+                <span className="mt-3 inline-flex items-center text-xs font-medium text-primary">
                     View details
-                    <span className="ml-1">→</span>
-                </p>
+                    <span className="ml-1 text-[11px]">↗</span>
+                </span>
             )}
         </div>
     );
 
     if (href) {
         return (
-            <Link href={href} className="h-full">
+            <Link href={href} className="block h-full">
                 {content}
             </Link>
         );
@@ -60,36 +82,33 @@ function SnapshotCard({ title, value, helper, icon, href }: SnapshotProps) {
     return content;
 }
 
-function Tab({
-    href,
-    label,
-    isActive,
-}: {
-    href: string;
+type AdminTask = {
     label: string;
-    isActive?: boolean;
-}) {
-    return (
-        <Link
-            href={href}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted'
-                }`}
-        >
-            {label}
-        </Link>
-    );
+    status: 'Done' | 'In review' | 'In progress' | 'Upcoming';
+};
+
+const adminTasks: AdminTask[] = [
+    { label: 'EIN + LLC paperwork', status: 'Done' },
+    { label: 'SAM.gov entity registration', status: 'In review' },
+    { label: 'Navy Federal business account', status: 'In progress' },
+    { label: 'VSOB / SBA certifications', status: 'Upcoming' },
+];
+
+function adminStatusTone(status: AdminTask['status']) {
+    switch (status) {
+        case 'Done':
+            return 'bg-emerald-500/10 text-emerald-400';
+        case 'In review':
+            return 'bg-sky-500/10 text-sky-400';
+        case 'In progress':
+            return 'bg-amber-500/10 text-amber-400';
+        case 'Upcoming':
+        default:
+            return 'bg-slate-500/10 text-slate-300';
+    }
 }
 
 export default function CeoOverviewPage() {
-    // Placeholder values – you can later wire this to real data / metrics.
-    const totalMoney = '$4,250';
-    const numProducts = 3; // PennyWize, DropSignal, HypeWatch
-    const openDeals = 2;
-    const uptime = 99.92;
-    const openIncidents = 0;
-
     return (
         <div className="space-y-6">
             {/* Header + nav */}
@@ -122,93 +141,78 @@ export default function CeoOverviewPage() {
                 </nav>
             </header>
 
-            {/* Snapshot grid */}
+            {/* Snapshot row */}
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <SnapshotCard
-                    title="Money"
-                    value={totalMoney}
-                    helper="Est. MRR across all live products"
+                    label="Money"
+                    value="$4,250"
+                    helper="Est. MRR across all live products."
                     icon={<DollarSign className="h-4 w-4" />}
                     href="/ceo/finance"
                 />
                 <SnapshotCard
-                    title="Products"
-                    value={`${numProducts} live`}
-                    helper="PennyWize, DropSignal, HypeWatch"
-                    icon={<Package className="h-4 w-4" />}
-                    href="/ceo/products"
+                    label="Products"
+                    value="3 live"
+                    helper="PennyWize, DropSignal, HypeWatch."
+                    icon={<ShoppingBag className="h-4 w-4" />}
+                    href="/labs/hq"
                 />
                 <SnapshotCard
-                    title="Deals"
-                    value={`${openDeals} open`}
-                    helper="Active opportunities + proposals"
+                    label="Deals"
+                    value="2 open"
+                    helper="Active opportunities + proposals."
                     icon={<Handshake className="h-4 w-4" />}
                     href="/ceo/deals"
                 />
                 <SnapshotCard
-                    title="App performance"
-                    value={`${uptime.toFixed(2)}%`}
-                    helper={
-                        openIncidents === 0
-                            ? 'All apps healthy · 0 open incidents'
-                            : `${openIncidents} open incidents · check details`
-                    }
+                    label="App performance"
+                    value="99.92%"
+                    helper="All apps healthy · 0 open incidents."
                     icon={<Activity className="h-4 w-4" />}
                     href="/ceo/performance"
                 />
             </section>
 
-            {/* Admin + Today row */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-                {/* Admin panel */}
-                <div className="space-y-4">
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Admin
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Quick admin checklist for Digital Hooligan LLC.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <ListChecks className="h-4 w-4" />
-                            </div>
+            {/* Admin + Today */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)]">
+                {/* Admin checklist */}
+                <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Admin
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Quick admin checklist for Digital Hooligan LLC.
+                            </p>
                         </div>
-
-                        <ul className="mt-4 space-y-2 text-xs">
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>EIN + LLC paperwork</span>
-                                <span className="text-[11px] font-medium text-emerald-500">
-                                    Done
-                                </span>
-                            </li>
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>SAM.gov entity registration</span>
-                                <span className="text-[11px] font-medium text-amber-500">
-                                    In review
-                                </span>
-                            </li>
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>Navy Federal business account</span>
-                                <span className="text-[11px] font-medium text-amber-500">
-                                    In progress
-                                </span>
-                            </li>
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>VSOB / SBA certifications</span>
-                                <span className="text-[11px] font-medium text-sky-500">
-                                    Upcoming
-                                </span>
-                            </li>
-                        </ul>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <Settings className="h-4 w-4" />
+                        </div>
                     </div>
-                </div>
 
-                {/* Today panel */}
+                    <ul className="mt-4 space-y-2 text-xs">
+                        {adminTasks.map((task) => (
+                            <li
+                                key={task.label}
+                                className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2"
+                            >
+                                <span>{task.label}</span>
+                                <span
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${adminStatusTone(
+                                        task.status,
+                                    )}`}
+                                >
+                                    {task.status}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+
+                {/* Today + settings quick link */}
                 <div className="space-y-4">
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -219,7 +223,7 @@ export default function CeoOverviewPage() {
                                 </p>
                             </div>
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <Sparkles className="h-4 w-4" />
+                                <GaugeCircle className="h-4 w-4" />
                             </div>
                         </div>
 
@@ -234,9 +238,9 @@ export default function CeoOverviewPage() {
                                 Sketch next milestones for PennyWize and DropSignal.
                             </li>
                         </ul>
-                    </div>
+                    </section>
 
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -259,7 +263,7 @@ export default function CeoOverviewPage() {
                                 Open settings →
                             </Link>
                         </div>
-                    </div>
+                    </section>
                 </div>
             </section>
 
@@ -280,18 +284,31 @@ export default function CeoOverviewPage() {
                 </div>
 
                 <ul className="mt-4 space-y-2 text-xs">
-                    <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                        <span className="font-medium">2025-12-03 ·</span>{' '}
-                        Lock in Digital Hooligan as a multi-app studio (PennyWize, DropSignal,
-                        HypeWatch) with shared internal dashboards.
+                    <li className="flex items-start justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
+                        <span className="font-mono text-[11px] text-muted-foreground">
+                            2025-12-03
+                        </span>
+                        <span className="ml-3 flex-1">
+                            Lock in Digital Hooligan as a multi-app studio (PennyWize,
+                            DropSignal, HypeWatch) with shared internal dashboards.
+                        </span>
                     </li>
-                    <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                        <span className="font-medium">2025-12-02 ·</span>{' '}
-                        Add dedicated app performance view and tie it into the CEO dashboard.
+                    <li className="flex items-start justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
+                        <span className="font-mono text-[11px] text-muted-foreground">
+                            2025-12-02
+                        </span>
+                        <span className="ml-3 flex-1">
+                            Add dedicated app performance view and tie it into the CEO
+                            dashboard.
+                        </span>
                     </li>
-                    <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                        <span className="font-medium">2025-11-30 ·</span>{' '}
-                        Decide to pursue both gov contracting and SaaS revenue streams.
+                    <li className="flex items-start justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
+                        <span className="font-mono text-[11px] text-muted-foreground">
+                            2025-11-30
+                        </span>
+                        <span className="ml-3 flex-1">
+                            Decide to pursue both gov contracting and SaaS revenue streams.
+                        </span>
                     </li>
                 </ul>
             </section>

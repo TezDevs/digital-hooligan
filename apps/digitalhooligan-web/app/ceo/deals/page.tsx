@@ -2,15 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import {
-    Briefcase,
-    DollarSign,
-    Handshake,
-    MessageCircle,
-    Rocket,
-    ArrowUpRight,
-    ClipboardList,
-} from 'lucide-react';
+import { Handshake, DollarSign, BarChart3 } from 'lucide-react';
 
 type TabProps = {
     href: string;
@@ -22,122 +14,54 @@ function Tab({ href, label, isActive }: TabProps) {
     return (
         <Link
             href={href}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition ${isActive
+                    ? 'bg-primary/90 text-primary-foreground ring-2 ring-primary shadow-sm'
                     : 'text-muted-foreground hover:bg-muted'
                 }`}
         >
-            {label}
+            <span>{label}</span>
+            {isActive && (
+                <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+            )}
         </Link>
     );
 }
 
-type StatCardProps = {
-    label: string;
-    value: string;
-    helper?: string;
-    icon: React.ReactNode;
-};
-
-function StatCard({ label, value, helper, icon }: StatCardProps) {
-    return (
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-            <div className="flex items-center justify-between gap-3">
-                <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        {label}
-                    </p>
-                    <p className="mt-1 text-xl font-semibold leading-tight sm:text-2xl">
-                        {value}
-                    </p>
-                    {helper && (
-                        <p className="mt-1 text-xs text-muted-foreground">{helper}</p>
-                    )}
-                </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                    {icon}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-type DealStage = 'lead' | 'conversation' | 'proposal' | 'active';
-
 type Deal = {
+    id: number;
     name: string;
-    source: 'Gun.io' | 'Upwork' | 'SAM.gov' | 'Referral';
-    estValue: string;
-    stage: DealStage;
-    nextStep: string;
+    stage: 'Lead' | 'Proposal' | 'Negotiation' | 'Won';
+    value: string;
+    type: 'Gov' | 'Freelance' | 'Product';
 };
 
 const deals: Deal[] = [
     {
-        name: 'Gun.io – booking / scheduling app build',
-        source: 'Gun.io',
-        estValue: '$20–30k',
-        stage: 'conversation',
-        nextStep: 'Review requirements + draft clarifying questions.',
+        id: 1,
+        name: 'Small SAM.gov prototype contract',
+        stage: 'Proposal',
+        value: '$18,000',
+        type: 'Gov',
     },
     {
-        name: 'Upwork – MVP web dashboard for small biz',
-        source: 'Upwork',
-        estValue: '$5–10k',
-        stage: 'lead',
-        nextStep: 'Decide whether to bid or pass based on scope.',
+        id: 2,
+        name: 'Gun.io / Upwork freelance engagement',
+        stage: 'Negotiation',
+        value: '$12,500',
+        type: 'Freelance',
     },
     {
-        name: 'SAM.gov – small custom software opportunity',
-        source: 'SAM.gov',
-        estValue: '$10–15k',
-        stage: 'proposal',
-        nextStep: 'Outline approach + rough timeline + pricing.',
-    },
-    {
-        name: 'Referral – analytics dashboard for friend’s brand',
-        source: 'Referral',
-        estValue: '$3–5k',
-        stage: 'active',
-        nextStep: 'Lock scope + sign lightweight statement of work.',
+        id: 3,
+        name: 'PennyWize early adopter',
+        stage: 'Lead',
+        value: '$1,200 ARR',
+        type: 'Product',
     },
 ];
 
-function stageLabel(stage: DealStage) {
-    switch (stage) {
-        case 'lead':
-            return 'Lead';
-        case 'conversation':
-            return 'Conversation';
-        case 'proposal':
-            return 'Proposal out';
-        case 'active':
-            return 'Active / in delivery';
-        default:
-            return stage;
-    }
-}
-
-function stageTone(stage: DealStage) {
-    switch (stage) {
-        case 'lead':
-            return 'bg-slate-500/10 text-slate-300';
-        case 'conversation':
-            return 'bg-sky-500/10 text-sky-400';
-        case 'proposal':
-            return 'bg-amber-500/10 text-amber-400';
-        case 'active':
-            return 'bg-emerald-500/10 text-emerald-400';
-        default:
-            return 'bg-slate-500/10 text-slate-300';
-    }
-}
+const stages: Deal['stage'][] = ['Lead', 'Proposal', 'Negotiation', 'Won'];
 
 export default function CeoDealsPage() {
-    const totalDeals = deals.length;
-    const activeCount = deals.filter((d) => d.stage === 'active').length;
-    const proposalCount = deals.filter((d) => d.stage === 'proposal').length;
-
     return (
         <div className="space-y-6">
             {/* Header + nav */}
@@ -145,16 +69,15 @@ export default function CeoDealsPage() {
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                            Deals
+                            Deals &amp; pipeline
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Keep a simple pipeline of leads, conversations, proposals, and
-                            active work so revenue doesn&apos;t live only in your head.
+                            Lightweight pipeline so you know what&apos;s cooking for revenue.
                         </p>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
                         <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                        <span>Goal: 1–3 meaningful deal moves per week</span>
+                        <span>2 opportunities in motion</span>
                     </div>
                 </div>
 
@@ -170,161 +93,125 @@ export default function CeoDealsPage() {
                 </nav>
             </header>
 
-            {/* Top stats */}
-            <section className="grid gap-4 md:grid-cols-3">
-                <StatCard
-                    label="Total opportunities"
-                    value={totalDeals.toString()}
-                    helper="Across Gun.io, Upwork, SAM.gov, and referrals."
-                    icon={<Briefcase className="h-4 w-4" />}
-                />
-                <StatCard
-                    label="Proposals out"
-                    value={proposalCount.toString()}
-                    helper="Make sure each one has a clear follow-up date."
-                    icon={<ClipboardList className="h-4 w-4" />}
-                />
-                <StatCard
-                    label="Active work"
-                    value={activeCount.toString()}
-                    helper="Current delivery commitments."
-                    icon={<Handshake className="h-4 w-4" />}
-                />
-            </section>
+            {/* Snapshot + board */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)]">
+                {/* Snapshot */}
+                <div className="space-y-4">
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    Snapshot
+                                </p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Quick read of where the money might come from.
+                                </p>
+                            </div>
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                                <DollarSign className="h-4 w-4" />
+                            </div>
+                        </div>
 
-            {/* Pipeline + list */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)]">
-                {/* Deals table */}
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2 text-xs">
+                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                    Active deals
+                                </p>
+                                <p className="mt-1 text-lg font-semibold">
+                                    {
+                                        deals.filter((d) =>
+                                            ['Lead', 'Proposal', 'Negotiation'].includes(d.stage),
+                                        ).length
+                                    }
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    1 lead, 1 proposal, 1 negotiation.
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2 text-xs">
+                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                    Expected pipeline
+                                </p>
+                                <p className="mt-1 text-lg font-semibold">$40,550</p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    Weighted by stage probability across gov + freelance.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    Readout
+                                </p>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Rough sense of whether you&apos;re hustling enough.
+                                </p>
+                            </div>
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                                <BarChart3 className="h-4 w-4" />
+                            </div>
+                        </div>
+
+                        <p className="mt-4 text-xs text-muted-foreground">
+                            Right now you&apos;ve got a healthy mix of gov, freelance, and
+                            product motion. If this card ever feels empty for a few weeks in a
+                            row, that&apos;s your cue to spin up outreach, content, or
+                            experiments.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Simple kanban-ish board */}
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Pipeline
+                                Board
                             </p>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                One row per opportunity with source, stage, and next step.
+                                Keep a tiny kanban so nothing falls on the floor.
                             </p>
                         </div>
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                            <DollarSign className="h-4 w-4" />
+                            <Handshake className="h-4 w-4" />
                         </div>
                     </div>
 
-                    <div className="mt-4 overflow-x-auto">
-                        <table className="min-w-full text-left text-xs">
-                            <thead className="border-b border-border text-[11px] uppercase text-muted-foreground">
-                                <tr>
-                                    <th className="py-2 pr-4">Opportunity</th>
-                                    <th className="px-4 py-2">Source</th>
-                                    <th className="px-4 py-2">Est. value</th>
-                                    <th className="px-4 py-2">Stage</th>
-                                    <th className="px-4 py-2">Next step</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/70">
-                                {deals.map((deal) => (
-                                    <tr key={deal.name}>
-                                        <td className="py-2 pr-4 text-sm font-medium">
-                                            {deal.name}
-                                        </td>
-                                        <td className="px-4 py-2">{deal.source}</td>
-                                        <td className="px-4 py-2">{deal.estValue}</td>
-                                        <td className="px-4 py-2">
-                                            <span
-                                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${stageTone(
-                                                    deal.stage,
-                                                )}`}
+                    <div className="mt-4 grid gap-3 sm:grid-cols-4">
+                        {stages.map((stage) => (
+                            <div
+                                key={stage}
+                                className="rounded-xl border border-border bg-background/60 p-2"
+                            >
+                                <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                                    {stage}
+                                </p>
+                                <div className="mt-2 space-y-2">
+                                    {deals
+                                        .filter((d) => d.stage === stage)
+                                        .map((deal) => (
+                                            <div
+                                                key={deal.id}
+                                                className="rounded-lg border border-border bg-card/80 px-2 py-1 text-[11px]"
                                             >
-                                                {stageLabel(deal.stage)}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-2">{deal.nextStep}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                                <p className="font-medium">{deal.name}</p>
+                                                <p className="mt-1 text-[10px] text-muted-foreground">
+                                                    {deal.type} · {deal.value}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    {deals.filter((d) => d.stage === stage).length === 0 && (
+                                        <p className="pt-1 text-[10px] text-muted-foreground">
+                                            — empty —
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                </div>
-
-                {/* Right column: focus + sources */}
-                <div className="space-y-4">
-                    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    This week&apos;s moves
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Small, concrete actions that make revenue more likely.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <Rocket className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <ul className="mt-4 space-y-2 text-xs">
-                            <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                Pick one Gun.io or Upwork posting that fits your lane and save
-                                it for a serious bid.
-                            </li>
-                            <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                Sketch a simple, reusable proposal template for Digital
-                                Hooligan work.
-                            </li>
-                            <li className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                Identify one SAM.gov opportunity that is truly &quot;starter
-                                friendly&quot; and list why.
-                            </li>
-                        </ul>
-                    </section>
-
-                    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Deal sources
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Where your pipeline currently lives and future spots to
-                                    watch.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <MessageCircle className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <ul className="mt-4 space-y-2 text-xs">
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>Gun.io – vetted dev contracts in your lane</span>
-                                <span className="inline-flex items-center text-[11px] font-medium text-primary">
-                                    Open site
-                                    <ArrowUpRight className="ml-1 h-3 w-3" />
-                                </span>
-                            </li>
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>Upwork – smaller project pipeline</span>
-                                <span className="inline-flex items-center text-[11px] font-medium text-primary">
-                                    Open site
-                                    <ArrowUpRight className="ml-1 h-3 w-3" />
-                                </span>
-                            </li>
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>SAM.gov – gov contracts under NAICS 541511</span>
-                                <span className="inline-flex items-center text-[11px] font-medium text-primary">
-                                    Open site
-                                    <ArrowUpRight className="ml-1 h-3 w-3" />
-                                </span>
-                            </li>
-                            <li className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <span>Referrals – friends, former coworkers, existing network</span>
-                                <span className="inline-flex items-center text-[11px] font-medium text-muted-foreground">
-                                    Future: track here
-                                </span>
-                            </li>
-                        </ul>
-                    </section>
                 </div>
             </section>
         </div>
