@@ -21,15 +21,17 @@ function Tab({ href, label, isActive }: TabProps) {
     return (
         <Link
             href={href}
-            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition ${isActive
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
                     ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
                     : 'border border-border bg-card text-muted-foreground hover:bg-muted'
                 }`}
         >
-            <span>{label}</span>
-            {isActive && (
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            )}
+            <span className="flex items-center gap-1.5">
+                <span>{label}</span>
+                {isActive && (
+                    <span className="h-2 w-2 rounded-full bg-primary ring-2 ring-primary/40" />
+                )}
+            </span>
         </Link>
     );
 }
@@ -158,10 +160,10 @@ export default function CeoAiHubPage() {
                                     </div>
                                     <span
                                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${helper.status === 'Planned'
-                                                ? 'bg-emerald-500/10 text-emerald-400'
-                                                : helper.status === 'Idea'
-                                                    ? 'bg-sky-500/10 text-sky-400'
-                                                    : 'bg-slate-500/10 text-slate-300'
+                                            ? 'bg-emerald-500/10 text-emerald-400'
+                                            : helper.status === 'Idea'
+                                                ? 'bg-sky-500/10 text-sky-400'
+                                                : 'bg-slate-500/10 text-slate-300'
                                             }`}
                                     >
                                         {helper.status}
@@ -269,10 +271,10 @@ export default function CeoAiHubPage() {
                                 <p className="font-medium">{idea.title}</p>
                                 <span
                                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${idea.category === 'Automation'
-                                            ? 'bg-amber-500/10 text-amber-400'
-                                            : idea.category === 'Insights'
-                                                ? 'bg-sky-500/10 text-sky-400'
-                                                : 'bg-emerald-500/10 text-emerald-400'
+                                        ? 'bg-amber-500/10 text-amber-400'
+                                        : idea.category === 'Insights'
+                                            ? 'bg-sky-500/10 text-sky-400'
+                                            : 'bg-emerald-500/10 text-emerald-400'
                                         }`}
                                 >
                                     {idea.category}

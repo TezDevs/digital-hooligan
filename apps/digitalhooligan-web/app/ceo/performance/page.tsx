@@ -25,15 +25,17 @@ function Tab({ href, label, isActive }: TabProps) {
     return (
         <Link
             href={href}
-            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition ${isActive
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
                     ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
                     : 'border border-border bg-card text-muted-foreground hover:bg-muted'
                 }`}
         >
-            <span>{label}</span>
-            {isActive && (
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            )}
+            <span className="flex items-center gap-1.5">
+                <span>{label}</span>
+                {isActive && (
+                    <span className="h-2 w-2 rounded-full bg-primary ring-2 ring-primary/40" />
+                )}
+            </span>
         </Link>
     );
 }
