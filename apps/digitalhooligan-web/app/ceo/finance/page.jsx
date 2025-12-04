@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
 import {
     DollarSign,
     PiggyBank,
@@ -13,15 +15,27 @@ import {
 } from 'lucide-react';
 
 function Tab({ href, label, isActive }) {
+    const pathname = usePathname();
+
+    const derivedActive =
+        pathname === href ||
+        (href !== '/ceo' && pathname.startsWith(href));
+
+    const active =
+        typeof isActive === 'boolean' ? isActive : derivedActive;
+
     return (
         <Link
             href={href}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted'
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition ${active
+                ? 'bg-primary/90 text-primary-foreground ring-2 ring-primary shadow-sm'
+                : 'text-muted-foreground hover:bg-muted'
                 }`}
         >
-            {label}
+            <span>{label}</span>
+            {active && (
+                <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />
+            )}
         </Link>
     );
 }
