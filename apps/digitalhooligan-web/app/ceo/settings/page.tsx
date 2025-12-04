@@ -3,16 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-    Settings,
-    User,
-    Building2,
+    Settings2,
+    SlidersHorizontal,
+    Bell,
     ShieldCheck,
-    ToggleRight,
-    ToggleLeft,
-    Globe,
-    Server,
-    FileText,
-    Lock,
+    Palette,
+    Bot,
+    Moon,
+    SunMedium,
 } from 'lucide-react';
 
 type TabProps = {
@@ -40,45 +38,64 @@ function Tab({ href, label, isActive }: TabProps) {
     );
 }
 
-// Fake toggle component (visual only for now)
-type FlagToggleProps = {
+type PreferenceItem = {
     label: string;
-    helper?: string;
-    enabled?: boolean;
+    description: string;
 };
 
-function FlagToggle({ label, helper, enabled }: FlagToggleProps) {
-    return (
-        <div className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2 text-xs">
-            <div>
-                <p className="font-medium">{label}</p>
-                {helper && (
-                    <p className="mt-1 text-[11px] text-muted-foreground">{helper}</p>
-                )}
-            </div>
-            <div className="flex items-center">
-                <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${enabled
-                            ? 'bg-emerald-500/10 text-emerald-400'
-                            : 'bg-slate-500/10 text-slate-300'
-                        }`}
-                >
-                    {enabled ? (
-                        <>
-                            <ToggleRight className="h-3 w-3" />
-                            On
-                        </>
-                    ) : (
-                        <>
-                            <ToggleLeft className="h-3 w-3" />
-                            Off
-                        </>
-                    )}
-                </span>
-            </div>
-        </div>
-    );
-}
+const CEO_PREFERENCES: PreferenceItem[] = [
+    {
+        label: 'Show CEO Copilot panel on Overview by default',
+        description:
+            'Keep the Copilot preview visible at the top of the dashboard instead of hiding it behind a toggle.',
+    },
+    {
+        label: 'Highlight tasks that touch money, risk, or external clients',
+        description:
+            'Subtle emphasis in Tasks view for anything tagged Finance, Gov, or Deals.',
+    },
+    {
+        label: 'Collapse low-priority sections on mobile',
+        description:
+            'On small screens, show money, tasks, and Copilot first; tuck others into accordions.',
+    },
+];
+
+const NOTIFICATION_PREFS: PreferenceItem[] = [
+    {
+        label: 'Deals & revenue',
+        description:
+            'Notify when deals change stage, a proposal is accepted, or a new high-quality lead appears.',
+    },
+    {
+        label: 'App incidents & performance',
+        description:
+            'Ping for uptime issues, error spikes, or sustained latency on any app.',
+    },
+    {
+        label: 'AI suggestions & summaries',
+        description:
+            'Allow CEO Copilot and Dev Workbench to surface daily briefings and refactor suggestions.',
+    },
+];
+
+const PRIVACY_PREFS: PreferenceItem[] = [
+    {
+        label: 'Keep a decision log for key changes',
+        description:
+            'Record major calls in the CEO dashboard so future you knows why something was done.',
+    },
+    {
+        label: 'Audit trail for automations',
+        description:
+            'Log when AI assistants propose actions vs. when you explicitly approve them.',
+    },
+    {
+        label: 'Separate lab experiments from production data',
+        description:
+            'Clearly mark anything coming from Hooligan Labs as experimental, not official company data.',
+    },
+];
 
 export default function CeoSettingsPage() {
     return (
@@ -91,13 +108,13 @@ export default function CeoSettingsPage() {
                             Settings
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            High-level controls for Digital Hooligan as a business and as a
-                            multi-app studio.
+                            Tune how the CEO dashboard, notifications, and AI assistants show
+                            up for Digital Hooligan.
                         </p>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
                         <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                        <span>Owner: Courtez · Digital Hooligan LLC</span>
+                        <span>Config: safe defaults, ready for future wiring</span>
                     </div>
                 </div>
 
@@ -113,225 +130,254 @@ export default function CeoSettingsPage() {
                 </nav>
             </header>
 
-            {/* Layout: profile + business + flags */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)]">
-                {/* Left column: profile + business snapshot */}
-                <div className="space-y-4">
-                    {/* Founder & profile */}
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Profile
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Quick reference for who&apos;s driving the ship.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <User className="h-4 w-4" />
-                            </div>
+            {/* Layout + theme row */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)]">
+                {/* Layout & behavior */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Layout & behavior
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                How the CEO dashboard behaves by default.
+                            </p>
                         </div>
-
-                        <div className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    Founder
-                                </p>
-                                <p className="mt-1 font-semibold">Courtez Cannady</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    TezDevs · Product / Engineering / Ops.
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    Company
-                                </p>
-                                <p className="mt-1 font-semibold">Digital Hooligan LLC</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Single-member LLC · Software / web apps / SaaS / automation.
-                                </p>
-                            </div>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <SlidersHorizontal className="h-4 w-4" />
                         </div>
                     </div>
 
-                    {/* Business snapshot */}
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Business snapshot
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    High-level details you&apos;ll need when talking to banks,
-                                    platforms, and gov forms.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <Building2 className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <div className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    Legal form
-                                </p>
-                                <p className="mt-1 font-semibold">Single-member LLC</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Pass-through taxation · Disregarded entity by default.
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    Focus
-                                </p>
-                                <p className="mt-1 font-semibold">NAICS 541511-ish</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Custom software, APIs, automation, dashboards, internal tools.
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    Gov &amp; certs
-                                </p>
-                                <p className="mt-1 font-semibold">Gov-curious</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    SAM.gov in progress · VSOB/SDVOSB planned · SBA-compliant
-                                    posture.
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    Banking
-                                </p>
-                                <p className="mt-1 font-semibold">Navy Federal (business)</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Account in review / early stages.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <ul className="mt-4 space-y-2 text-xs">
+                        {CEO_PREFERENCES.map((pref) => (
+                            <li
+                                key={pref.label}
+                                className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                            >
+                                <div className="mt-1 flex h-4 w-7 items-center justify-center rounded-full border border-border bg-card text-[9px] font-semibold text-muted-foreground">
+                                    ON
+                                </div>
+                                <div>
+                                    <p className="font-medium">{pref.label}</p>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                        {pref.description}
+                                    </p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
-                {/* Right column: feature flags + links */}
-                <div className="space-y-4">
-                    {/* Feature flags / modes */}
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Product flags
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Visual-only for now, but defines how you want to run the apps.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <Settings className="h-4 w-4" />
-                            </div>
+                {/* Theme */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Theme & density
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Visual flavor of the CEO dashboard.
+                            </p>
                         </div>
-
-                        <div className="mt-4 space-y-2">
-                            <FlagToggle
-                                label="PennyWize: public marketing page live"
-                                helper="Keep this on once the main site is ready; later this gates the app itself."
-                                enabled
-                            />
-                            <FlagToggle
-                                label="DropSignal: assist mode only"
-                                helper="Start with alerts + links to official retailers before heavy bot automation."
-                                enabled
-                            />
-                            <FlagToggle
-                                label="HypeWatch: collectibles research only"
-                                helper="Phase 1: watchlists + alerts. Add direct cart flows later."
-                                enabled
-                            />
-                            <FlagToggle
-                                label="Internal dashboards visible"
-                                helper="CEO dashboard + Labs HQ appear in the navigation and footers."
-                                enabled
-                            />
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <Palette className="h-4 w-4" />
                         </div>
                     </div>
 
-                    {/* Legal + infra links */}
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
+                    <div className="mt-4 grid gap-3 text-xs">
+                        <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <div className="flex items-center gap-2">
+                                <SunMedium className="h-3.5 w-3.5" />
+                                <div>
+                                    <p className="font-medium">Dark mode primary</p>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                        The CEO dashboard assumes a dark, cyberpunk-friendly theme
+                                        by default.
+                                    </p>
+                                </div>
+                            </div>
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                                Active
+                            </span>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <div className="flex items-center gap-2">
+                                <Moon className="h-3.5 w-3.5" />
+                                <div>
+                                    <p className="font-medium">Cozy density</p>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                        Slightly padded cards and rounded corners, tuned for long
+                                        sessions rather than cramped tables.
+                                    </p>
+                                </div>
+                            </div>
+                            <span className="rounded-full bg-slate-500/10 px-2 py-0.5 text-[10px] font-semibold text-slate-200">
+                                Default
+                            </span>
+                        </div>
+                    </div>
+
+                    <p className="mt-3 text-[11px] text-muted-foreground">
+                        Later, these toggles can map to real themes, layout density, and
+                        personalization options per user.
+                    </p>
+                </div>
+            </section>
+
+            {/* Notifications + AI preferences */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.5fr)]">
+                {/* Notifications */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Notifications
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                What should ping you vs. stay quiet.
+                            </p>
+                        </div>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <Bell className="h-4 w-4" />
+                        </div>
+                    </div>
+
+                    <ul className="mt-4 space-y-2 text-xs">
+                        {NOTIFICATION_PREFS.map((pref) => (
+                            <li
+                                key={pref.label}
+                                className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                            >
+                                <div className="mt-1 flex h-4 w-7 items-center justify-center rounded-full border border-border bg-card text-[9px] font-semibold text-muted-foreground">
+                                    ON
+                                </div>
+                                <div>
+                                    <p className="font-medium">{pref.label}</p>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                        {pref.description}
+                                    </p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <p className="mt-3 text-[11px] text-muted-foreground">
+                        In the future, these can control email, push, and in-dashboard
+                        banners powered by CEO Copilot and Ops Monitor.
+                    </p>
+                </div>
+
+                {/* AI assistants behavior */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                AI assistants behavior
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                How CEO Copilot, Dev Workbench, and others should behave.
+                            </p>
+                        </div>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <Bot className="h-4 w-4" />
+                        </div>
+                    </div>
+
+                    <div className="mt-4 space-y-2 text-xs">
+                        <div className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <div className="mt-1 flex h-4 w-7 items-center justify-center rounded-full border border-border bg-card text-[9px] font-semibold text-muted-foreground">
+                                ON
+                            </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Legal &amp; infrastructure
+                                <p className="font-medium">Explain the “why” behind suggestions</p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    When CEO Copilot or Dev Workbench suggests a change, show the
+                                    reasoning in plain language, not just commands.
                                 </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Quick anchors to the &quot;grown-up company&quot; pieces.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <ShieldCheck className="h-4 w-4" />
                             </div>
                         </div>
 
-                        <div className="mt-4 grid gap-2 text-xs">
-                            <Link
-                                href="/privacy"
-                                className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2 hover:bg-muted/60"
-                            >
-                                <span className="inline-flex items-center gap-2">
-                                    <FileText className="h-3.5 w-3.5" />
-                                    <span>Privacy policy</span>
-                                </span>
-                                <span className="text-[11px] text-muted-foreground">
-                                    /privacy ↗
-                                </span>
-                            </Link>
-
-                            <Link
-                                href="/terms"
-                                className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2 hover:bg-muted/60"
-                            >
-                                <span className="inline-flex items-center gap-2">
-                                    <Lock className="h-3.5 w-3.5" />
-                                    <span>Terms of use</span>
-                                </span>
-                                <span className="text-[11px] text-muted-foreground">
-                                    /terms ↗
-                                </span>
-                            </Link>
-
-                            <Link
-                                href="/gov-services"
-                                className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2 hover:bg-muted/60"
-                            >
-                                <span className="inline-flex items-center gap-2">
-                                    <Globe className="h-3.5 w-3.5" />
-                                    <span>Gov &amp; enterprise services</span>
-                                </span>
-                                <span className="text-[11px] text-muted-foreground">
-                                    /gov-services ↗
-                                </span>
-                            </Link>
-
-                            <Link
-                                href="/labs/hq"
-                                className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2 hover:bg-muted/60"
-                            >
-                                <span className="inline-flex items-center gap-2">
-                                    <Server className="h-3.5 w-3.5" />
-                                    <span>Labs HQ (internal)</span>
-                                </span>
-                                <span className="text-[11px] text-muted-foreground">
-                                    /labs/hq ↗
-                                </span>
-                            </Link>
+                        <div className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <div className="mt-1 flex h-4 w-7 items-center justify-center rounded-full border border-border bg-card text-[9px] font-semibold text-muted-foreground">
+                                ON
+                            </div>
+                            <div>
+                                <p className="font-medium">
+                                    Always offer a “small version” of automations
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    Prefer small, low-risk actions over huge, sweeping changes
+                                    unless you explicitly opt in.
+                                </p>
+                            </div>
                         </div>
 
-                        <p className="mt-4 text-xs text-muted-foreground">
-                            Later, this card can control which links are visible on the public
-                            site vs. internal-only, and wire into real flag config.
+                        <div className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <div className="mt-1 flex h-4 w-7 items-center justify-center rounded-full border border-border bg-card text-[9px] font-semibold text-muted-foreground">
+                                OFF
+                            </div>
+                            <div>
+                                <p className="font-medium">
+                                    Allow assistants to make changes without approval
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    By default, assistants propose actions and drafts only. You
+                                    stay in the loop for anything that changes code, money, or
+                                    client-facing content.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="mt-3 text-[11px] text-muted-foreground">
+                        These toggles are conceptual today, but they sketch how AI should
+                        behave once you wire real assistants into the stack.
+                    </p>
+                </div>
+            </section>
+
+            {/* Privacy & audit */}
+            <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Data, privacy & audit trail
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            How you want Digital Hooligan to treat logs, decisions, and AI
+                            activity.
                         </p>
                     </div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                        <ShieldCheck className="h-4 w-4" />
+                    </div>
                 </div>
+
+                <ul className="mt-4 space-y-2 text-xs">
+                    {PRIVACY_PREFS.map((pref) => (
+                        <li
+                            key={pref.label}
+                            className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                        >
+                            <div className="mt-1 flex h-4 w-7 items-center justify-center rounded-full border border-border bg-card text-[9px] font-semibold text-muted-foreground">
+                                ON
+                            </div>
+                            <div>
+                                <p className="font-medium">{pref.label}</p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    {pref.description}
+                                </p>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+
+                <p className="mt-3 text-[11px] text-muted-foreground">
+                    In a future iteration, this section can mirror your actual privacy
+                    policy and terms, with clear links out to /privacy and /terms and a
+                    dedicated audit log view.
+                </p>
             </section>
         </div>
     );
