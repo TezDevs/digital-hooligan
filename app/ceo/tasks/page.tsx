@@ -2,13 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import {
-    ClipboardList,
-    Target,
-    Clock,
-    AlertTriangle,
-    CheckCircle2,
-} from 'lucide-react';
+import { ClipboardList, Target, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 type TabProps = {
     href: string;
