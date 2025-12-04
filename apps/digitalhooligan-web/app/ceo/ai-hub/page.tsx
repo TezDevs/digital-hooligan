@@ -4,11 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import {
     Bot,
-    Sparkles,
     Brain,
-    ListChecks,
-    Link2,
-    GaugeCircle,
+    ClipboardList,
+    CalendarClock,
+    FileSignature,
+    Activity,
+    Settings2,
 } from 'lucide-react';
 
 type TabProps = {
@@ -36,63 +37,127 @@ function Tab({ href, label, isActive }: TabProps) {
     );
 }
 
-type Helper = {
+type AssistantStatus = 'Idea' | 'Planned' | 'MVP' | 'Later';
+
+type Assistant = {
     name: string;
-    status: 'Idea' | 'Planned' | 'Future';
+    code: string;
+    status: AssistantStatus;
     focus: string;
-    notes: string;
+    note: string;
 };
 
-const helpers: Helper[] = [
+const ASSISTANTS: Assistant[] = [
     {
         name: 'CEO Copilot',
+        code: 'CC',
         status: 'Planned',
-        focus: 'Scheduling + priority planning',
-        notes:
-            'Helps stack-rank tasks, contracts, and app work across your week inside the CEO dashboard.',
+        focus: 'Daily briefings + “what should I do next?” across all dashboards.',
+        note: 'Pulls from Tasks, Deals, Finance, Performance, and Admin sprints.',
     },
     {
         name: 'Contract Scout',
+        code: 'CS',
         status: 'Idea',
-        focus: 'Gov + freelance sourcing',
-        notes:
-            'Scans SAM.gov, Gun.io, Upwork, etc., and surfaces work that fits Digital Hooligan.',
+        focus: 'Scan SAM.gov, Gun.io, Upwork for work that fits Digital Hooligan.',
+        note: 'Flags good fits and drafts quick go / no-go summaries.',
     },
     {
         name: 'Ops Monitor',
-        status: 'Future',
-        focus: 'Infra + app performance',
-        notes:
-            'Watches logs, uptime, and incidents across PennyWize, DropSignal, and HypeWatch.',
+        code: 'OM',
+        status: 'Idea',
+        focus: 'Watch app metrics (uptime, errors, incidents) and raise alerts.',
+        note: 'Ties into App performance view once the data layer is ready.',
+    },
+    {
+        name: 'Research Scout',
+        code: 'RS',
+        status: 'Later',
+        focus: 'Help with markets, competitors, and feature research.',
+        note: 'Turns vague questions into structured notes and next steps.',
     },
 ];
 
-type Idea = {
-    title: string;
-    category: 'Automation' | 'Insights' | 'Assist';
+type TimelineItem = {
+    date: string;
+    label: string;
     detail: string;
 };
 
-const ideas: Idea[] = [
+const TIMELINE: TimelineItem[] = [
     {
-        title: 'Daily CEO briefing',
-        category: 'Insights',
+        date: '2025-12-02',
+        label: 'Decide to make AI Hub a first-class view',
         detail:
-            'Morning summary with money, app health, open deals, and top 3 tasks pulled into one view.',
+            'Central place to plan assistants before wiring them into tasks, deals, and performance.',
     },
     {
-        title: 'Smart time-blocking',
-        category: 'Automation',
+        date: '2025-12-03',
+        label: 'Define CEO Copilot, Contract Scout, Ops Monitor',
         detail:
-            'Takes your task list + contract timelines and proposes a realistic weekly calendar.',
+            'Anchored each assistant to real work: scheduling, gov contracts, and app health.',
     },
     {
-        title: 'Bid helper',
-        category: 'Assist',
+        date: 'Future',
+        label: 'Hook assistants into real data sources',
         detail:
-            'Drafts proposal outlines and checklists for small SAM.gov / freelance work in your lane.',
+            'Stripe, SAM.gov exports, app metrics, and your own task/deal tables.',
     },
 ];
+
+type ChecklistItem = {
+    label: string;
+    group: 'Foundations' | 'Data' | 'Execution';
+    done?: boolean;
+};
+
+const CHECKLIST: ChecklistItem[] = [
+    {
+        label: 'Have a dedicated AI Hub view inside the CEO dashboard',
+        group: 'Foundations',
+        done: true,
+    },
+    {
+        label: 'Decide which assistants matter first (Copilot, Scout, Monitor)',
+        group: 'Foundations',
+        done: true,
+    },
+    {
+        label: 'Rough schema for tasks, deals, and app metrics',
+        group: 'Data',
+        done: false,
+    },
+    {
+        label: 'Decide where to store “ground truth” (DB, Airtable, Notion, etc.)',
+        group: 'Data',
+        done: false,
+    },
+    {
+        label: 'Ship a tiny CEO Copilot MVP (text-only, no magic)',
+        group: 'Execution',
+        done: false,
+    },
+    {
+        label: 'Add one realistic automation per assistant',
+        group: 'Execution',
+        done: false,
+    },
+];
+
+function statusClasses(status: AssistantStatus) {
+    switch (status) {
+        case 'Idea':
+            return 'bg-slate-500/10 text-slate-200';
+        case 'Planned':
+            return 'bg-sky-500/10 text-sky-400';
+        case 'MVP':
+            return 'bg-emerald-500/10 text-emerald-400';
+        case 'Later':
+            return 'bg-amber-500/10 text-amber-300';
+        default:
+            return 'bg-slate-500/10 text-slate-300';
+    }
+}
 
 export default function CeoAiHubPage() {
     return (
@@ -105,13 +170,13 @@ export default function CeoAiHubPage() {
                             AI Hub
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Parking lot for the AI assistants that will eventually run half of
-                            Digital Hooligan with you.
+                            Home base for the assistants that will help you run Digital
+                            Hooligan: planning, contracts, app health, and more.
                         </p>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
                         <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                        <span>Mode: experiment then automate</span>
+                        <span>Rule: ship tiny assistants, not vague “AI everywhere.”</span>
                     </div>
                 </div>
 
@@ -127,9 +192,9 @@ export default function CeoAiHubPage() {
                 </nav>
             </header>
 
-            {/* Current helpers + pipeline */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.2fr)]">
-                {/* Current / planned helpers */}
+            {/* Top row: Assistants overview + Strategy snapshot */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1.3fr)]">
+                {/* Assistants grid */}
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div>
@@ -137,7 +202,7 @@ export default function CeoAiHubPage() {
                                 Assistants
                             </p>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                The AI helpers you&apos;d actually use week-to-week.
+                                A small crew of focused bots instead of one vague “AI feature.”
                             </p>
                         </div>
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
@@ -146,160 +211,191 @@ export default function CeoAiHubPage() {
                     </div>
 
                     <ul className="mt-4 space-y-2 text-xs">
-                        {helpers.map((helper) => (
+                        {ASSISTANTS.map((asst) => (
                             <li
-                                key={helper.name}
-                                className="rounded-xl border border-border bg-background/60 px-3 py-2"
+                                key={asst.code}
+                                className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
                             >
-                                <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-lg bg-card">
+                                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-primary/90 text-[10px] font-semibold text-card">
+                                            {asst.code}
+                                        </span>
+                                    </div>
                                     <div>
-                                        <p className="font-medium">{helper.name}</p>
+                                        <p className="font-medium">{asst.name}</p>
                                         <p className="mt-1 text-[11px] text-muted-foreground">
-                                            {helper.focus}
+                                            {asst.focus}
+                                        </p>
+                                        <p className="mt-1 text-[11px] text-muted-foreground">
+                                            {asst.note}
                                         </p>
                                     </div>
-                                    <span
-                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${helper.status === 'Planned'
-                                            ? 'bg-emerald-500/10 text-emerald-400'
-                                            : helper.status === 'Idea'
-                                                ? 'bg-sky-500/10 text-sky-400'
-                                                : 'bg-slate-500/10 text-slate-300'
-                                            }`}
-                                    >
-                                        {helper.status}
-                                    </span>
                                 </div>
-                                <p className="mt-2 text-[11px] text-muted-foreground">
-                                    {helper.notes}
-                                </p>
+                                <span
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusClasses(
+                                        asst.status,
+                                    )}`}
+                                >
+                                    {asst.status}
+                                </span>
                             </li>
                         ))}
                     </ul>
                 </div>
 
-                {/* How it plugs into your stack */}
+                {/* Strategy snapshot */}
                 <div className="space-y-4">
                     <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Where they live
+                                    Strategy snapshot
                                 </p>
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                    Keep assistants close to the work instead of hidden in a
-                                    separate tool.
+                                    Where AI fits for Digital Hooligan right now.
                                 </p>
                             </div>
                             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <GaugeCircle className="h-4 w-4" />
+                                <Brain className="h-4 w-4" />
                             </div>
                         </div>
 
-                        <ul className="mt-4 space-y-2 text-xs text-muted-foreground">
-                            <li className="flex items-start gap-2">
-                                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
-                                <span>
-                                    CEO Copilot shows up in the CEO dashboard (Tasks, Deals,
-                                    Finance) to suggest priorities and time-blocks.
-                                </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
-                                <span>
-                                    Contract Scout pipes interesting leads into the Deals board
-                                    with rough value, effort, and fit tags.
-                                </span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
-                                <span>
-                                    Ops Monitor links to app performance so alerts and incidents
-                                    live next to your metrics.
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Future wiring
+                        <div className="mt-4 grid gap-3 text-xs">
+                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                    Primary job
                                 </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Later: hook these into Stripe, calendars, and external APIs.
+                                <p className="mt-1 font-semibold">
+                                    Keep you focused on the highest-leverage work.
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    Not “AI for the sake of AI,” but a co-pilot for deals, apps,
+                                    and admin.
                                 </p>
                             </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <Link2 className="h-4 w-4" />
+                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                    Near-term target
+                                </p>
+                                <p className="mt-1 font-semibold">
+                                    Ship a tiny CEO Copilot MVP first.
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    One panel that summarizes Tasks, Deals, and App performance
+                                    for “today” and “this week.”
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
+                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                    Guardrails
+                                </p>
+                                <p className="mt-1 font-semibold">
+                                    Assistants suggest; you make the calls.
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    Keep a clear audit trail in the CEO dashboard so future Tez
+                                    knows why decisions were made.
+                                </p>
                             </div>
                         </div>
-
-                        <p className="mt-4 text-xs text-muted-foreground">
-                            For now, this page is a design blueprint. When you&apos;re ready,
-                            each helper gets a tiny settings card, a config drawer, and
-                            background jobs wired into your infra.
-                        </p>
                     </div>
                 </div>
             </section>
 
-            {/* Idea backlog */}
-            <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                <div className="flex items-center justify-between gap-3">
-                    <div>
-                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Idea backlog
-                        </p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            A small backlog so you don&apos;t lose good AI ideas in random
-                            notes apps.
-                        </p>
-                    </div>
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                        <Sparkles className="h-4 w-4" />
-                    </div>
-                </div>
-
-                <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                    {ideas.map((idea) => (
-                        <div
-                            key={idea.title}
-                            className="flex flex-col rounded-xl border border-border bg-background/60 p-3 text-xs"
-                        >
-                            <div className="flex items-start justify-between gap-2">
-                                <p className="font-medium">{idea.title}</p>
-                                <span
-                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${idea.category === 'Automation'
-                                        ? 'bg-amber-500/10 text-amber-400'
-                                        : idea.category === 'Insights'
-                                            ? 'bg-sky-500/10 text-sky-400'
-                                            : 'bg-emerald-500/10 text-emerald-400'
-                                        }`}
-                                >
-                                    {idea.category}
-                                </span>
-                            </div>
-                            <p className="mt-2 text-[11px] text-muted-foreground">
-                                {idea.detail}
+            {/* Bottom row: Timeline + Checklist */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1.6fr)]">
+                {/* Timeline */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                AI roadmap timeline
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Lightweight record so you remember how the AI story unfolded.
                             </p>
                         </div>
-                    ))}
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <CalendarClock className="h-4 w-4" />
+                        </div>
+                    </div>
+
+                    <ol className="mt-4 space-y-3 text-xs">
+                        {TIMELINE.map((item) => (
+                            <li
+                                key={item.date + item.label}
+                                className="flex gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                            >
+                                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card">
+                                    <Activity className="h-3.5 w-3.5" />
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                        {item.date}
+                                    </p>
+                                    <p className="mt-0.5 font-semibold">{item.label}</p>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                        {item.detail}
+                                    </p>
+                                </div>
+                            </li>
+                        ))}
+                    </ol>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                    <div className="inline-flex items-center gap-2">
-                        <Brain className="h-3.5 w-3.5" />
-                        <span>
-                            Rule of thumb: ship one tiny AI helper here before you try to
-                            build a massive &quot;platform.&quot;
-                        </span>
+                {/* Checklist */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Implementation checklist
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Simple list to keep the AI work grounded in real steps.
+                            </p>
+                        </div>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <Settings2 className="h-4 w-4" />
+                        </div>
                     </div>
-                    <div className="hidden items-center gap-2 sm:inline-flex">
-                        <ListChecks className="h-3.5 w-3.5" />
-                        <span>Pick one idea, wire it into a real workflow, then iterate.</span>
+
+                    <div className="mt-4 space-y-2 text-xs">
+                        {CHECKLIST.map((item) => (
+                            <div
+                                key={item.label}
+                                className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                            >
+                                <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card">
+                                    {item.done ? (
+                                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                                    ) : (
+                                        <span className="h-2.5 w-2.5 rounded-full border border-dashed border-muted-foreground/60" />
+                                    )}
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                        {item.group}
+                                    </p>
+                                    <p className="mt-0.5">{item.label}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
+
+                    <p className="mt-3 text-[11px] text-muted-foreground">
+                        Later, this card can sync with real tasks, show progress bars, and
+                        push suggestions into the Tasks view for you to accept or ignore.
+                    </p>
                 </div>
+            </section>
+
+            <section className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground shadow-sm sm:p-5">
+                <p>
+                    When you&apos;re ready, the next step is to give CEO Copilot a tiny
+                    panel on the Overview page that summarizes today&apos;s priority work
+                    based on these assistants. No magic, just helpful focus.
+                </p>
             </section>
         </div>
     );
