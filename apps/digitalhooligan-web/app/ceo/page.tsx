@@ -5,14 +5,13 @@ import Link from 'next/link';
 import {
     Activity,
     Briefcase,
-    Gauge,
-    Target,
+    DollarSign,
     LineChart,
-    Building2,
+    Target,
+    ClipboardList,
     ShieldCheck,
-    Rocket,
-    LayoutDashboard,
-    Cpu,
+    AlertTriangle,
+    Bot,
 } from 'lucide-react';
 
 type TabProps = {
@@ -40,90 +39,123 @@ function Tab({ href, label, isActive }: TabProps) {
     );
 }
 
-const TODAY_TASKS = [
+type FocusTask = {
+    title: string;
+    tag: 'Product' | 'Finance' | 'Admin' | 'Gov';
+    when: string;
+};
+
+const TODAY_FOCUS: FocusTask[] = [
     {
-        label: 'Finish CEO dashboard shell + navigation',
+        title: 'Finish CEO dashboard shell + navigation',
         tag: 'Product',
-        due: 'Due 2025-12-05',
+        when: 'Today',
     },
     {
-        label: 'Map revenue model across apps + freelance',
-        tag: 'Finance',
-        due: 'Draft 2025-12-09',
+        title: 'Check SAM.gov + Navy Federal status',
+        tag: 'Gov',
+        when: 'This week',
     },
     {
-        label: 'Navy Federal business account follow-up',
+        title: 'Outline PennyWize + DropSignal MVPs',
+        tag: 'Product',
+        when: 'This week',
+    },
+    {
+        title: 'Capture Dev Workbench + AI Hub next steps',
         tag: 'Admin',
-        due: 'Due 2025-12-06',
-    },
-    {
-        label: 'Define PennyWize MVP feature list',
-        tag: 'Product',
-        due: 'Due 2025-12-07',
+        when: 'This week',
     },
 ];
 
-const DEAL_STAGES = [
+type DealStage = 'Lead' | 'Proposal' | 'Negotiation' | 'Won';
+
+type DealSummary = {
+    stage: DealStage;
+    count: number;
+};
+
+const DEAL_SUMMARY: DealSummary[] = [
     { stage: 'Lead', count: 1 },
     { stage: 'Proposal', count: 1 },
     { stage: 'Negotiation', count: 1 },
     { stage: 'Won', count: 1 },
 ];
 
-const PRODUCTS = [
+type AppHealth = {
+    name: string;
+    status: 'Green' | 'Yellow';
+    note: string;
+};
+
+const APP_HEALTH: AppHealth[] = [
     {
-        code: 'PW',
         name: 'PennyWize',
-        status: 'Building',
-        color: 'bg-emerald-500',
-        note: 'Penny stock intel + alerts with future social layer.',
+        status: 'Green',
+        note: 'MVP planning + future alerts.',
     },
     {
-        code: 'DS',
         name: 'DropSignal',
-        status: 'Design',
-        color: 'bg-sky-500',
-        note: 'Sneaker & streetwear price-drop bot (assist mode first).',
+        status: 'Green',
+        note: 'Assist-mode concept defined.',
     },
     {
-        code: 'HW',
         name: 'HypeWatch',
-        status: 'Idea',
-        color: 'bg-amber-500',
-        note: 'Collectibles display piece tracker + price alerts.',
+        status: 'Yellow',
+        note: 'Concept ready, details later.',
     },
     {
-        code: 'OT',
         name: 'Ops Toys',
-        status: 'Greenroom',
-        color: 'bg-purple-500',
-        note: 'Internal drawer of infra / logging / workflow tools.',
+        status: 'Green',
+        note: 'Icon, concept, and positioning.',
     },
 ];
 
-const INTERNAL_DASHBOARDS = [
+type Decision = {
+    date: string;
+    text: string;
+};
+
+const DECISION_LOG: Decision[] = [
     {
-        name: 'App performance',
-        href: '/ceo/performance',
-        description:
-            'Latency, uptime, incidents, and simple readouts for PennyWize, DropSignal, and HypeWatch.',
-        tag: 'Health',
+        date: '2025-12-03',
+        text: 'Lock in Digital Hooligan as a multi-app studio (PennyWize, DropSignal, HypeWatch) with shared internal dashboards.',
     },
     {
-        name: 'Labs HQ',
-        href: '/labs/hq',
-        description:
-            'Internal dashboard for experiments, pipelines, toys, and future bots.',
-        tag: 'Labs',
+        date: '2025-12-02',
+        text: 'Add dedicated app performance view and tie it into the CEO dashboard.',
     },
     {
-        name: 'AI Hub',
-        href: '/ceo/ai-hub',
-        description:
-            'Blueprints for AI assistants to help with scheduling, contracts, and app ops.',
-        tag: 'AI',
+        date: '2025-11-30',
+        text: 'Decide to pursue both gov contracting and SaaS revenue streams.',
     },
 ];
+
+function tagColor(tag: FocusTask['tag']) {
+    switch (tag) {
+        case 'Product':
+            return 'bg-sky-500/10 text-sky-400';
+        case 'Finance':
+            return 'bg-emerald-500/10 text-emerald-400';
+        case 'Admin':
+            return 'bg-purple-500/10 text-purple-300';
+        case 'Gov':
+            return 'bg-amber-500/10 text-amber-300';
+        default:
+            return 'bg-slate-500/10 text-slate-300';
+    }
+}
+
+function appStatusColor(status: AppHealth['status']) {
+    switch (status) {
+        case 'Green':
+            return 'bg-emerald-500';
+        case 'Yellow':
+            return 'bg-amber-400';
+        default:
+            return 'bg-slate-500';
+    }
+}
 
 export default function CeoOverviewPage() {
     return (
@@ -159,78 +191,96 @@ export default function CeoOverviewPage() {
             </header>
 
             {/* Quick snapshot row */}
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <section className="grid gap-4 xl:grid-cols-4 md:grid-cols-2">
+                {/* Money */}
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Revenue (solo)
+                                Money
                             </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">$4,200</p>
+                            <p className="mt-1 text-xl font-semibold sm:text-2xl">$4,250</p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Rough blended number across freelance + early app ideas.
+                                Est. MRR across all live products once initial apps ship.
                             </p>
                         </div>
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                            <Gauge className="h-4 w-4" />
+                            <DollarSign className="h-4 w-4" />
                         </div>
+                    </div>
+                    <div className="mt-3 text-[11px] text-muted-foreground">
+                        <p>Pipeline blend from gov + SaaS assumptions.</p>
                     </div>
                 </div>
 
+                {/* Products */}
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Active projects
+                                Products
                             </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">3</p>
+                            <p className="mt-1 text-xl font-semibold sm:text-2xl">3 live</p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                                CEO dashboard, apps &amp; labs, gov foundations.
-                            </p>
-                        </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                            <Activity className="h-4 w-4" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Open deals
-                            </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">3</p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Mix of gov, freelance, and product plays.
+                                PennyWize, DropSignal, HypeWatch (plus Ops Toys internally).
                             </p>
                         </div>
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
                             <Briefcase className="h-4 w-4" />
                         </div>
                     </div>
+                    <div className="mt-3 text-[11px] text-muted-foreground">
+                        <p>Roadmaps live in CEO dashboard + Labs HQ.</p>
+                    </div>
                 </div>
 
+                {/* Deals */}
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Admin alerts
+                                Deals
                             </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">2</p>
+                            <p className="mt-1 text-xl font-semibold sm:text-2xl">2 open</p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                                SAM.gov + Navy Federal follow-ups.
+                                Active opportunities + proposals across gov + freelance + apps.
                             </p>
                         </div>
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                            <ShieldCheck className="h-4 w-4" />
+                            <LineChart className="h-4 w-4" />
                         </div>
+                    </div>
+                    <div className="mt-3 text-[11px] text-muted-foreground">
+                        <p>See full pipeline in the Deals tab.</p>
+                    </div>
+                </div>
+
+                {/* App performance */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                App performance
+                            </p>
+                            <p className="mt-1 text-xl font-semibold sm:text-2xl">
+                                99.92%
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                All apps healthy + 0 open incidents (for now).
+                            </p>
+                        </div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
+                            <Activity className="h-4 w-4" />
+                        </div>
+                    </div>
+                    <div className="mt-3 text-[11px] text-muted-foreground">
+                        <p>Dig deeper in App performance for latency + incidents.</p>
                     </div>
                 </div>
             </section>
 
-            {/* Middle row: Today's focus + deals */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.3fr)]">
+            {/* Row: Today’s focus + CEO Copilot */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)]">
                 {/* Today’s focus */}
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                     <div className="flex items-center justify-between gap-3">
@@ -239,7 +289,7 @@ export default function CeoOverviewPage() {
                                 Today&apos;s focus
                             </p>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                What future Tez will be glad you shipped.
+                                High-impact moves for future Tez across product, gov, and admin.
                             </p>
                         </div>
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
@@ -248,232 +298,233 @@ export default function CeoOverviewPage() {
                     </div>
 
                     <ul className="mt-4 space-y-2 text-xs">
-                        {TODAY_TASKS.map((task) => (
+                        {TODAY_FOCUS.map((task) => (
                             <li
-                                key={task.label}
-                                className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                                key={task.title}
+                                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
                             >
                                 <div>
-                                    <p className="font-medium">{task.label}</p>
+                                    <p className="font-medium">{task.title}</p>
                                     <p className="mt-1 text-[11px] text-muted-foreground">
-                                        {task.tag} · {task.due}
+                                        {task.when}
                                     </p>
                                 </div>
-                                <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                                    Next up
+                                <span
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${tagColor(
+                                        task.tag,
+                                    )}`}
+                                >
+                                    {task.tag}
                                 </span>
                             </li>
                         ))}
                     </ul>
 
                     <p className="mt-3 text-[11px] text-muted-foreground">
-                        Status lanes: Inbox, This week, In progress, Blocked, Done. Later,
-                        this can sync with a real task system or your own db.
+                        Later, this list can sync directly with the Tasks view and AI Hub
+                        assistants instead of being static.
                     </p>
                 </div>
 
-                {/* Deals & pipeline */}
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                {/* CEO Copilot panel */}
+                <div className="rounded-2xl border border-primary/60 bg-card/80 p-4 shadow-sm ring-1 ring-primary/30 sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Deals &amp; pipeline
+                            <p className="text-xs font-medium uppercase tracking-wide text-primary">
+                                CEO Copilot (preview)
                             </p>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Lightweight pipeline view that mixes gov + freelance + product
-                                bets.
+                                Tiny readout that stitches Tasks, Deals, Performance, and Dev
+                                Workbench into one suggestion.
                             </p>
                         </div>
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                            <LineChart className="h-4 w-4" />
-                        </div>
-                    </div>
-
-                    <div className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
-                        <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                            <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                Active deals
-                            </p>
-                            <p className="mt-1 text-lg font-semibold">3</p>
-                            <p className="mt-1 text-[11px] text-muted-foreground">
-                                1 lead, 1 proposal, 1 negotiation.
-                            </p>
-                        </div>
-                        <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                            <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                Expected pipeline
-                            </p>
-                            <p className="mt-1 text-lg font-semibold">$40,550</p>
-                            <p className="mt-1 text-[11px] text-muted-foreground">
-                                Weighted by stage across gov + freelance.
-                            </p>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/40 bg-primary/10">
+                            <Bot className="h-4 w-4 text-primary" />
                         </div>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
-                        {DEAL_STAGES.map((stage) => (
-                            <span
-                                key={stage.stage}
-                                className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5"
-                            >
-                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                <span className="font-medium">{stage.stage}</span>
-                                <span className="text-muted-foreground">{stage.count}</span>
-                            </span>
-                        ))}
+                    <div className="mt-4 space-y-3 text-xs">
+                        <div className="rounded-xl border border-border bg-background/80 px-3 py-2">
+                            <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                Today&apos;s headline
+                            </p>
+                            <p className="mt-1 font-semibold">
+                                Finish the CEO shell, then make one concrete move on revenue.
+                            </p>
+                            <p className="mt-1 text-[11px] text-muted-foreground">
+                                Close out the dashboard UI work, then push either a gov opp
+                                (SAM.gov / Gun.io) or an app MVP milestone so momentum stays
+                                real.
+                            </p>
+                        </div>
+
+                        <div className="grid gap-2 sm:grid-cols-2">
+                            <div className="rounded-xl border border-border bg-background/70 px-3 py-2">
+                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                    Deals snapshot
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    You have{' '}
+                                    <span className="font-semibold">
+                                        {DEAL_SUMMARY.reduce((acc, d) => acc + d.count, 0)} active
+                                        deals
+                                    </span>{' '}
+                                    across gov, freelance, and product. Keep 1–3 truly alive; park
+                                    the rest.
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-border bg-background/70 px-3 py-2">
+                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                    Dev / refactor nudge
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">
+                                    Pick one small refactor or UI polish task on the current
+                                    feature branch, ship it, and let Dev Workbench + your AI pair
+                                    programmer handle the details.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="rounded-xl border border-dashed border-border bg-background/60 px-3 py-2">
+                            <p className="text-[11px] font-medium uppercase text-muted-foreground">
+                                Future wiring
+                            </p>
+                            <p className="mt-1 text-[11px] text-muted-foreground">
+                                This panel can later read live data from Tasks, Deals, App
+                                performance, and GitHub (Dev Workbench) to generate a fresh
+                                briefing every morning.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Bottom row: Products/apps + Admin/Gov/Risk + Internal dashboards */}
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)]">
+            {/* Row: Products & apps + Admin / GOV / risk */}
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.5fr)]">
                 {/* Products & apps */}
                 <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Products &amp; apps
+                                Products & apps
                             </p>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Where each idea currently lives in the pipeline.
+                                High-level readout of the main Digital Hooligan properties.
                             </p>
                         </div>
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                            <Rocket className="h-4 w-4" />
+                            <ClipboardList className="h-4 w-4" />
+                        </div>
+                    </div>
+
+                    <ul className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
+                        {APP_HEALTH.map((app) => (
+                            <li
+                                key={app.name}
+                                className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                            >
+                                <div className="mt-1">
+                                    <span
+                                        className={`inline-flex h-2.5 w-2.5 rounded-full ${appStatusColor(
+                                            app.status,
+                                        )}`}
+                                    />
+                                </div>
+                                <div>
+                                    <p className="font-medium">{app.name}</p>
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                        {app.note}
+                                    </p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <p className="mt-3 text-[11px] text-muted-foreground">
+                        Future: link directly into each app&apos;s internal dashboard or
+                        performance view.
+                    </p>
+                </div>
+
+                {/* Admin / GOV / risk */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Admin / GOV / risk
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Quick admin checklist for Digital Hooligan LLC.
+                            </p>
+                        </div>
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                            <ShieldCheck className="h-4 w-4" />
                         </div>
                     </div>
 
                     <ul className="mt-4 space-y-2 text-xs">
-                        {PRODUCTS.map((p) => (
-                            <li
-                                key={p.code}
-                                className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
-                            >
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-lg bg-card">
-                                        <span
-                                            className={`inline-flex h-5 w-5 items-center justify-center rounded-md text-[10px] font-semibold text-card ${p.color}`}
-                                        >
-                                            {p.code}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <p className="font-medium">{p.name}</p>
-                                        <p className="mt-1 text-[11px] text-muted-foreground">
-                                            {p.note}
-                                        </p>
-                                    </div>
-                                </div>
-                                <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                                    {p.status}
-                                </span>
-                            </li>
-                        ))}
+                        <li className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <span>EIN + LLC paperwork</span>
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                                Done
+                            </span>
+                        </li>
+                        <li className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <span>SAM.gov entity registration</span>
+                            <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                                In review
+                            </span>
+                        </li>
+                        <li className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <span>Navy Federal business account</span>
+                            <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                                In progress
+                            </span>
+                        </li>
+                        <li className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
+                            <span>VSOB / SBA certifications</span>
+                            <span className="rounded-full bg-slate-500/10 px-2 py-0.5 text-[10px] font-semibold text-slate-200">
+                                Upcoming
+                            </span>
+                        </li>
                     </ul>
+
+                    <p className="mt-3 text-[11px] text-muted-foreground">
+                        This section can later sync with real due dates and reminders from
+                        CEO Copilot.
+                    </p>
                 </div>
+            </section>
 
-                {/* Right column: Admin/Gov + Internal dashboards */}
-                <div className="space-y-4">
-                    {/* Admin / Gov / Risk */}
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Admin / Gov / Risk
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Keeping the boring-but-important foundations visible.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <Building2 className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <div className="mt-4 grid gap-3 text-xs sm:grid-cols-2">
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    LLC
-                                </p>
-                                <p className="mt-1 font-semibold">Active</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Digital Hooligan LLC registered.
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    SAM.gov
-                                </p>
-                                <p className="mt-1 font-semibold">In review</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Entity under review · check status this sprint.
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    EIN / IRS
-                                </p>
-                                <p className="mt-1 font-semibold">Active</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    EIN secured; VSOB/SDVOSB on the roadmap.
-                                </p>
-                            </div>
-                            <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                                    Navy Federal
-                                </p>
-                                <p className="mt-1 font-semibold">Pending</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Business account application status to confirm.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Internal dashboards */}
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Internal dashboards
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Quick jump into the views that keep the studio running.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <LayoutDashboard className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <ul className="mt-4 space-y-2 text-xs">
-                            {INTERNAL_DASHBOARDS.map((dash) => (
-                                <li key={dash.href}>
-                                    <Link
-                                        href={dash.href}
-                                        className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2 hover:bg-muted/70"
-                                    >
-                                        <div>
-                                            <p className="font-medium">{dash.name}</p>
-                                            <p className="mt-1 text-[11px] text-muted-foreground">
-                                                {dash.description}
-                                            </p>
-                                        </div>
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                                            <Cpu className="h-3 w-3" />
-                                            {dash.tag}
-                                        </span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-
-                        <p className="mt-3 text-[11px] text-muted-foreground">
-                            Later, this card can show status chips (green / yellow / red) for
-                            each internal dashboard based on uptime or recent incidents.
+            {/* Decision log */}
+            <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Decision log
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Lightweight history of key calls so future you remembers why.
                         </p>
                     </div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
+                        <AlertTriangle className="h-4 w-4" />
+                    </div>
                 </div>
+
+                <ul className="mt-4 space-y-2 text-xs">
+                    {DECISION_LOG.map((entry) => (
+                        <li
+                            key={entry.date + entry.text}
+                            className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
+                        >
+                            <div className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                                {entry.date}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground">{entry.text}</p>
+                        </li>
+                    ))}
+                </ul>
             </section>
         </div>
     );
