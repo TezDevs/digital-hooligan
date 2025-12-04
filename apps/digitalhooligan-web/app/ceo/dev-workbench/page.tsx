@@ -6,7 +6,6 @@ import {
     GitBranch,
     GitPullRequest,
     CheckCircle2,
-    AlertTriangle,
     Wrench,
     ListChecks,
     Code2,
@@ -99,7 +98,7 @@ const CHECKS: Check[] = [
 
 type WorkItem = {
     label: string;
-    area: 'UI polish' | 'Refactor' | ' DX / tooling';
+    area: 'UI polish' | 'Refactor' | 'DX / tooling';
 };
 
 const WORK_QUEUE: WorkItem[] = [
@@ -149,7 +148,7 @@ function workAreaClasses(area: WorkItem['area']) {
             return 'bg-pink-500/10 text-pink-300';
         case 'Refactor':
             return 'bg-sky-500/10 text-sky-400';
-        case ' DX / tooling':
+        case 'DX / tooling':
             return 'bg-amber-500/10 text-amber-300';
         default:
             return 'bg-slate-500/10 text-slate-200';
@@ -217,7 +216,8 @@ export default function CeoDevWorkbenchPage() {
                                 <div>
                                     <p className="font-mono text-[11px]">{branch.name}</p>
                                     <p className="mt-1 text-[11px] text-muted-foreground">
-                                        {branch.scope} · base: <span className="font-mono">{branch.base}</span>
+                                        {branch.scope} · base:{' '}
+                                        <span className="font-mono">{branch.base}</span>
                                     </p>
                                     <p className="mt-1 text-[11px] text-muted-foreground">
                                         {branch.note}
@@ -282,11 +282,14 @@ export default function CeoDevWorkbenchPage() {
                                 <GitPullRequest className="h-3.5 w-3.5" />
                             </div>
                             <div>
-                                <p className="font-semibold">How this pairs with your AI dev flow</p>
+                                <p className="font-semibold">
+                                    How this pairs with your AI dev flow
+                                </p>
                                 <p className="mt-1 text-[11px]">
                                     Use this board to pick a branch, then let your AI pair
                                     programmer help write/refactor code. Dev Workbench keeps track
-                                    of the &quot;meta&quot;: branches, checks, and what&apos;s next.
+                                    of the &quot;meta&quot;: branches, checks, and what&apos;s
+                                    next.
                                 </p>
                             </div>
                         </div>
@@ -375,8 +378,8 @@ export default function CeoDevWorkbenchPage() {
                             <div>
                                 <p className="font-medium">Green checks before PR</p>
                                 <p className="mt-1 text-[11px] text-muted-foreground">
-                                    TS + lint should be clean locally before you push. Later,
-                                    Dev Workbench can read CI status from GitHub directly.
+                                    TS + lint should be clean locally before you push. Later, Dev
+                                    Workbench can read CI status from GitHub directly.
                                 </p>
                             </div>
                         </li>
@@ -388,9 +391,9 @@ export default function CeoDevWorkbenchPage() {
                             <div>
                                 <p className="font-medium">Refactor with a buddy</p>
                                 <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Use your AI pair programmer for code + refactor details;
-                                    Dev Workbench keeps the bigger picture and suggests where to
-                                    focus next.
+                                    Use your AI pair programmer for code + refactor details; Dev
+                                    Workbench keeps the bigger picture and suggests where to focus
+                                    next.
                                 </p>
                             </div>
                         </li>
