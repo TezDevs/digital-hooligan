@@ -20,8 +20,7 @@ function buildMetrics(entry: AppRegistryEntry): AiHubMetrics {
     return {
         users:
             keys.users != null ? getMockMetricValue(keys.users) : null,
-        mrr:
-            keys.mrr != null ? getMockMetricValue(keys.mrr) : null,
+        mrr: keys.mrr != null ? getMockMetricValue(keys.mrr) : null,
         uptime:
             keys.uptime != null ? getMockMetricValue(keys.uptime) : null,
         errorsPerMin:
@@ -96,6 +95,74 @@ function buildSummary(entry: AppRegistryEntry, metrics: AiHubMetrics): string {
     return parts.join(" ");
 }
 
+const ASSISTANT_BASE_PROMPT = `You are the AI assistant for Digital Hooligan's internal tools.
+
+Use these HTTP endpoints to understand apps and tools:
+- GET /api/health -> basic system health and registry count.
+- GET /api/apps/[id]?includeMetrics=true -> structured app data + mock metrics.
+- GET /api/ai/app-summary/[id] -> natural-language summary + structured app + metrics.
+- GET /api/ai/suggestions -> portfolio-level next-step suggestions.
+
+When asked about a specific app, first fetch /api/ai/app-summary/[id],
+then optionally drill into /api/apps/[id]?includeMetrics=true for details.
+When asked what to work on next, call /api/ai/suggestions and explain the top 3 items.`;
+
+const PLAYBOOKS: { id: string; title: string; body: string }[] = [
+    {
+        id: "app-deep-dive",
+        title: "Deep dive on a single app",
+        body: `When I ask you about a specific app (for example "PennyWize" or "DropSignal"):
+
+1. Resolve the app id and call:
+   - GET /api/ai/app-summary/[id]
+   - GET /api/apps/[id]?includeMetrics=true
+
+2. Combine the results into a short, opinionated explanation:
+   - What is this app for?
+   - What stage is it in (idea/design/building/beta/live)?
+   - What do the mock metrics suggest?
+
+3. Suggest 1–2 concrete next steps for that app only, referencing
+   what you see in its lifecycle + metrics.`,
+    },
+    {
+        id: "portfolio-review",
+        title: "Portfolio review & priorities",
+        body: `When I ask "what should I work on next?" or "how does the portfolio look?":
+
+1. Call:
+   - GET /api/health
+   - GET /api/ai/suggestions
+
+2. Use /api/ai/suggestions to pick 3–5 high-priority items across all apps.
+
+3. Present a short ranked list. For each item, include:
+   - App name (or "Global" if appId is null)
+   - Suggestion title
+   - Why this matters now
+   - The smallest next action I can take in under 60 minutes.
+
+4. If several suggestions cluster around the same app, call
+   /api/ai/app-summary/[id] so your explanation is grounded.`,
+    },
+    {
+        id: "internal-tools-focus",
+        title: "Internal tools & automation focus",
+        body: `When I ask about internal tools, automations, or "Ops Toys":
+
+1. Filter to apps where internalOnly = true.
+
+2. For each internal app I mention:
+   - Call GET /api/ai/app-summary/[id]
+   - Highlight how it is supposed to make my life easier (based on description + metrics).
+
+3. Suggest 1–2 improvements that would maximize founder time saved:
+   - clearer workflow automation
+   - better logging/observability
+   - faster shortcuts for common tasks (like CEO dashboard navigation, registry edits, etc.).`,
+    },
+];
+
 export default function AiHubPage() {
     const entries = APP_REGISTRY;
 
@@ -127,57 +194,82 @@ export default function AiHubPage() {
                             <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
                                 /api/ai/app-summary/[id]
                             </code>{" "}
-                            endpoint your assistants can call.
+                            endpoint your assistants can call, plus a portfolio-level
+                            suggestions API.
                         </p>
                     </div>
 
                     <div className="flex flex-col items-end gap-2 text-right text-[0.75rem] text-slate-400">
                         <p className="max-w-xs text-xs text-slate-400">
                             Future: wire this view into a real AI backend and let the
-                            assistant reason across health, metrics, and registry state.
+                            assistant reason across health, metrics, and suggestions.
                         </p>
-                        <Link
-                            href="/api/ai/app-summary/pennywize"
-                            className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-[0.7rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                        >
-                            Example summary payload →
-                        </Link>
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                            <Link
+                                href="/api/ai/app-summary/pennywize"
+                                className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-[0.7rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                            >
+                                Example app summary →
+                            </Link>
+                            <Link
+                                href="/api/ai/suggestions"
+                                className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-[0.7rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                            >
+                                Example suggestions payload →
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
                 {/* Prompt helper */}
                 <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
                     <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                        Assistant prompt helper
+                        Assistant base prompt
                     </h2>
                     <p className="mt-2 text-xs text-slate-400">
-                        Use this as a starting prompt when configuring an AI assistant
-                        (ChatGPT, custom agent, etc.) so it knows how to use your app
-                        registry and summary endpoints.
+                        Use this as the core system prompt when configuring an AI
+                        assistant (ChatGPT, custom agent, etc.) so it knows how to use
+                        your registry and AI endpoints.
                     </p>
                     <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                        <code className="block max-h-40 flex-1 overflow-auto rounded-xl bg-slate-950 px-3 py-2 text-[0.7rem] leading-relaxed text-slate-200">
-                            {`You are the AI assistant for Digital Hooligan's internal tools.
-
-Use these HTTP endpoints to understand apps and tools:
-- GET /api/health -> basic system health and registry count.
-- GET /api/apps/[id]?includeMetrics=true -> structured app data + mock metrics.
-- GET /api/ai/app-summary/[id] -> natural-language summary + structured app + metrics.
-
-When asked about a specific app, first fetch /api/ai/app-summary/[id],
-then optionally drill into /api/apps/[id]?includeMetrics=true for details.`}
+                        <code className="block max-h-40 flex-1 overflow-auto rounded-xl bg-slate-950 px-3 py-2 text-[0.7rem] leading-relaxed text-slate-200 whitespace-pre-wrap">
+                            {ASSISTANT_BASE_PROMPT}
                         </code>
-                        <div className="mt-2 md:mt-0 md:ml-4 flex-shrink-0">
-                            <CopyButton text={`You are the AI assistant for Digital Hooligan's internal tools.
-
-Use these HTTP endpoints to understand apps and tools:
-- GET /api/health -> basic system health and registry count.
-- GET /api/apps/[id]?includeMetrics=true -> structured app data + mock metrics.
-- GET /api/ai/app-summary/[id] -> natural-language summary + structured app + metrics.
-
-When asked about a specific app, first fetch /api/ai/app-summary/[id],
-then optionally drill into /api/apps/[id]?includeMetrics=true for details.`} />
+                        <div className="mt-2 flex-shrink-0 md:mt-0 md:ml-4">
+                            <CopyButton text={ASSISTANT_BASE_PROMPT} />
                         </div>
+                    </div>
+                </section>
+
+                {/* Assistant playbooks */}
+                <section className="mb-6 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                            Assistant playbooks
+                        </h2>
+                        <p className="text-xs text-slate-400">
+                            Ready-made instructions you can paste into an assistant as
+                            additional behavior.
+                        </p>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-3">
+                        {PLAYBOOKS.map((playbook) => (
+                            <div
+                                key={playbook.id}
+                                className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/90 p-3 shadow-sm shadow-black/40"
+                            >
+                                <div className="flex items-start justify-between gap-2">
+                                    <h3 className="text-xs font-semibold text-slate-100">
+                                        {playbook.title}
+                                    </h3>
+                                    <CopyButton text={playbook.body} />
+                                </div>
+                                <p className="text-[0.7rem] text-slate-300 whitespace-pre-line">
+                                    {playbook.body}
+                                </p>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
