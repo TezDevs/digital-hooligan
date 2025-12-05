@@ -6,129 +6,72 @@ import React from "react";
 import Link from "next/link";
 
 /**
- * Local copies of the health types used by the diagnostics panel.
- * These mirror /api/health/ai and /api/health/apps.
+ * Local mirror of /api/ai/app-summary response.
  */
-
-type AiEndpointStatus = "ok" | "missing" | "planned";
-
-type AiEndpointHealth = {
-    id: string;
-    path: string;
-    description: string;
-    status: AiEndpointStatus;
-};
-
-type AiHealthResponse = {
+type AiAppSummaryResponse = {
     ok: true;
-    type: "ai_routes_health";
-    endpoints: AiEndpointHealth[];
+    type: "ai_app_summary";
+    appId: string;
+    appName: string;
+    headline: string;
+    bullets: string[];
+    suggestions: string[];
     timestamp: string;
 };
 
-type AiHealthState =
-    | { status: "loading" }
-    | { status: "ready"; data: AiHealthResponse }
-    | { status: "error"; message: string };
-
-type AppHealthStatus = "good" | "needs_wiring" | "idea_only";
-
-type AppsHealthEntry = {
-    id: string;
-    name: string;
-    kind: string;
-    lifecycle: string;
-    status: AppHealthStatus;
-    missing: string[];
-};
-
-type AppsHealthResponse = {
-    ok: true;
-    type: "apps_health";
-    apps: AppsHealthEntry[];
-    timestamp: string;
-};
-
-type AppsHealthState =
-    | { status: "loading" }
+type AiSummaryState =
+    | { status: "idle"; appId: string }
+    | { status: "loading"; appId: string }
     | {
         status: "ready";
-        data: AppsHealthResponse;
-        counts: {
-            total: number;
-            good: number;
-            needsWiring: number;
-            ideaOnly: number;
-        };
+        appId: string;
+        data: AiAppSummaryResponse;
     }
-    | { status: "error"; message: string };
+    | { status: "error"; appId: string; message: string };
+
+const DEFAULT_APP_ID = "pennywize";
 
 export default function DevWorkbenchPage() {
-    const [aiHealth, setAiHealth] = React.useState<AiHealthState>({
-        status: "loading",
-    });
-    const [appsHealth, setAppsHealth] = React.useState<AppsHealthState>({
-        status: "loading",
+    const [summaryState, setSummaryState] = React.useState<AiSummaryState>({
+        status: "idle",
+        appId: DEFAULT_APP_ID,
     });
 
-    React.useEffect(() => {
-        void loadAiHealth();
-        void loadAppsHealth();
-    }, []);
+    const [inputAppId, setInputAppId] = React.useState<string>(DEFAULT_APP_ID);
 
-    async function loadAiHealth() {
-        setAiHealth({ status: "loading" });
-
-        try {
-            const res = await fetch("/api/health/ai");
-            if (!res.ok) {
-                throw new Error(`API returned ${res.status}`);
-            }
-
-            const data = (await res.json()) as AiHealthResponse;
-            setAiHealth({ status: "ready", data });
-        } catch (err: unknown) {
-            const message =
-                err instanceof Error
-                    ? err.message
-                    : "Unexpected error loading /api/health/ai.";
-            setAiHealth({ status: "error", message });
+    async function runSummary(appId: string) {
+        if (!appId.trim()) {
+            return;
         }
-    }
 
-    async function loadAppsHealth() {
-        setAppsHealth({ status: "loading" });
+        const cleaned = appId.trim();
+        setSummaryState({ status: "loading", appId: cleaned });
 
         try {
-            const res = await fetch("/api/health/apps");
+            const params = new URLSearchParams({ appId: cleaned });
+            const res = await fetch(`/api/ai/app-summary?${params.toString()}`);
+
             if (!res.ok) {
-                throw new Error(`API returned ${res.status}`);
+                throw new Error(`AI summary API returned ${res.status}`);
             }
 
-            const data = (await res.json()) as AppsHealthResponse;
+            const data = (await res.json()) as AiAppSummaryResponse;
 
-            const good = data.apps.filter((a) => a.status === "good").length;
-            const needsWiring = data.apps.filter(
-                (a) => a.status === "needs_wiring",
-            ).length;
-            const ideaOnly = data.apps.filter((a) => a.status === "idea_only").length;
-
-            setAppsHealth({
+            setSummaryState({
                 status: "ready",
+                appId: cleaned,
                 data,
-                counts: {
-                    total: data.apps.length,
-                    good,
-                    needsWiring,
-                    ideaOnly,
-                },
             });
         } catch (err: unknown) {
             const message =
                 err instanceof Error
                     ? err.message
-                    : "Unexpected error loading /api/health/apps.";
-            setAppsHealth({ status: "error", message });
+                    : "Unexpected error calling /api/ai/app-summary.";
+            setSummaryState({
+                status: "error",
+                appId: cleaned,
+                message,
+            });
         }
     }
 
@@ -136,24 +79,30 @@ export default function DevWorkbenchPage() {
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
             <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
                 {/* Header */}
-                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
                             Dev Workbench
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            Internal view for branch work, diagnostics, and future AI
-                            assistants that help you ship without getting lost in wiring.
+                            Internal console for wiring checks, health endpoints, and now a
+                            tiny AI helper that can read summaries for any app id.
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
                         <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-300 ring-1 ring-emerald-500/70">
-                            Mode: diagnostics prototype
+                            Mode: dev / diagnostics
                         </span>
+                        <Link
+                            href="/ceo"
+                            className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                        >
+                            ← Back to CEO overview
+                        </Link>
                     </div>
-                </div>
+                </header>
 
-                {/* CEO tabs row */}
+                {/* CEO nav tabs */}
                 <nav className="mb-6 overflow-x-auto">
                     <div className="flex gap-2 text-sm">
                         <CeoTab href="/ceo" label="Overview" />
@@ -168,22 +117,23 @@ export default function DevWorkbenchPage() {
                     </div>
                 </nav>
 
-                {/* Layout: diagnostics + notes */}
-                <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr),minmax(0,1.1fr)]">
-                    <DevDiagnosticsCard
-                        aiState={aiHealth}
-                        appsState={appsHealth}
-                        onRefreshAi={() => void loadAiHealth()}
-                        onRefreshApps={() => void loadAppsHealth()}
+                {/* Layout: left = status panels, right = AI helper + notes */}
+                <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr),minmax(0,1.1fr)]">
+                    <DevStatusColumn />
+                    <DevAiColumn
+                        summaryState={summaryState}
+                        inputAppId={inputAppId}
+                        onChangeInput={setInputAppId}
+                        onRunSummary={() => void runSummary(inputAppId)}
+                        onRerun={() => void runSummary(summaryState.appId)}
                     />
-                    <DevNotesCard />
                 </section>
             </div>
         </main>
     );
 }
 
-/* ---------- Shared tab + basic components ---------- */
+/* ---------- Shared tab component ---------- */
 
 function CeoTab({
     href,
@@ -212,326 +162,202 @@ function CeoTab({
     );
 }
 
-/* ---------- Main diagnostics card ---------- */
+/* ---------- Left column: status + wiring notes (lightweight) ---------- */
 
-function DevDiagnosticsCard(props: {
-    aiState: AiHealthState;
-    appsState: AppsHealthState;
-    onRefreshAi: () => void;
-    onRefreshApps: () => void;
-}) {
-    const { aiState, appsState, onRefreshAi, onRefreshApps } = props;
-
+function DevStatusColumn() {
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <div className="mb-3 flex items-start justify-between gap-2">
-                <div>
-                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        Health diagnostics
-                    </p>
-                    <p className="mt-1 text-sm text-slate-200">
-                        Quick snapshot of AI routes and app registry wiring, pulled straight
-                        from the health endpoints. Use this before you assume a bug is in
-                        your code.
-                    </p>
-                </div>
-                <div className="flex flex-col items-end gap-2 text-[0.75rem]">
-                    <button
-                        type="button"
-                        onClick={onRefreshAi}
-                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                    >
-                        Refresh AI
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onRefreshApps}
-                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                    >
-                        Refresh apps
-                    </button>
-                </div>
+        <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Systems snapshot
+                </p>
+                <p className="mt-1 text-sm text-slate-200">
+                    High-level readout of how the Digital Hooligan stack is doing. Later,
+                    this can pull from real health endpoints and metrics.
+                </p>
+                <ul className="mt-3 space-y-1.5 text-[0.85rem]">
+                    <li>• Next.js app: dev + prod builds green.</li>
+                    <li>• Registry + AI endpoints reachable from local.</li>
+                    <li>• Vercel + GitHub wiring healthy after Next.js CVE fix.</li>
+                </ul>
+                <p className="mt-3 text-[0.7rem] text-slate-400">
+                    Future: this panel can query /api/health/* routes and show real
+                    up/down states per service.
+                </p>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-2">
-                <DiagnosticsAiCard state={aiState} />
-                <DiagnosticsAppsCard state={appsState} />
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Dev wiring checklist
+                </p>
+                <ul className="mt-2 space-y-1.5 text-[0.85rem]">
+                    <li>• Can hit /api/apps/registry from browser + Insomnia/Kong.</li>
+                    <li>• Can hit /api/ai/app-summary?appId=pennywize.</li>
+                    <li>• CEO → Labs → AI Hub paths working in local + Vercel.</li>
+                    <li>• Feature branches pushing clean previews before merge.</li>
+                </ul>
+                <p className="mt-3 text-[0.7rem] text-slate-400">
+                    Later: tie each checklist item to automated checks or CI jobs that
+                    report into this view.
+                </p>
             </div>
-
-            <p className="mt-3 text-[0.7rem] text-slate-400">
-                Both sections are backed by the same endpoints used elsewhere:{" "}
-                <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
-                    /api/health/ai
-                </code>{" "}
-                and{" "}
-                <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
-                    /api/health/apps
-                </code>
-                . When in doubt, hit them directly in your browser or Insomnia/Kong.
-            </p>
         </div>
     );
 }
 
-function DiagnosticsAiCard({ state }: { state: AiHealthState }) {
-    if (state.status === "loading") {
-        return (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
-                Checking AI routes…
-            </div>
-        );
-    }
+/* ---------- Right column: Dev AI helper ---------- */
 
-    if (state.status === "error") {
-        return (
-            <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
-                <p className="font-semibold">AI routes health failed.</p>
-                <p className="mt-1 text-[0.8rem]">{state.message}</p>
-                <p className="mt-2 text-[0.75rem] text-rose-100/90">
-                    Hit{" "}
-                    <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
-                        /api/health/ai
-                    </code>{" "}
-                    directly to debug.
-                </p>
-            </div>
-        );
-    }
+function DevAiColumn(props: {
+    summaryState: AiSummaryState;
+    inputAppId: string;
+    onChangeInput: (value: string) => void;
+    onRunSummary: () => void;
+    onRerun: () => void;
+}) {
+    const { summaryState, inputAppId, onChangeInput, onRunSummary, onRerun } =
+        props;
+
+    const hasRun =
+        summaryState.status === "ready" || summaryState.status === "error";
 
     return (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-[0.85rem]">
-            <div className="mb-1 flex items-center justify-between gap-2">
-                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    AI routes
-                </p>
-                <span className="text-[0.7rem] text-slate-400">
-                    {state.data.endpoints.length} endpoints
-                </span>
-            </div>
-            <div className="space-y-1.5">
-                {state.data.endpoints.map((endpoint) => (
-                    <div
-                        key={endpoint.id}
-                        className="rounded-lg border border-slate-800 bg-slate-950/90 px-2 py-1.5"
-                    >
-                        <div className="flex items-start justify-between gap-2">
-                            <div>
-                                <p className="text-[0.8rem] font-medium text-slate-100">
-                                    {endpoint.id}
-                                </p>
-                                <p className="text-[0.7rem] text-slate-400">
-                                    {endpoint.path}
-                                </p>
-                            </div>
-                            <StatusBadge status={endpoint.status} />
-                        </div>
-                        <p className="mt-0.5 text-[0.75rem] text-slate-300">
-                            {endpoint.description}
+        <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+                <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                        <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                            Dev assistant (AI)
+                        </p>
+                        <p className="mt-1 text-sm text-slate-200">
+                            Tiny helper that hits{" "}
+                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
+                                /api/ai/app-summary
+                            </code>{" "}
+                            for any app id. Use this as a scratch pad while you shape the
+                            summary contract and assistant behavior.
                         </p>
                     </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-function DiagnosticsAppsCard({ state }: { state: AppsHealthState }) {
-    if (state.status === "loading") {
-        return (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
-                Counting apps from the registry…
-            </div>
-        );
-    }
-
-    if (state.status === "error") {
-        return (
-            <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
-                <p className="font-semibold">Apps health failed.</p>
-                <p className="mt-1 text-[0.8rem]">{state.message}</p>
-                <p className="mt-2 text-[0.75rem] text-rose-100/90">
-                    Hit{" "}
-                    <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
-                        /api/health/apps
-                    </code>{" "}
-                    directly to debug.
-                </p>
-            </div>
-        );
-    }
-
-    const { counts, data } = state;
-
-    return (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-[0.85rem]">
-            <div className="mb-1 flex items-center justify-between gap-2">
-                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    Apps registry
-                </p>
-                <span className="text-[0.7rem] text-slate-400">
-                    {counts.total} total
-                </span>
-            </div>
-
-            <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[0.7rem]">
-                <AppsHealthChip status="good" value={counts.good} label="Good" />
-                <AppsHealthChip
-                    status="needs_wiring"
-                    value={counts.needsWiring}
-                    label="Needs wiring"
-                />
-                <AppsHealthChip
-                    status="idea_only"
-                    value={counts.ideaOnly}
-                    label="Idea-only"
-                />
-            </div>
-
-            <div className="max-h-44 space-y-1.5 overflow-auto pr-1 text-[0.8rem]">
-                {data.apps.map((app) => (
-                    <div
-                        key={app.id}
-                        className="rounded-lg border border-slate-800 bg-slate-950/90 px-2 py-1.5"
-                    >
-                        <div className="flex items-start justify-between gap-2">
-                            <div>
-                                <p className="font-medium text-slate-100">
-                                    {app.name}{" "}
-                                    <span className="text-[0.7rem] text-slate-400">
-                                        ({app.id})
-                                    </span>
-                                </p>
-                                <p className="text-[0.7rem] text-slate-400">
-                                    {app.kind} · lifecycle: {app.lifecycle}
-                                </p>
-                            </div>
-                            <AppHealthBadge status={app.status} />
-                        </div>
-                        {app.missing.length > 0 && (
-                            <p className="mt-0.5 text-[0.75rem] text-slate-300">
-                                Missing:{" "}
-                                {app.missing
-                                    .map((key) => `"${key}"`)
-                                    .join(", ")}
-                            </p>
+                    <div className="flex flex-col items-stretch gap-2 self-start text-[0.75rem] md:flex-row md:items-center">
+                        <label className="flex items-center gap-1.5">
+                            <span className="text-[0.7rem] text-slate-300">appId:</span>
+                            <input
+                                type="text"
+                                value={inputAppId}
+                                onChange={(event) => onChangeInput(event.target.value)}
+                                className="w-36 rounded-full border border-slate-700 bg-slate-950 px-3 py-1 text-[0.8rem] text-slate-100 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/70"
+                                placeholder="pennywize"
+                            />
+                        </label>
+                        <button
+                            type="button"
+                            onClick={onRunSummary}
+                            className="inline-flex items-center justify-center rounded-full border border-emerald-500/70 bg-emerald-500/10 px-3 py-1 text-[0.75rem] font-medium text-emerald-200 hover:bg-emerald-500/20"
+                        >
+                            Run summary
+                        </button>
+                        {hasRun && (
+                            <button
+                                type="button"
+                                onClick={onRerun}
+                                className="inline-flex items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                            >
+                                Rerun last
+                            </button>
                         )}
                     </div>
-                ))}
+                </div>
+
+                {summaryState.status === "idle" && (
+                    <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                        Enter an app id and hit <span className="font-semibold">Run</span>{" "}
+                        to see what the AI summary endpoint returns. Great for tweaking the
+                        response shape before wiring into other assistants.
+                    </p>
+                )}
+
+                {summaryState.status === "loading" && (
+                    <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                        Calling{" "}
+                        <code className="bg-slate-900 px-1 py-0.5 text-[0.7rem]">
+                            /api/ai/app-summary
+                        </code>{" "}
+                        for{" "}
+                        <span className="font-semibold">{summaryState.appId}</span>…
+                    </p>
+                )}
+
+                {summaryState.status === "error" && (
+                    <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
+                        <p className="font-semibold">
+                            Error calling AI summary for {summaryState.appId}.
+                        </p>
+                        <p className="mt-1 text-[0.8rem]">{summaryState.message}</p>
+                        <p className="mt-2 text-[0.75rem] text-rose-100/90">
+                            Hit{" "}
+                            <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
+                                /api/ai/app-summary?appId={summaryState.appId}
+                            </code>{" "}
+                            directly in the browser or Insomnia/Kong to debug.
+                        </p>
+                    </div>
+                )}
+
+                {summaryState.status === "ready" && (
+                    <div className="space-y-3">
+                        <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-3 text-[0.9rem]">
+                            <p className="text-[0.8rem] font-semibold text-emerald-200">
+                                {summaryState.data.headline}
+                            </p>
+                            {summaryState.data.bullets?.length > 0 && (
+                                <ul className="mt-2 space-y-1.5 text-[0.85rem] text-slate-200">
+                                    {summaryState.data.bullets.map((item, index) => (
+                                        <li key={index}>• {item}</li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        {summaryState.data.suggestions?.length > 0 && (
+                            <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-3 text-[0.85rem]">
+                                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                                    Suggested next moves
+                                </p>
+                                <ul className="mt-2 space-y-1.5">
+                                    {summaryState.data.suggestions.map((item, index) => (
+                                        <li key={index}>• {item}</li>
+                                    ))}
+                                </ul>
+                                <p className="mt-2 text-[0.7rem] text-slate-400">
+                                    Later, Dev Workbench can turn these into buttons that trigger
+                                    test runs, API checks, or GitHub actions.
+                                </p>
+                            </div>
+                        )}
+
+                        <p className="text-[0.7rem] text-slate-400">
+                            Timestamp: {summaryState.data.timestamp}. You can copy/paste this
+                            payload or inspect it in the network tab while you iterate on the
+                            endpoint design.
+                        </p>
+                    </div>
+                )}
             </div>
-        </div>
-    );
-}
 
-/* ---------- Status badges + chips ---------- */
-
-function StatusBadge({ status }: { status: AiEndpointStatus }) {
-    const base =
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium ring-1";
-
-    let tone =
-        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
-    let label: string = status;
-
-    if (status === "ok") {
-        tone =
-            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
-        label = "OK";
-    } else if (status === "planned") {
-        tone =
-            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
-        label = "Planned";
-    } else if (status === "missing") {
-        tone =
-            "bg-rose-500/10 text-rose-200 ring-rose-500/60";
-        label = "Missing";
-    }
-
-    return <span className={base + " " + tone}>{label}</span>;
-}
-
-function AppHealthBadge({ status }: { status: AppHealthStatus }) {
-    const base =
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium ring-1";
-
-    let tone =
-        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
-    let label: string;
-
-    if (status === "good") {
-        tone =
-            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
-        label = "Good";
-    } else if (status === "needs_wiring") {
-        tone =
-            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
-        label = "Needs wiring";
-    } else {
-        tone =
-            "bg-sky-500/10 text-sky-200 ring-sky-500/60";
-        label = "Idea only";
-    }
-
-    return <span className={base + " " + tone}>{label}</span>;
-}
-
-function AppsHealthChip(props: {
-    status: AppHealthStatus;
-    value: number;
-    label: string;
-}) {
-    const { status, value, label } = props;
-
-    const base =
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1";
-
-    let tone =
-        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
-
-    if (status === "good") {
-        tone =
-            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
-    } else if (status === "needs_wiring") {
-        tone =
-            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
-    } else if (status === "idea_only") {
-        tone =
-            "bg-sky-500/10 text-sky-200 ring-sky-500/60";
-    }
-
-    return (
-        <span className={base + " " + tone}>
-            <span>{value}</span>
-            <span>{label}</span>
-        </span>
-    );
-}
-
-/* ---------- Right-hand notes card (static for now) ---------- */
-
-function DevNotesCard() {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Dev notes / future wiring
-            </p>
-            <p className="mt-1 text-sm text-slate-200">
-                Space for quick notes about branches, WIP features, and where AI
-                assistants should plug into your stack.
-            </p>
-            <ul className="mt-3 space-y-1.5 text-[0.85rem]">
-                <li>
-                    • Next wiring: let Dev Workbench suggest test commands and Insomnia
-                    routes based on the current feature branch.
-                </li>
-                <li>
-                    • Later: show CI status, open PRs, and recent deploys here so you can
-                    debug from one screen.
-                </li>
-                <li>
-                    • Use the health diagnostics on the left before assuming a bug is in
-                    your UI — sometimes it&apos;s just a missing endpoint.
-                </li>
-            </ul>
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Notes for future Dev AI
+                </p>
+                <ul className="mt-2 space-y-1.5 text-[0.85rem]">
+                    <li>• Let the assistant see recent build + deploy logs.</li>
+                    <li>• Wire in /api/health/* so it can point at failing services.</li>
+                    <li>• Let it open GitHub branches/PR links directly from here.</li>
+                    <li>• Eventually, let it draft PR descriptions or test plans.</li>
+                </ul>
+                <p className="mt-3 text-[0.7rem] text-slate-400">
+                    For now, this column is just text, but it keeps the roadmap visible
+                    while you build the plumbing.
+                </p>
+            </div>
         </div>
     );
 }
