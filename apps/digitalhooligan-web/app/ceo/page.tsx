@@ -38,8 +38,59 @@ type AppsHealthState =
     }
     | { status: "error"; message: string };
 
+type DailyBriefingResponse = {
+    ok: true;
+    type: "ceo_daily_briefing";
+    headline: string;
+    summary: string;
+    focusItems: string[];
+    recommendedAppId: string;
+    recommendedAppName: string;
+    tags: string[];
+    timestamp: string;
+};
+
+type DailyBriefingState =
+    | { status: "loading" }
+    | { status: "ready"; data: DailyBriefingResponse }
+    | { status: "error"; message: string };
+
+type NoteArea = "product" | "gov" | "admin" | "infra";
+type NoteKind = "decision" | "note";
+
+type CeoNote = {
+    id: string;
+    kind: NoteKind;
+    title: string;
+    body: string;
+    area: NoteArea;
+    createdAt: string;
+    tags: string[];
+};
+
+type NotesResponse = {
+    ok: true;
+    type: "ceo_notes";
+    notes: CeoNote[];
+    timestamp: string;
+};
+
+type NotesState =
+    | { status: "loading" }
+    | { status: "ready"; notes: CeoNote[]; timestamp: string }
+    | { status: "error"; message: string };
+
 export default function CeoDashboardPage() {
     const [appsHealth, setAppsHealth] = React.useState<AppsHealthState>({
+        status: "loading",
+    });
+
+    const [dailyBriefing, setDailyBriefing] =
+        React.useState<DailyBriefingState>({
+            status: "loading",
+        });
+
+    const [notesState, setNotesState] = React.useState<NotesState>({
         status: "loading",
     });
 
@@ -76,8 +127,56 @@ export default function CeoDashboardPage() {
         }
     }
 
+    async function loadDailyBriefing() {
+        setDailyBriefing({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/ceo/daily-briefing");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as DailyBriefingResponse;
+            setDailyBriefing({ status: "ready", data });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/ceo/daily-briefing.";
+
+            setDailyBriefing({ status: "error", message });
+        }
+    }
+
+    async function loadNotes() {
+        setNotesState({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/ceo/notes");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as NotesResponse;
+            setNotesState({
+                status: "ready",
+                notes: data.notes,
+                timestamp: data.timestamp,
+            });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/ceo/notes.";
+
+            setNotesState({ status: "error", message });
+        }
+    }
+
     React.useEffect(() => {
         void loadAppsHealth();
+        void loadDailyBriefing();
+        void loadNotes();
     }, []);
 
     return (
@@ -90,8 +189,8 @@ export default function CeoDashboardPage() {
                             CEO dashboard
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            One place to see money, products, deals, and app health across
-                            Digital Hooligan. This view leans on registry + health endpoints
+                            One place to see money, products, deals, app health, and a small
+                            log of what you decided. All of this leans on internal endpoints
                             so you&apos;re always looking at real wiring, not static slides.
                         </p>
                     </div>
@@ -147,10 +246,8 @@ export default function CeoDashboardPage() {
 
                 {/* Middle row: App health snapshot + focus */}
                 <section className="mb-6 grid gap-4 md:grid-cols-[minmax(0,2fr),minmax(0,1.5fr)]">
-                    {/* New app health card */}
                     <AppHealthCard state={appsHealth} onRefresh={loadAppsHealth} />
 
-                    {/* Today's focus card (static for now) */}
                     <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
                         <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                             Today&apos;s focus
@@ -189,31 +286,13 @@ export default function CeoDashboardPage() {
                     </div>
                 </section>
 
-                {/* Bottom row placeholder */}
+                {/* Bottom row: CEO Copilot + Notes & decisions */}
                 <section className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.75rem] text-slate-200 shadow-sm shadow-black/40">
-                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            Notes & decisions (future)
-                        </h2>
-                        <p className="mt-2 text-[0.75rem] text-slate-300">
-                            This area can become a lightweight decision log and notes panel
-                            once you start shipping real revenue and contracts. For now, treat
-                            it as a reminder that CEO has a memory.
-                        </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.75rem] text-slate-200 shadow-sm shadow-black/40">
-                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            Wiring to Labs & Dev WB
-                        </h2>
-                        <p className="mt-2 text-[0.75rem] text-slate-300">
-                            App health here comes from{" "}
-                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
-                                /api/health/apps
-                            </code>
-                            . The same endpoint powers future cards in Labs HQ and Dev
-                            Workbench so you never duplicate logic.
-                        </p>
-                    </div>
+                    <CeoCopilotCard
+                        state={dailyBriefing}
+                        onRefresh={loadDailyBriefing}
+                    />
+                    <CeoNotesCard state={notesState} onRefresh={loadNotes} />
                 </section>
             </div>
         </main>
@@ -434,4 +513,237 @@ function StatPill({
             </span>
         </div>
     );
+}
+
+function CeoCopilotCard({
+    state,
+    onRefresh,
+}: {
+    state: DailyBriefingState;
+    onRefresh: () => void;
+}) {
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.8rem] text-slate-200 shadow-sm shadow-black/40">
+            <div className="mb-2 flex items-center justify-between gap-2">
+                <div>
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        CEO Copilot (preview)
+                    </p>
+                    <p className="mt-1 text-sm text-slate-200">
+                        Tiny readout that stitches registry health into one suggestion for
+                        what to move today.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={onRefresh}
+                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                >
+                    Refresh
+                </button>
+            </div>
+
+            {state.status === "loading" && (
+                <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.8rem] text-slate-300">
+                    Generating today&apos;s briefing…
+                </div>
+            )}
+
+            {state.status === "error" && (
+                <div className="mt-2 rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.8rem] text-rose-100">
+                    <p className="font-semibold">Copilot couldn&apos;t load.</p>
+                    <p className="mt-1 text-[0.75rem] text-rose-100/90">
+                        {state.message}
+                    </p>
+                    <p className="mt-1 text-[0.7rem] text-rose-100/80">
+                        Hit{" "}
+                        <code className="rounded bg-rose-900/40 px-1 py-0.5 text-[0.7rem]">
+                            /api/ceo/daily-briefing
+                        </code>{" "}
+                        directly in browser or Insomnia to debug the payload.
+                    </p>
+                </div>
+            )}
+
+            {state.status === "ready" && (
+                <>
+                    <div className="mt-2">
+                        <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                            Today&apos;s headline
+                        </p>
+                        <p className="mt-1 text-sm text-slate-50">
+                            {state.data.headline}
+                        </p>
+                    </div>
+
+                    <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-200">
+                        {state.data.summary}
+                    </p>
+
+                    {state.data.focusItems.length > 0 && (
+                        <div className="mt-3">
+                            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                                Focus checklist
+                            </p>
+                            <ul className="mt-1 space-y-1.5 list-disc pl-4 text-[0.75rem]">
+                                {state.data.focusItems.map((item, idx) => (
+                                    <li key={idx}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[0.7rem] text-slate-400">
+                        <div className="flex flex-wrap gap-1">
+                            {state.data.tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.65rem] text-slate-300"
+                                >
+                                    #{tag}
+                                </span>
+                            ))}
+                        </div>
+                        {state.data.recommendedAppId && (
+                            <span className="text-[0.7rem] text-slate-400">
+                                Focus app:{" "}
+                                <span className="font-medium text-slate-200">
+                                    {state.data.recommendedAppName}
+                                </span>{" "}
+                                ({state.data.recommendedAppId})
+                            </span>
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+function CeoNotesCard({
+    state,
+    onRefresh,
+}: {
+    state: NotesState;
+    onRefresh: () => void;
+}) {
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.8rem] text-slate-200 shadow-sm shadow-black/40">
+            <div className="mb-2 flex items-center justify-between gap-2">
+                <div>
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        Notes & decisions
+                    </p>
+                    <p className="mt-1 text-sm text-slate-200">
+                        Tiny log of what you&apos;ve locked in so far. Treat this as the
+                        seed of a future decision log.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={onRefresh}
+                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                >
+                    Refresh
+                </button>
+            </div>
+
+            {state.status === "loading" && (
+                <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.8rem] text-slate-300">
+                    Loading notes…
+                </div>
+            )}
+
+            {state.status === "error" && (
+                <div className="mt-2 rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.8rem] text-rose-100">
+                    <p className="font-semibold">Couldn&apos;t load notes.</p>
+                    <p className="mt-1 text-[0.75rem] text-rose-100/90">
+                        {state.message}
+                    </p>
+                    <p className="mt-1 text-[0.7rem] text-rose-100/80">
+                        Hit{" "}
+                        <code className="rounded bg-rose-900/40 px-1 py-0.5 text-[0.7rem]">
+                            /api/ceo/notes
+                        </code>{" "}
+                        directly in browser or Insomnia to debug the payload.
+                    </p>
+                </div>
+            )}
+
+            {state.status === "ready" && (
+                <>
+                    <div className="mt-2 space-y-2">
+                        {state.notes
+                            .slice()
+                            .sort(
+                                (a, b) =>
+                                    new Date(b.createdAt).getTime() -
+                                    new Date(a.createdAt).getTime(),
+                            )
+                            .slice(0, 3)
+                            .map((note) => (
+                                <div
+                                    key={note.id}
+                                    className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-[0.8rem]"
+                                >
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div>
+                                            <p className="text-[0.8rem] font-medium text-slate-100">
+                                                {note.title}
+                                            </p>
+                                            <p className="mt-0.5 text-[0.7rem] text-slate-400">
+                                                {noteAreaLabel(note.area)} ·{" "}
+                                                {new Date(note.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.65rem] text-slate-300">
+                                            {note.kind === "decision" ? "Decision" : "Note"}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 text-[0.75rem] text-slate-300">
+                                        {note.body}
+                                    </p>
+                                    {note.tags.length > 0 && (
+                                        <div className="mt-2 flex flex-wrap gap-1 text-[0.65rem] text-slate-400">
+                                            {note.tags.map((tag) => (
+                                                <span
+                                                    key={tag}
+                                                    className="rounded-full bg-slate-900/80 px-2 py-0.5"
+                                                >
+                                                    #{tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                    </div>
+
+                    <p className="mt-3 text-[0.7rem] text-slate-400">
+                        Backed by{" "}
+                        <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                            /api/ceo/notes
+                        </code>{" "}
+                        so CEO, Labs, Dev Workbench, and future AI assistants can all pull
+                        from the same story of what you&apos;ve decided so far.
+                    </p>
+                </>
+            )}
+        </div>
+    );
+}
+
+function noteAreaLabel(area: NoteArea): string {
+    switch (area) {
+        case "product":
+            return "Product";
+        case "gov":
+            return "Gov / contracts";
+        case "admin":
+            return "Admin";
+        case "infra":
+            return "Infra";
+        default:
+            return area;
+    }
 }
