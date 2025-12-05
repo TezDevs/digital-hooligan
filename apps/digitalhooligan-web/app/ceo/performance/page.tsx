@@ -6,6 +6,7 @@ import React from "react";
 import Link from "next/link";
 import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
 import { getMockMetricValue } from "@/lib/mockMetrics";
+import { isRealMetricKey } from "@/lib/realMetrics";
 
 type MetricSnapshot = {
     users: number | null;
@@ -101,9 +102,9 @@ export default function CeoPerformancePage() {
                             App performance
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            Registry-backed view of mock performance for each app and internal
-                            tool. This shell is where real metrics (users, MRR, uptime,
-                            incidents) will live.
+                            Registry-backed view of performance for each app and internal
+                            tool. Mock data today, with a few live-seeded metrics to prove the
+                            wiring.
                         </p>
                     </div>
                     <div className="flex items-center gap-2 text-[0.75rem] text-slate-300">
@@ -141,8 +142,8 @@ export default function CeoPerformancePage() {
                                     Portfolio metrics
                                 </p>
                                 <p className="mt-1 text-sm text-slate-200">
-                                    {total} apps in registry · {withUsers} with mock user counts ·{" "}
-                                    {withUptime} with mock uptime
+                                    {total} apps in registry · {withUsers} with user metrics wired ·{" "}
+                                    {withUptime} with uptime
                                 </p>
                             </div>
                             <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 text-[0.7rem] text-slate-300 ring-1 ring-slate-700/70">
@@ -185,19 +186,17 @@ export default function CeoPerformancePage() {
                                 <span className="font-medium">AI Hub</span>.
                             </li>
                             <li>
-                                Each card points at{" "}
+                                A few keys (like{" "}
                                 <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.65rem] text-emerald-300">
-                                    /api/apps/[id]?includeMetrics=true
-                                </code>{" "}
-                                and{" "}
-                                <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.65rem] text-emerald-300">
-                                    /api/ai/app-summary/[id]
-                                </code>{" "}
-                                for assistants or Insomnia tests.
+                                    pennywize_users
+                                </code>
+                                ) are backed by a tiny{" "}
+                                <span className="font-medium">REAL_METRICS</span> map to prove
+                                we can plug in live data.
                             </li>
                             <li>
-                                Later, swap the mock metric adapter to real sources (analytics,
-                                billing, infra) without changing this shell.
+                                Later, swap the real metrics map to a DB or external sources
+                                without changing this shell.
                             </li>
                         </ul>
                     </div>
@@ -210,8 +209,8 @@ export default function CeoPerformancePage() {
                             Per-app performance
                         </h2>
                         <p className="text-xs text-slate-400">
-                            One card per registry entry, with mock metrics for now. Use this
-                            to sanity-check ids and metric wiring.
+                            One card per registry entry. Pills marked “Live” are backed by
+                            REAL_METRICS; the rest are deterministic mocks.
                         </p>
                     </div>
 
@@ -222,13 +221,24 @@ export default function CeoPerformancePage() {
                         </div>
                     ) : (
                         <div className="grid gap-4 md:grid-cols-2">
-                            {entriesWithMetrics.map(({ entry, metrics }) => (
-                                <PerformanceCard
-                                    key={entry.id}
-                                    entry={entry}
-                                    metrics={metrics}
-                                />
-                            ))}
+                            {entriesWithMetrics.map(({ entry, metrics }) => {
+                                const metricsKeys = entry.metricsKeys ?? {};
+                                return (
+                                    <PerformanceCard
+                                        key={entry.id}
+                                        entry={entry}
+                                        metrics={metrics}
+                                        liveFlags={{
+                                            users: isRealMetricKey(metricsKeys.users ?? null),
+                                            mrr: isRealMetricKey(metricsKeys.mrr ?? null),
+                                            uptime: isRealMetricKey(metricsKeys.uptime ?? null),
+                                            errorsPerMin: isRealMetricKey(
+                                                metricsKeys.errorsPerMin ?? null,
+                                            ),
+                                        }}
+                                    />
+                                );
+                            })}
                         </div>
                     )}
                 </section>
@@ -267,9 +277,16 @@ function CeoTab({
 function PerformanceCard({
     entry,
     metrics,
+    liveFlags,
 }: {
     entry: AppRegistryEntry;
     metrics: MetricSnapshot;
+    liveFlags: {
+        users: boolean;
+        mrr: boolean;
+        uptime: boolean;
+        errorsPerMin: boolean;
+    };
 }) {
     const kindLabel = KIND_LABEL[entry.kind];
     const audienceLabel = entry.internalOnly ? "Internal-only" : "User-facing";
@@ -335,7 +352,11 @@ function PerformanceCard({
             <div className="rounded-xl border border-slate-800 bg-slate-950/90 p-3 text-[0.7rem] text-slate-200">
                 <div className="flex flex-wrap items-center gap-2">
                     {metrics.users != null ? (
-                        <MetricPill label="Users" value={metrics.users.toLocaleString()} />
+                        <MetricPill
+                            label="Users"
+                            value={metrics.users.toLocaleString()}
+                            live={liveFlags.users}
+                        />
                     ) : (
                         <MetricPill label="Users" value="—" dim />
                     )}
@@ -344,6 +365,7 @@ function PerformanceCard({
                         <MetricPill
                             label="MRR"
                             value={`$${metrics.mrr.toFixed(0)}/mo`}
+                            live={liveFlags.mrr}
                         />
                     ) : (
                         <MetricPill label="MRR" value="—" dim />
@@ -353,6 +375,7 @@ function PerformanceCard({
                         <MetricPill
                             label="Uptime"
                             value={`${metrics.uptime.toFixed(1)}%`}
+                            live={liveFlags.uptime}
                         />
                     ) : (
                         <MetricPill label="Uptime" value="—" dim />
@@ -362,14 +385,15 @@ function PerformanceCard({
                         <MetricPill
                             label="Errors/min"
                             value={metrics.errorsPerMin.toFixed(2)}
+                            live={liveFlags.errorsPerMin}
                         />
                     ) : (
                         <MetricPill label="Errors/min" value="—" dim />
                     )}
                 </div>
                 <p className="mt-1 text-[0.65rem] text-slate-500">
-                    All values are mock for now. Swap the metric adapter to real sources
-                    later without changing this page.
+                    Pills marked “Live” are backed by REAL_METRICS; others are
+                    deterministic mock values. Swap sources without touching this page.
                 </p>
             </div>
 
@@ -411,23 +435,42 @@ function MetricPill({
     label,
     value,
     dim,
+    live,
 }: {
     label: string;
     value: string;
     dim?: boolean;
+    live?: boolean;
 }) {
     const base =
         "inline-flex items-center rounded-full px-2.5 py-1 text-[0.7rem] ring-1";
-    const activeClasses =
-        "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+    const activeClasses = live
+        ? "bg-emerald-500/15 text-emerald-100 ring-emerald-400/80 shadow-[0_0_0_1px_rgba(16,185,129,0.25)]"
+        : "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
     const dimClasses = "bg-slate-900/80 text-slate-400 ring-slate-700/70";
 
+    if (dim) {
+        return (
+            <span className={`${base} ${dimClasses}`}>
+                <span className="mr-1 text-[0.65rem] uppercase tracking-[0.16em]">
+                    {label}
+                </span>
+                <span>{value}</span>
+            </span>
+        );
+    }
+
     return (
-        <span className={`${base} ${dim ? dimClasses : activeClasses}`}>
+        <span className={`${base} ${activeClasses}`}>
             <span className="mr-1 text-[0.65rem] uppercase tracking-[0.16em]">
                 {label}
             </span>
-            <span>{value}</span>
+            <span className="mr-1">{value}</span>
+            {live && (
+                <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-[0.16em]">
+                    Live
+                </span>
+            )}
         </span>
     );
 }
