@@ -7,7 +7,6 @@ import Link from "next/link";
 
 /**
  * Local mirror of /api/ai/app-summary response.
- * If the backend adds extra fields, they are simply ignored on the client.
  */
 
 type AiAppSummaryResponse = {
@@ -30,17 +29,86 @@ type AiSummaryState =
     }
     | { status: "error"; appId: string; message: string };
 
-const DEFAULT_APP_ID = "pennywize";
+/**
+ * Local mirror of /api/apps/registry (only fields AI Hub cares about).
+ */
+
+type AppsRegistryEntry = {
+    id: string;
+    name: string;
+    kind: string;
+    lifecycle: string;
+};
+
+type AppsRegistrySummary = {
+    total: number;
+    byKind: Record<string, number>;
+    byLifecycle: Record<string, number>;
+};
+
+type AppsRegistryResponse = {
+    ok: true;
+    type: "apps_registry";
+    apps: AppsRegistryEntry[];
+    summary: AppsRegistrySummary;
+    timestamp: string;
+};
+
+type AppsRegistryState =
+    | { status: "loading" }
+    | { status: "ready"; apps: AppsRegistryEntry[] }
+    | { status: "error"; message: string };
+
+const FALLBACK_APP_ID = "pennywize";
 
 export default function AiHubPage() {
+    const [appsState, setAppsState] =
+        React.useState<AppsRegistryState>({ status: "loading" });
+
     const [summaryState, setSummaryState] = React.useState<AiSummaryState>({
         status: "loading",
-        appId: DEFAULT_APP_ID,
+        appId: FALLBACK_APP_ID,
     });
 
     React.useEffect(() => {
-        void loadSummary(DEFAULT_APP_ID);
+        void bootstrapAiHub();
     }, []);
+
+    /**
+     * Initial wiring:
+     * 1. Load registry to know which apps exist.
+     * 2. Pick a default (first public app or fallback).
+     * 3. Load AI summary for that app.
+     */
+    async function bootstrapAiHub() {
+        try {
+            const res = await fetch("/api/apps/registry");
+            if (!res.ok) {
+                throw new Error(`Registry API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as AppsRegistryResponse;
+
+            const apps = data.apps;
+            setAppsState({ status: "ready", apps });
+
+            const defaultAppId =
+                apps.find((app) => app.kind === "public-app")?.id ??
+                apps[0]?.id ??
+                FALLBACK_APP_ID;
+
+            await loadSummary(defaultAppId);
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/apps/registry.";
+            setAppsState({ status: "error", message });
+
+            // Still try to load a summary for the fallback app so the page isn't empty.
+            await loadSummary(FALLBACK_APP_ID);
+        }
+    }
 
     async function loadSummary(appId: string) {
         setSummaryState({ status: "loading", appId });
@@ -50,7 +118,7 @@ export default function AiHubPage() {
             const res = await fetch(`/api/ai/app-summary?${params.toString()}`);
 
             if (!res.ok) {
-                throw new Error(`API returned ${res.status}`);
+                throw new Error(`AI summary API returned ${res.status}`);
             }
 
             const data = (await res.json()) as AiAppSummaryResponse;
@@ -72,6 +140,8 @@ export default function AiHubPage() {
             });
         }
     }
+
+    const currentAppId = summaryState.appId;
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
@@ -119,8 +189,11 @@ export default function AiHubPage() {
                 {/* Layout: app insight + wiring notes */}
                 <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr),minmax(0,1.1fr)]">
                     <AppInsightCard
+                        appsState={appsState}
                         state={summaryState}
-                        onRefresh={() => void loadSummary(DEFAULT_APP_ID)}
+                        currentAppId={currentAppId}
+                        onRefresh={() => void loadSummary(currentAppId)}
+                        onSelectApp={(nextId) => void loadSummary(nextId)}
                     />
                     <AiWiringNotesCard />
                 </section>
@@ -161,51 +234,78 @@ function CeoTab({
 /* ---------- App insight card (AI) ---------- */
 
 function AppInsightCard(props: {
+    appsState: AppsRegistryState;
     state: AiSummaryState;
+    currentAppId: string;
     onRefresh: () => void;
+    onSelectApp: (appId: string) => void;
 }) {
-    const { state, onRefresh } = props;
+    const { appsState, state, currentAppId, onRefresh, onSelectApp } = props;
 
     const appLabel =
         state.status === "ready"
             ? `${state.data.appName} (${state.data.appId})`
-            : state.appId;
+            : currentAppId;
+
+    const canSelect =
+        appsState.status === "ready" && appsState.apps.length > 0;
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
             <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
+                <div className="space-y-1">
                     <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                         App insight (AI)
                     </p>
-                    <p className="mt-1 text-sm text-slate-200">
-                        Early assistant-style summary for{" "}
-                        <span className="font-semibold text-emerald-200">
-                            {appLabel}
-                        </span>{" "}
-                        pulled from{" "}
+                    <p className="text-sm text-slate-200">
+                        Early assistant-style summary pulled from{" "}
                         <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
                             /api/ai/app-summary
                         </code>
-                        . Later, this is how a CEO copilot and Labs assistants get their
-                        briefings.
+                        . Pick any app from the registry and this card will re-run the AI
+                        summary for it.
                     </p>
                 </div>
-                <button
-                    type="button"
-                    onClick={onRefresh}
-                    className="inline-flex items-center self-start rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                >
-                    Refresh
-                </button>
+                <div className="flex flex-col items-stretch gap-2 self-start text-[0.75rem] text-slate-200 md:flex-row md:items-center">
+                    {canSelect && (
+                        <AppSelect
+                            apps={appsState.apps}
+                            value={currentAppId}
+                            onChange={onSelectApp}
+                        />
+                    )}
+                    <button
+                        type="button"
+                        onClick={onRefresh}
+                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    >
+                        Refresh
+                    </button>
+                </div>
             </div>
+
+            {appsState.status === "error" && (
+                <div className="mb-3 rounded-xl border border-amber-500/60 bg-amber-950/30 px-3 py-2 text-[0.8rem] text-amber-50">
+                    <p className="font-medium">
+                        Registry is unavailable; app list is based on fallback only.
+                    </p>
+                    <p className="text-[0.75rem]">
+                        Error: {appsState.message}. Try hitting{" "}
+                        <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem]">
+                            /api/apps/registry
+                        </code>{" "}
+                        in the browser or Insomnia/Kong.
+                    </p>
+                </div>
+            )}
 
             {state.status === "loading" && (
                 <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
-                    Calling <code className="bg-slate-900 px-1 py-0.5 text-[0.7rem]">
+                    Calling{" "}
+                    <code className="bg-slate-900 px-1 py-0.5 text-[0.7rem]">
                         /api/ai/app-summary
                     </code>{" "}
-                    for {state.appId}…
+                    for <span className="font-semibold">{currentAppId}</span>…
                 </div>
             )}
 
@@ -268,6 +368,31 @@ function AppInsightCard(props: {
     );
 }
 
+function AppSelect(props: {
+    apps: AppsRegistryEntry[];
+    value: string;
+    onChange: (appId: string) => void;
+}) {
+    const { apps, value, onChange } = props;
+
+    return (
+        <label className="inline-flex items-center gap-1.5 text-[0.75rem] text-slate-200">
+            <span className="text-[0.7rem] text-slate-300">App:</span>
+            <select
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+                className="rounded-full border border-slate-700 bg-slate-950 px-3 py-1 text-[0.8rem] text-slate-100"
+            >
+                {apps.map((app) => (
+                    <option key={app.id} value={app.id}>
+                        {app.name} ({app.id})
+                    </option>
+                ))}
+            </select>
+        </label>
+    );
+}
+
 /* ---------- Side card: wiring notes ---------- */
 
 function AiWiringNotesCard() {
@@ -282,8 +407,8 @@ function AiWiringNotesCard() {
             </p>
             <ul className="mt-3 space-y-1.5 text-[0.85rem]">
                 <li>
-                    • <span className="font-semibold">Input:</span> app id +
-                    registry/health context from{" "}
+                    • <span className="font-semibold">Input:</span> app id + registry and
+                    health context from{" "}
                     <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem]">
                         /api/apps/registry
                     </code>{" "}
