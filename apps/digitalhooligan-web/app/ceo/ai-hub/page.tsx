@@ -5,6 +5,10 @@
 import React from "react";
 import Link from "next/link";
 import type { WeeklyPlanResponse } from "@/app/api/ai/weekly-plan/route";
+import type {
+    AiHealthResponse,
+    AiEndpointStatus,
+} from "@/app/api/health/ai/route";
 
 type AiAppSummaryResponse = {
     ok: true;
@@ -40,6 +44,11 @@ type WeeklyPlanState =
     | { status: "ready"; data: WeeklyPlanResponse }
     | { status: "error"; message: string };
 
+type AiHealthState =
+    | { status: "loading" }
+    | { status: "ready"; data: AiHealthResponse }
+    | { status: "error"; message: string };
+
 const DEFAULT_APP_ID = "pennywize";
 
 export default function CeoAiHubPage() {
@@ -53,14 +62,20 @@ export default function CeoAiHubPage() {
             status: "loading",
         });
 
+    const [aiHealthState, setAiHealthState] = React.useState<AiHealthState>({
+        status: "loading",
+    });
+
     async function loadAppSummary(appId: string) {
-        setSummaryState((prev) => ({
+        setSummaryState({
             status: "loading",
             currentAppId: appId,
-        }));
+        });
 
         try {
-            const res = await fetch(`/api/ai/app-summary?appId=${encodeURIComponent(appId)}`);
+            const res = await fetch(
+                `/api/ai/app-summary?appId=${encodeURIComponent(appId)}`,
+            );
             if (!res.ok) {
                 throw new Error(`API returned ${res.status}`);
             }
@@ -104,13 +119,31 @@ export default function CeoAiHubPage() {
         }
     }
 
+    async function loadAiHealth() {
+        setAiHealthState({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/health/ai");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as AiHealthResponse;
+            setAiHealthState({ status: "ready", data });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/health/ai.";
+            setAiHealthState({ status: "error", message });
+        }
+    }
+
     React.useEffect(() => {
-        // Kick off both assistants on first load.
         void loadAppSummary(DEFAULT_APP_ID);
         void loadWeeklyPlan();
+        void loadAiHealth();
     }, []);
-
-    const currentAppId = summaryState.currentAppId;
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
@@ -161,17 +194,29 @@ export default function CeoAiHubPage() {
                     />
                 </section>
 
+                {/* AI endpoints health below assistants */}
+                <section className="mt-4">
+                    <AiHealthCard
+                        state={aiHealthState}
+                        onRefresh={() => void loadAiHealth()}
+                    />
+                </section>
+
                 <p className="mt-6 text-[0.7rem] text-slate-400">
-                    Both assistants are intentionally simple and mocked. The important
-                    part is the wiring: everything runs through internal APIs like{" "}
+                    All of this is intentionally simple and mocked. The important part is
+                    the wiring: everything runs through internal APIs like{" "}
                     <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
                         /api/ai/app-summary
+                    </code>
+                    ,{" "}
+                    <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                        /api/ai/weekly-plan
                     </code>{" "}
                     and{" "}
                     <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
-                        /api/ai/weekly-plan
+                        /api/health/ai
                     </code>
-                    , which you can later back with real LLM calls.
+                    , which you can later back with real probes and LLM calls.
                 </p>
             </div>
         </main>
@@ -396,7 +441,6 @@ function WeeklyPlanAssistant({
                         Timeframe: {state.data.timeframeLabel}
                     </p>
 
-                    {/* Suggested focus list */}
                     {state.data.suggestedFocus.length > 0 && (
                         <div className="mt-3">
                             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -410,7 +454,6 @@ function WeeklyPlanAssistant({
                         </div>
                     )}
 
-                    {/* Sections */}
                     <div className="mt-3 space-y-2">
                         {state.data.sections.map((section) => (
                             <div
@@ -456,4 +499,120 @@ function WeeklyPlanAssistant({
             )}
         </div>
     );
+}
+
+function AiHealthCard({
+    state,
+    onRefresh,
+}: {
+    state: AiHealthState;
+    onRefresh: () => void;
+}) {
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <div className="mb-3 flex items-center justify-between gap-2">
+                <div>
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        AI endpoints health
+                    </p>
+                    <p className="mt-1 text-sm text-slate-200">
+                        Quick readout of which AI-related routes are live, planned, or
+                        missing so Dev Workbench and future agents aren&apos;t guessing.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={onRefresh}
+                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                >
+                    Refresh
+                </button>
+            </div>
+
+            {state.status === "loading" && (
+                <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                    Checking AI routes…
+                </div>
+            )}
+
+            {state.status === "error" && (
+                <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
+                    <p className="font-semibold">Couldn&apos;t load AI routes health.</p>
+                    <p className="mt-1 text-[0.8rem]">{state.message}</p>
+                    <p className="mt-2 text-[0.75rem] text-rose-100/90">
+                        Hit{" "}
+                        <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
+                            /api/health/ai
+                        </code>{" "}
+                        directly in browser or Insomnia to debug the payload.
+                    </p>
+                </div>
+            )}
+
+            {state.status === "ready" && (
+                <>
+                    <div className="grid gap-3 md:grid-cols-3">
+                        {state.data.endpoints.map((endpoint) => (
+                            <div
+                                key={endpoint.id}
+                                className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-[0.8rem]"
+                            >
+                                <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                        <p className="font-medium text-slate-100">
+                                            {endpoint.id}
+                                        </p>
+                                        <p className="mt-0.5 text-[0.7rem] text-slate-400">
+                                            {endpoint.path}
+                                        </p>
+                                    </div>
+                                    <StatusBadge status={endpoint.status} />
+                                </div>
+                                <p className="mt-1 text-[0.75rem] text-slate-300">
+                                    {endpoint.description}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                    <p className="mt-3 text-[0.7rem] text-slate-400">
+                        Source of truth:{" "}
+                        <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                            /api/health/ai
+                        </code>
+                        . Last updated:{" "}
+                        <span className="text-slate-300">
+                            {new Date(state.data.timestamp).toLocaleString()}
+                        </span>
+                        .
+                    </p>
+                </>
+            )}
+        </div>
+    );
+}
+
+function StatusBadge({ status }: { status: AiEndpointStatus }) {
+    const base =
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium ring-1";
+
+    let tone =
+        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
+    // make label a generic string, seeded with the raw status
+    let label: string = status;
+
+    if (status === "ok") {
+        tone =
+            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+        label = "OK";
+    } else if (status === "planned") {
+        tone =
+            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
+        label = "Planned";
+    } else if (status === "missing") {
+        tone =
+            "bg-rose-500/10 text-rose-200 ring-rose-500/60";
+        label = "Missing";
+    }
+
+    return <span className={base + " " + tone}>{label}</span>;
 }
