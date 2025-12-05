@@ -76,13 +76,16 @@ export default function CeoAiHubPage() {
                 tags: Array.isArray(data.tags) ? data.tags : [],
                 metrics: data.metricsSnapshot ?? {},
             });
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong while calling /api/ai/app-summary.";
+
             setSummaryState({
                 status: "error",
                 appId: selectedAppId,
-                message:
-                    err?.message ??
-                    "Something went wrong while calling /api/ai/app-summary.",
+                message,
             });
         }
     }
