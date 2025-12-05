@@ -4,6 +4,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
 
 type HealthResponse = {
     ok: boolean;
@@ -47,14 +48,50 @@ type SuggestionsResponse = {
     suggestions: Suggestion[];
 };
 
-/**
- * Simpler state shape = no TypeScript union headaches.
- */
 type AiStripState = {
     status: "idle" | "loading" | "ready" | "error";
     health: HealthResponse | null;
     suggestions: SuggestionsResponse | null;
 };
+
+type FocusItem = {
+    id: string;
+    title: string;
+    timeframe: string;
+    tag: "Product" | "Gov" | "Admin";
+    description: string;
+};
+
+const TODAY_FOCUS: FocusItem[] = [
+    {
+        id: "finish-ceo-shell",
+        title: "Finish CEO dashboard shell + navigation",
+        timeframe: "Today",
+        tag: "Product",
+        description: "Lock in the overview layout so future metrics can drop in cleanly.",
+    },
+    {
+        id: "check-sam-navy",
+        title: "Check SAM.gov + Navy Federal status",
+        timeframe: "This week",
+        tag: "Gov",
+        description: "Confirm entity review + business account so future deals can flow.",
+    },
+    {
+        id: "outline-mvps",
+        title: "Outline PennyWize + DropSignal MVPs",
+        timeframe: "This week",
+        tag: "Product",
+        description: "Turn the app registry entries into concrete v0 checklists.",
+    },
+    {
+        id: "dev-workbench-next",
+        title: "Capture Dev Workbench + AI Hub next steps",
+        timeframe: "This week",
+        tag: "Admin",
+        description: "List 3–5 workflow annoyances the internal tools should remove.",
+    },
+];
 
 export default function CeoOverviewPage() {
     const [aiState, setAiState] = React.useState<AiStripState>({
@@ -67,7 +104,6 @@ export default function CeoOverviewPage() {
         let isCancelled = false;
 
         async function load() {
-            // just set a plain loading state; no spreading unions
             setAiState({
                 status: "loading",
                 health: null,
@@ -113,6 +149,14 @@ export default function CeoOverviewPage() {
         };
     }, []);
 
+    // Registry stats for the portfolio snapshot
+    const totalRegistry = APP_REGISTRY.length;
+    const liveOrBeta = APP_REGISTRY.filter((e) =>
+        e.lifecycle === "live" || e.lifecycle === "beta"
+    ).length;
+    const internalOnlyCount = APP_REGISTRY.filter((e) => e.internalOnly).length;
+    const publicReadyCount = APP_REGISTRY.filter((e) => !e.internalOnly).length;
+
     return (
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
             <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
@@ -124,8 +168,8 @@ export default function CeoOverviewPage() {
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
                             One place to see money, products, deals, and app health across
-                            Digital Hooligan. Now with a small AI “brain” that watches your
-                            registry and suggests what to work on next.
+                            Digital Hooligan. The registry + AI layer make sure every view
+                            stays in sync.
                         </p>
                     </div>
                     <div className="flex items-center gap-2 text-[0.75rem] text-slate-300">
@@ -136,7 +180,7 @@ export default function CeoOverviewPage() {
                     </div>
                 </div>
 
-                {/* Tab row restored */}
+                {/* Tabs row (restored) */}
                 <nav className="mb-6 overflow-x-auto">
                     <div className="flex gap-2 text-sm">
                         <CeoTab href="/ceo" label="Overview" active />
@@ -151,32 +195,215 @@ export default function CeoOverviewPage() {
                     </div>
                 </nav>
 
-                {/* Snapshot row – simple placeholders for now */}
+                {/* Snapshot row */}
                 <section className="mb-6 grid gap-4 md:grid-cols-4">
                     <SnapshotCard
                         label="Money"
                         value="$0"
-                        hint="Revenue wiring comes later"
+                        icon="💸"
+                        hint="Revenue wiring comes later."
                     />
                     <SnapshotCard
                         label="Products"
-                        value="Registry-driven"
-                        hint="See apps & bots in Labs"
+                        value={`${totalRegistry} live in registry`}
+                        icon="📦"
+                        hint="PennyWize, DropSignal, HypeWatch, Ops Toys, more."
                     />
                     <SnapshotCard
                         label="Deals"
-                        value="0"
-                        hint="Future gov + freelance pipeline"
+                        value="0 open"
+                        icon="🤝"
+                        hint="Future gov + freelance pipeline."
                     />
                     <SnapshotCard
                         label="App performance"
                         value="Mock"
-                        hint="Real metrics wire in later"
+                        icon="📈"
+                        hint="Real metrics plug into this shell later."
                     />
                 </section>
 
-                {/* AI summary strip */}
+                {/* AI summary strip – lives high in the overview */}
                 <AiSummaryStrip aiState={aiState} />
+
+                {/* App portfolio snapshot */}
+                <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                        <div>
+                            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                                App portfolio snapshot
+                            </h2>
+                            <p className="mt-1 text-xs text-slate-400">
+                                Quick readout of how many apps, bots, and internal tools exist
+                                in the registry. Backed by{" "}
+                                <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
+                                    APP_REGISTRY
+                                </code>{" "}
+                                so it stays in sync with Labs.
+                            </p>
+                        </div>
+                        <span className="text-xs text-slate-400">
+                            {totalRegistry} total entries
+                        </span>
+                    </div>
+
+                    <div className="grid gap-3 md:grid-cols-4">
+                        <PortfolioTile
+                            label="Live / beta"
+                            value={liveOrBeta}
+                            hint="Anything currently live or being dogfooded."
+                        />
+                        <PortfolioTile
+                            label="Internal-only"
+                            value={internalOnlyCount}
+                            hint="CEO, Labs HQ, and ops toys that stay behind the curtain."
+                        />
+                        <PortfolioTile
+                            label="Public-ready"
+                            value={publicReadyCount}
+                            hint="User-facing apps and products in the registry."
+                        />
+                        <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950/90 p-3 text-xs text-slate-300">
+                            <div>
+                                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                                    Registry detail
+                                </p>
+                                <p className="mt-1">
+                                    For lifecycle breakdowns and per-app routes, use the CEO apps
+                                    view or Labs inspector.
+                                </p>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-2 text-[0.7rem]">
+                                <Link
+                                    href="/ceo/dev-workbench"
+                                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                                >
+                                    CEO apps & APIs →
+                                </Link>
+                                <Link
+                                    href="/labs/app-registry"
+                                    className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950/80 px-2.5 py-1 text-slate-300 hover:border-emerald-500/60 hover:text-emerald-200"
+                                >
+                                    Labs app registry →
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Middle row – Today's focus + CEO copilot preview */}
+                <section className="mb-6 grid gap-4 md:grid-cols-[minmax(0,2fr),minmax(0,2fr)]">
+                    {/* Today's focus */}
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+                        <div className="mb-3 flex items-center justify-between gap-2">
+                            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                                Today&apos;s focus
+                            </h2>
+                            <span className="text-xs text-slate-400">
+                                High-impact moves for future Tez across product, gov, and
+                                admin.
+                            </span>
+                        </div>
+
+                        <div className="space-y-2">
+                            {TODAY_FOCUS.map((item) => (
+                                <FocusCard key={item.id} item={item} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* CEO Copilot preview */}
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                            CEO Copilot (preview)
+                        </h2>
+                        <p className="mt-1 text-xs text-slate-400">
+                            Tiny readout that stitches Tasks, Deals, Performance, and Dev
+                            Workbench into one suggestion. Backed by the same AI endpoints
+                            powering the AI Hub.
+                        </p>
+
+                        <div className="mt-3 space-y-2 text-[0.75rem] text-slate-200">
+                            <div className="rounded-xl bg-slate-950/90 px-3 py-2">
+                                <p className="text-[0.7rem] font-semibold text-slate-200">
+                                    Today&apos;s headline
+                                </p>
+                                <p className="mt-0.5 text-[0.7rem] text-slate-300">
+                                    Finish the CEO shell, then make one concrete move on revenue:
+                                    either a gov SAM/Gov / Gun.io push or locking a product MVP
+                                    milestone.
+                                </p>
+                            </div>
+                            <div className="grid gap-2 md:grid-cols-2">
+                                <div className="rounded-xl bg-slate-950/90 px-3 py-2">
+                                    <p className="text-[0.7rem] font-semibold text-slate-200">
+                                        Deals snapshot
+                                    </p>
+                                    <p className="mt-0.5 text-[0.7rem] text-slate-300">
+                                        You have active ideas across gov, freelance, and product.
+                                        Keep 1–3 truly hot and park the rest.
+                                    </p>
+                                </div>
+                                <div className="rounded-xl bg-slate-950/90 px-3 py-2">
+                                    <p className="text-[0.7rem] font-semibold text-slate-200">
+                                        Dev / refactor nudge
+                                    </p>
+                                    <p className="mt-0.5 text-[0.7rem] text-slate-300">
+                                        Pick one small refactor or UI polish task on the current
+                                        feature branch, ship it, and let Dev Workbench + your AI pair
+                                        programmer handle the details.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="rounded-xl bg-slate-950/90 px-3 py-2">
+                                <p className="text-[0.7rem] font-semibold text-slate-200">
+                                    Future wiring
+                                </p>
+                                <p className="mt-0.5 text-[0.7rem] text-slate-300">
+                                    This panel will later read live data from Tasks, Deals,
+                                    App performance, and GitHub (Dev Workbench) to generate a
+                                    fresh briefing every morning.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Bottom row – Admin / risk + Products & apps stub */}
+                <section className="grid gap-4 md:grid-cols-2">
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.75rem] text-slate-200 shadow-sm shadow-black/40">
+                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                            Admin / Gov / Risk
+                        </h2>
+                        <p className="mt-1 text-xs text-slate-400">
+                            Quick admin checklist for Digital Hooligan LLC.
+                        </p>
+                        <ul className="mt-2 space-y-1.5 list-disc pl-4 text-[0.75rem]">
+                            <li>LLC formed and EIN confirmed.</li>
+                            <li>SAM.gov entity under review → track status weekly.</li>
+                            <li>Navy Federal business account in progress.</li>
+                            <li>
+                                Plan VSOB / SDVOSB certification path and note key deadlines.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.75rem] text-slate-200 shadow-sm shadow-black/40">
+                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                            Products & apps
+                        </h2>
+                        <p className="mt-1 text-xs text-slate-400">
+                            High-level readout of the main Digital Hooligan properties. This
+                            will later pull from a more detailed apps/deals model.
+                        </p>
+                        <ul className="mt-2 space-y-1.5 list-disc pl-4 text-[0.75rem]">
+                            <li>PennyWize – penny-stock intel + feeds.</li>
+                            <li>DropSignal – sneaker/streetwear price-drop bot.</li>
+                            <li>HypeWatch – collectibles watchlist + alerts.</li>
+                            <li>Ops Toys – internal infra + workflow automations.</li>
+                        </ul>
+                    </div>
+                </section>
             </div>
         </main>
     );
@@ -193,7 +420,7 @@ function CeoTab({
 }) {
     if (active) {
         return (
-            <span className="inline-flex items-center rounded-full bg-slate-100 text-slate-900 px-3 py-1.5 text-xs font-semibold">
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-900">
                 {label}
             </span>
         );
@@ -209,13 +436,23 @@ function CeoTab({
     );
 }
 
-function SnapshotCard(props: { label: string; value: string; hint?: string }) {
+function SnapshotCard(props: {
+    label: string;
+    value: string;
+    icon?: string;
+    hint?: string;
+}) {
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 px-4 py-3 shadow-sm shadow-black/40">
-            <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
-                {props.label}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950/90 px-4 py-3 shadow-sm shadow-black/40">
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
+                    {props.label}
+                </p>
+                {props.icon && <span className="text-lg">{props.icon}</span>}
+            </div>
+            <p className="mt-1 text-xl font-semibold text-slate-50">
+                {props.value}
             </p>
-            <p className="mt-1 text-xl font-semibold text-slate-50">{props.value}</p>
             {props.hint && (
                 <p className="mt-1 text-xs text-slate-400/90">{props.hint}</p>
             )}
@@ -223,10 +460,62 @@ function SnapshotCard(props: { label: string; value: string; hint?: string }) {
     );
 }
 
+function PortfolioTile(props: {
+    label: string;
+    value: number;
+    hint: string;
+}) {
+    return (
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950/90 p-3">
+            <div>
+                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
+                    {props.label}
+                </p>
+                <p className="mt-1 text-xl font-semibold text-slate-50">
+                    {props.value}
+                </p>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">{props.hint}</p>
+        </div>
+    );
+}
+
+function FocusCard({ item }: { item: FocusItem }) {
+    const tagColor =
+        item.tag === "Product"
+            ? "bg-sky-500/10 text-sky-200 ring-sky-500/60"
+            : item.tag === "Gov"
+                ? "bg-amber-500/10 text-amber-200 ring-amber-500/60"
+                : "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+
+    return (
+        <div className="rounded-xl bg-slate-950/90 px-3 py-2 text-[0.75rem] text-slate-200">
+            <div className="flex items-start justify-between gap-2">
+                <div>
+                    <p className="font-medium text-slate-100">{item.title}</p>
+                    <p className="mt-0.5 text-[0.7rem] text-slate-300">
+                        {item.description}
+                    </p>
+                </div>
+                <div className="flex flex-col items-end gap-1 text-right">
+                    <span className="text-[0.65rem] text-slate-400">
+                        {item.timeframe}
+                    </span>
+                    <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] ring-1 ${tagColor}`}
+                    >
+                        {item.tag}
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function AiSummaryStrip({ aiState }: { aiState: AiStripState }) {
     if (aiState.status === "loading" || aiState.status === "idle") {
         return (
-            <section className="mb-8 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+            <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
                 <div className="flex items-center justify-between gap-2">
                     <div>
                         <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
@@ -244,7 +533,7 @@ function AiSummaryStrip({ aiState }: { aiState: AiStripState }) {
 
     if (aiState.status === "error" || !aiState.health || !aiState.suggestions) {
         return (
-            <section className="mb-8 rounded-2xl border border-rose-700/60 bg-rose-950/40 p-4 shadow-sm shadow-black/40">
+            <section className="mb-6 rounded-2xl border border-rose-700/60 bg-rose-950/40 p-4 shadow-sm shadow-black/40">
                 <div className="flex items-center justify-between gap-2">
                     <div>
                         <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-100">
@@ -267,7 +556,6 @@ function AiSummaryStrip({ aiState }: { aiState: AiStripState }) {
         );
     }
 
-    // status === "ready" and we have data
     const { health, suggestions } = aiState;
 
     const totalApps = health.checks.appRegistry.totalEntries;
@@ -279,7 +567,7 @@ function AiSummaryStrip({ aiState }: { aiState: AiStripState }) {
     const topThree = highPriority.slice(0, 3);
 
     return (
-        <section className="mb-8 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+        <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
             <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
