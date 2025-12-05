@@ -10,6 +10,8 @@ import type {
     AiEndpointStatus,
 } from "@/app/api/health/ai/route";
 
+type AppHealthStatus = "good" | "needs_wiring" | "idea_only";
+
 type AiAppSummaryResponse = {
     ok: true;
     type: "ai_app_summary";
@@ -19,6 +21,10 @@ type AiAppSummaryResponse = {
     bullets: string[];
     wiringNotes: string[];
     suggestions: string[];
+    health: {
+        status: AppHealthStatus;
+        missing: string[];
+    };
     timestamp: string;
 };
 
@@ -311,6 +317,7 @@ function AppSummaryAssistant({
 
             {state.status === "ready" && (
                 <>
+                    {/* Headline */}
                     <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                         Headline
                     </p>
@@ -318,6 +325,41 @@ function AppSummaryAssistant({
                         {state.data.headline}
                     </p>
 
+                    {/* App health snapshot */}
+                    <div className="mt-3 rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2">
+                        <div className="flex items-start justify-between gap-2">
+                            <div>
+                                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                                    App health
+                                </p>
+                                <p className="mt-0.5 text-[0.75rem] text-slate-400">
+                                    Derived from the registry + wiring (paths, metrics, lifecycle).
+                                </p>
+                            </div>
+                            <AppHealthBadge status={state.data.health.status} />
+                        </div>
+
+                        {state.data.health.missing.length > 0 ? (
+                            <ul className="mt-1 space-y-1.5 list-disc pl-4 text-[0.8rem]">
+                                {state.data.health.missing.map((key) => (
+                                    <li key={key}>
+                                        Missing{" "}
+                                        <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem]">
+                                            {key}
+                                        </code>{" "}
+                                        wiring for this app.
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="mt-1 text-[0.8rem] text-emerald-200">
+                                All key wiring pieces are present for this app. You&apos;re
+                                clear to focus on real usage and polish.
+                            </p>
+                        )}
+                    </div>
+
+                    {/* What the app is trying to do */}
                     {state.data.bullets.length > 0 && (
                         <div className="mt-3">
                             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -331,6 +373,7 @@ function AppSummaryAssistant({
                         </div>
                     )}
 
+                    {/* Wiring notes */}
                     {state.data.wiringNotes.length > 0 && (
                         <div className="mt-3">
                             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -344,6 +387,7 @@ function AppSummaryAssistant({
                         </div>
                     )}
 
+                    {/* Suggested next moves */}
                     {state.data.suggestions.length > 0 && (
                         <div className="mt-3">
                             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -597,7 +641,6 @@ function StatusBadge({ status }: { status: AiEndpointStatus }) {
 
     let tone =
         "bg-slate-900/80 text-slate-300 ring-slate-700/80";
-    // make label a generic string, seeded with the raw status
     let label: string = status;
 
     if (status === "ok") {
@@ -612,6 +655,32 @@ function StatusBadge({ status }: { status: AiEndpointStatus }) {
         tone =
             "bg-rose-500/10 text-rose-200 ring-rose-500/60";
         label = "Missing";
+    }
+
+    return <span className={base + " " + tone}>{label}</span>;
+}
+
+function AppHealthBadge({ status }: { status: AppHealthStatus }) {
+    const base =
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium ring-1";
+
+    let tone =
+        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
+    let label: string;
+
+    if (status === "good") {
+        tone =
+            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+        label = "Good";
+    } else if (status === "needs_wiring") {
+        tone =
+            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
+        label = "Needs wiring";
+    } else {
+        // idea_only
+        tone =
+            "bg-sky-500/10 text-sky-200 ring-sky-500/60";
+        label = "Idea only";
     }
 
     return <span className={base + " " + tone}>{label}</span>;
