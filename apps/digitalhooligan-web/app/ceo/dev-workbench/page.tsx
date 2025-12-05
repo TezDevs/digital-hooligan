@@ -4,33 +4,133 @@
 
 import React from "react";
 import Link from "next/link";
-import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
 
-const LIFECYCLE_ORDER: AppRegistryEntry["lifecycle"][] = [
-    "live",
-    "beta",
-    "alpha",
-    "building",
-    "design",
-    "idea",
-    "paused",
-];
+/**
+ * Local copies of the health types used by the diagnostics panel.
+ * These mirror /api/health/ai and /api/health/apps.
+ */
+
+type AiEndpointStatus = "ok" | "missing" | "planned";
+
+type AiEndpointHealth = {
+    id: string;
+    path: string;
+    description: string;
+    status: AiEndpointStatus;
+};
+
+type AiHealthResponse = {
+    ok: true;
+    type: "ai_routes_health";
+    endpoints: AiEndpointHealth[];
+    timestamp: string;
+};
+
+type AiHealthState =
+    | { status: "loading" }
+    | { status: "ready"; data: AiHealthResponse }
+    | { status: "error"; message: string };
+
+type AppHealthStatus = "good" | "needs_wiring" | "idea_only";
+
+type AppsHealthEntry = {
+    id: string;
+    name: string;
+    kind: string;
+    lifecycle: string;
+    status: AppHealthStatus;
+    missing: string[];
+};
+
+type AppsHealthResponse = {
+    ok: true;
+    type: "apps_health";
+    apps: AppsHealthEntry[];
+    timestamp: string;
+};
+
+type AppsHealthState =
+    | { status: "loading" }
+    | {
+        status: "ready";
+        data: AppsHealthResponse;
+        counts: {
+            total: number;
+            good: number;
+            needsWiring: number;
+            ideaOnly: number;
+        };
+    }
+    | { status: "error"; message: string };
 
 export default function DevWorkbenchPage() {
-    const apps = React.useMemo(
-        () =>
-            [...APP_REGISTRY].sort((a, b) => {
-                const aIndex = LIFECYCLE_ORDER.indexOf(a.lifecycle);
-                const bIndex = LIFECYCLE_ORDER.indexOf(b.lifecycle);
-                if (aIndex !== bIndex) return aIndex - bIndex;
-                return a.name.localeCompare(b.name);
-            }),
-        [],
-    );
+    const [aiHealth, setAiHealth] = React.useState<AiHealthState>({
+        status: "loading",
+    });
+    const [appsHealth, setAppsHealth] = React.useState<AppsHealthState>({
+        status: "loading",
+    });
 
-    const total = apps.length;
-    const internalOnly = apps.filter((a) => a.internalOnly).length;
-    const publicFacing = total - internalOnly;
+    React.useEffect(() => {
+        void loadAiHealth();
+        void loadAppsHealth();
+    }, []);
+
+    async function loadAiHealth() {
+        setAiHealth({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/health/ai");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as AiHealthResponse;
+            setAiHealth({ status: "ready", data });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/health/ai.";
+            setAiHealth({ status: "error", message });
+        }
+    }
+
+    async function loadAppsHealth() {
+        setAppsHealth({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/health/apps");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as AppsHealthResponse;
+
+            const good = data.apps.filter((a) => a.status === "good").length;
+            const needsWiring = data.apps.filter(
+                (a) => a.status === "needs_wiring",
+            ).length;
+            const ideaOnly = data.apps.filter((a) => a.status === "idea_only").length;
+
+            setAppsHealth({
+                status: "ready",
+                data,
+                counts: {
+                    total: data.apps.length,
+                    good,
+                    needsWiring,
+                    ideaOnly,
+                },
+            });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/health/apps.";
+            setAppsHealth({ status: "error", message });
+        }
+    }
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
@@ -42,31 +142,18 @@ export default function DevWorkbenchPage() {
                             Dev Workbench
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            Internal map of routes and wiring across Digital Hooligan. Use
-                            this as your cheat sheet for app paths, JSON endpoints, and AI
-                            summaries when working in code or{" "}
-                            <span className="font-medium">Insomnia / Kong</span>.
+                            Internal view for branch work, diagnostics, and future AI
+                            assistants that help you ship without getting lost in wiring.
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
-                        <Link
-                            href="/labs/hq"
-                            className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 ring-1 ring-slate-700/80 hover:text-emerald-200 hover:ring-emerald-500/70"
-                        >
-                            <span className="mr-1 text-xs">🧪</span>
-                            Jump to Labs HQ
-                        </Link>
-                        <Link
-                            href="/ceo"
-                            className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 ring-1 ring-slate-700/80 hover:text-emerald-200 hover:ring-emerald-500/70"
-                        >
-                            <span className="mr-1 text-xs">←</span>
-                            Back to CEO overview
-                        </Link>
+                        <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-300 ring-1 ring-emerald-500/70">
+                            Mode: diagnostics prototype
+                        </span>
                     </div>
                 </div>
 
-                {/* CEO tab row (Dev WB active) */}
+                {/* CEO tabs row */}
                 <nav className="mb-6 overflow-x-auto">
                     <div className="flex gap-2 text-sm">
                         <CeoTab href="/ceo" label="Overview" />
@@ -81,162 +168,22 @@ export default function DevWorkbenchPage() {
                     </div>
                 </nav>
 
-                {/* Top row: registry + platform endpoints */}
-                <section className="mb-6 grid gap-4 md:grid-cols-[minmax(0,2fr),minmax(0,1.6fr)]">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                            <div>
-                                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
-                                    Registry-backed workbench
-                                </p>
-                                <p className="mt-1 text-sm text-slate-200">
-                                    {total} apps + bots in{" "}
-                                    <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
-                                        APP_REGISTRY
-                                    </code>{" "}
-                                    · {publicFacing} public-facing · {internalOnly} internal-only.
-                                </p>
-                            </div>
-                            <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 text-[0.7rem] text-slate-300 ring-1 ring-slate-700/70">
-                                One source of truth for routes
-                            </span>
-                        </div>
-
-                        <p className="text-xs text-slate-300">
-                            Every environment – CEO views, Labs, API callers, and future AI
-                            assistants – should treat the registry as the canonical map of
-                            apps and their paths.
-                        </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-xs text-slate-300 shadow-sm shadow-black/40">
-                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                            Core platform endpoints
-                        </p>
-
-                        <div className="mt-2 space-y-1.5">
-                            <EndpointRow method="GET" path="/api/health" note="Quick health ping used by Labs HQ." />
-                            <EndpointRow method="GET" path="/api/apps" note="Returns all registry entries as JSON." />
-                            <EndpointRow
-                                method="GET"
-                                path="/api/apps/{id}"
-                                note="Single app detail; metrics via adapter."
-                            />
-                            <EndpointRow
-                                method="GET"
-                                path="/api/ai/app-summary/{id}"
-                                note="AI summary used by CEO AI Hub + Labs mini assistant."
-                            />
-                        </div>
-
-                        <p className="mt-3 text-[0.7rem] text-slate-400">
-                            In Insomnia / Kong, your local base URL is usually{" "}
-                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.65rem]">
-                                http://localhost:3000
-                            </code>
-                            . Combine that with these paths when testing.
-                        </p>
-                    </div>
-                </section>
-
-                {/* Main grid: per-app routes + Insomnia cheatsheet */}
-                <section className="grid gap-4 md:grid-cols-[minmax(0,2.2fr),minmax(0,1.4fr)]">
-                    {/* Per-app route matrix */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-                        <div className="mb-3 flex items-center justify-between gap-2">
-                            <div>
-                                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
-                                    Per-app route matrix
-                                </p>
-                                <p className="mt-1 text-sm text-slate-200">
-                                    Marketing, CEO, Labs, JSON, and AI endpoints for each app/bot.
-                                    Use this as the central “where does this live?” map.
-                                </p>
-                            </div>
-                            <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 text-[0.7rem] text-slate-300 ring-1 ring-slate-700/70">
-                                {total} entries
-                            </span>
-                        </div>
-
-                        <div className="space-y-3">
-                            {apps.map((app) => (
-                                <AppRouteCard key={app.id} app={app} />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Insomnia / Kong cheatsheet */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-xs text-slate-300 shadow-sm shadow-black/40">
-                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                            Insomnia / Kong cheatsheet
-                        </p>
-
-                        <div className="mt-2 space-y-3">
-                            <div>
-                                <p className="mb-1 text-[0.7rem] font-medium text-slate-300">
-                                    1. Base setup
-                                </p>
-                                <p className="text-[0.7rem] text-slate-400">
-                                    In Insomnia, create a new request collection named{" "}
-                                    <span className="font-semibold">Digital Hooligan</span> with
-                                    environment:
-                                </p>
-                                <pre className="mt-1 rounded-lg bg-slate-950 px-3 py-2 text-[0.7rem] text-slate-200">
-                                    {`{
-  "baseUrl": "http://localhost:3000"
-}`}
-                                </pre>
-                            </div>
-
-                            <div>
-                                <p className="mb-1 text-[0.7rem] font-medium text-slate-300">
-                                    2. Example request: app JSON
-                                </p>
-                                <code className="block rounded-lg bg-slate-950 px-3 py-2 text-[0.7rem] text-slate-100">
-                                    {"GET {{ baseUrl }}/api/apps/pennywize"}
-                                </code>
-                                <p className="mt-1 text-[0.7rem] text-slate-400">
-                                    Swap <code>pennywize</code> for any app id from the matrix.
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="mb-1 text-[0.7rem] font-medium text-slate-300">
-                                    3. Example request: AI summary
-                                </p>
-                                <code className="block rounded-lg bg-slate-950 px-3 py-2 text-[0.7rem] text-slate-100">
-                                    {"GET {{ baseUrl }}/api/ai/app-summary/pennywize"}
-                                </code>
-                                <p className="mt-1 text-[0.7rem] text-slate-400">
-                                    This is the same endpoint the CEO AI Hub and Labs mini
-                                    assistant call.
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="mb-1 text-[0.7rem] font-medium text-slate-300">
-                                    4. Future wiring
-                                </p>
-                                <ul className="space-y-1.5 list-disc pl-4 text-[0.7rem]">
-                                    <li>
-                                        Add auth headers once CEO/Labs routes require real login.
-                                    </li>
-                                    <li>
-                                        Map production environment so <code>baseUrl</code> can swap
-                                        between local, preview, and prod.
-                                    </li>
-                                    <li>
-                                        Mirror the health checks from Labs HQ as saved requests.
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                {/* Layout: diagnostics + notes */}
+                <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr),minmax(0,1.1fr)]">
+                    <DevDiagnosticsCard
+                        aiState={aiHealth}
+                        appsState={appsHealth}
+                        onRefreshAi={() => void loadAiHealth()}
+                        onRefreshApps={() => void loadAppsHealth()}
+                    />
+                    <DevNotesCard />
                 </section>
             </div>
         </main>
     );
 }
+
+/* ---------- Shared tab + basic components ---------- */
 
 function CeoTab({
     href,
@@ -265,129 +212,326 @@ function CeoTab({
     );
 }
 
-function EndpointRow({
-    method,
-    path,
-    note,
-}: {
-    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    path: string;
-    note?: string;
+/* ---------- Main diagnostics card ---------- */
+
+function DevDiagnosticsCard(props: {
+    aiState: AiHealthState;
+    appsState: AppsHealthState;
+    onRefreshAi: () => void;
+    onRefreshApps: () => void;
 }) {
-    const methodColor =
-        method === "GET"
-            ? "text-emerald-300"
-            : method === "POST"
-                ? "text-sky-300"
-                : "text-amber-300";
+    const { aiState, appsState, onRefreshAi, onRefreshApps } = props;
 
     return (
-        <div className="flex flex-col gap-0.5 rounded-lg border border-slate-800 bg-slate-950/90 px-2.5 py-2">
-            <div className="flex items-center gap-2 text-[0.75rem]">
-                <span className={`font-semibold ${methodColor}`}>{method}</span>
-                <code className="rounded bg-slate-950 px-2 py-0.5 text-[0.7rem] text-slate-100">
-                    {path}
-                </code>
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <div className="mb-3 flex items-start justify-between gap-2">
+                <div>
+                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        Health diagnostics
+                    </p>
+                    <p className="mt-1 text-sm text-slate-200">
+                        Quick snapshot of AI routes and app registry wiring, pulled straight
+                        from the health endpoints. Use this before you assume a bug is in
+                        your code.
+                    </p>
+                </div>
+                <div className="flex flex-col items-end gap-2 text-[0.75rem]">
+                    <button
+                        type="button"
+                        onClick={onRefreshAi}
+                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    >
+                        Refresh AI
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onRefreshApps}
+                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    >
+                        Refresh apps
+                    </button>
+                </div>
             </div>
-            {note && (
-                <p className="text-[0.7rem] text-slate-400">
-                    {note}
-                </p>
-            )}
+
+            <div className="grid gap-3 md:grid-cols-2">
+                <DiagnosticsAiCard state={aiState} />
+                <DiagnosticsAppsCard state={appsState} />
+            </div>
+
+            <p className="mt-3 text-[0.7rem] text-slate-400">
+                Both sections are backed by the same endpoints used elsewhere:{" "}
+                <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                    /api/health/ai
+                </code>{" "}
+                and{" "}
+                <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                    /api/health/apps
+                </code>
+                . When in doubt, hit them directly in your browser or Insomnia/Kong.
+            </p>
         </div>
     );
 }
 
-function AppRouteCard({ app }: { app: AppRegistryEntry }) {
-    const apiDetailUrl = `/api/apps/${app.id}`;
-    const aiSummaryUrl = `/api/ai/app-summary/${app.id}`;
-
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-3 text-xs text-slate-300">
-            <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-slate-900/90 text-lg">
-                        {app.icon?.type === "emoji" ? app.icon.value : "⛓"}
-                    </div>
-                    <div>
-                        <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-sm font-semibold text-slate-50">
-                                {app.name}
-                            </span>
-                            <span className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.65rem] uppercase tracking-[0.16em] text-slate-400">
-                                {app.lifecycle}
-                            </span>
-                            {app.internalOnly && (
-                                <span className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.65rem] text-slate-400">
-                                    Internal-only
-                                </span>
-                            )}
-                        </div>
-                        <p className="mt-1 max-w-md text-[0.7rem] text-slate-400 line-clamp-2">
-                            {app.description}
-                        </p>
-                    </div>
-                </div>
-                <code className="rounded-full bg-slate-900 px-2.5 py-1 text-[0.65rem] text-slate-300">
-                    id: {app.id}
-                </code>
-            </div>
-
-            <div className="grid gap-2 md:grid-cols-2">
-                <div className="space-y-1">
-                    <RouteRow label="Marketing" href={app.marketingPath} />
-                    <RouteRow label="CEO" href={app.ceoPath} />
-                    <RouteRow label="Labs" href={app.labsPath} />
-                </div>
-                <div className="space-y-1">
-                    <RouteRow label="App JSON" href={apiDetailUrl} codeOnly />
-                    <RouteRow label="AI summary" href={aiSummaryUrl} codeOnly />
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function RouteRow({
-    label,
-    href,
-    codeOnly,
-}: {
-    label: string;
-    href?: string | null;
-    codeOnly?: boolean;
-}) {
-    if (!href) {
+function DiagnosticsAiCard({ state }: { state: AiHealthState }) {
+    if (state.status === "loading") {
         return (
-            <div className="flex items-center justify-between gap-2 text-[0.7rem] text-slate-500">
-                <span>{label}</span>
-                <span className="rounded-full bg-slate-900/60 px-2 py-0.5 text-[0.65rem]">
-                    — not wired yet
+            <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                Checking AI routes…
+            </div>
+        );
+    }
+
+    if (state.status === "error") {
+        return (
+            <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
+                <p className="font-semibold">AI routes health failed.</p>
+                <p className="mt-1 text-[0.8rem]">{state.message}</p>
+                <p className="mt-2 text-[0.75rem] text-rose-100/90">
+                    Hit{" "}
+                    <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
+                        /api/health/ai
+                    </code>{" "}
+                    directly to debug.
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-[0.85rem]">
+            <div className="mb-1 flex items-center justify-between gap-2">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    AI routes
+                </p>
+                <span className="text-[0.7rem] text-slate-400">
+                    {state.data.endpoints.length} endpoints
                 </span>
             </div>
-        );
-    }
+            <div className="space-y-1.5">
+                {state.data.endpoints.map((endpoint) => (
+                    <div
+                        key={endpoint.id}
+                        className="rounded-lg border border-slate-800 bg-slate-950/90 px-2 py-1.5"
+                    >
+                        <div className="flex items-start justify-between gap-2">
+                            <div>
+                                <p className="text-[0.8rem] font-medium text-slate-100">
+                                    {endpoint.id}
+                                </p>
+                                <p className="text-[0.7rem] text-slate-400">
+                                    {endpoint.path}
+                                </p>
+                            </div>
+                            <StatusBadge status={endpoint.status} />
+                        </div>
+                        <p className="mt-0.5 text-[0.75rem] text-slate-300">
+                            {endpoint.description}
+                        </p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
 
-    if (codeOnly) {
+function DiagnosticsAppsCard({ state }: { state: AppsHealthState }) {
+    if (state.status === "loading") {
         return (
-            <div className="flex flex-col gap-0.5 text-[0.7rem]">
-                <span className="text-slate-400">{label}</span>
-                <code className="rounded bg-slate-950 px-2 py-0.5 text-[0.7rem] text-slate-100">
-                    {href}
-                </code>
+            <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                Counting apps from the registry…
             </div>
         );
     }
 
+    if (state.status === "error") {
+        return (
+            <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
+                <p className="font-semibold">Apps health failed.</p>
+                <p className="mt-1 text-[0.8rem]">{state.message}</p>
+                <p className="mt-2 text-[0.75rem] text-rose-100/90">
+                    Hit{" "}
+                    <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
+                        /api/health/apps
+                    </code>{" "}
+                    directly to debug.
+                </p>
+            </div>
+        );
+    }
+
+    const { counts, data } = state;
+
     return (
-        <div className="flex items-center justify-between gap-2 text-[0.7rem]">
-            <span className="text-slate-400">{label}</span>
-            <Link
-                href={href}
-                className="truncate rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.7rem] text-emerald-200 ring-1 ring-slate-700/80 hover:ring-emerald-500/70"
-            >
-                {href}
-            </Link>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2 text-[0.85rem]">
+            <div className="mb-1 flex items-center justify-between gap-2">
+                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Apps registry
+                </p>
+                <span className="text-[0.7rem] text-slate-400">
+                    {counts.total} total
+                </span>
+            </div>
+
+            <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[0.7rem]">
+                <AppsHealthChip status="good" value={counts.good} label="Good" />
+                <AppsHealthChip
+                    status="needs_wiring"
+                    value={counts.needsWiring}
+                    label="Needs wiring"
+                />
+                <AppsHealthChip
+                    status="idea_only"
+                    value={counts.ideaOnly}
+                    label="Idea-only"
+                />
+            </div>
+
+            <div className="max-h-44 space-y-1.5 overflow-auto pr-1 text-[0.8rem]">
+                {data.apps.map((app) => (
+                    <div
+                        key={app.id}
+                        className="rounded-lg border border-slate-800 bg-slate-950/90 px-2 py-1.5"
+                    >
+                        <div className="flex items-start justify-between gap-2">
+                            <div>
+                                <p className="font-medium text-slate-100">
+                                    {app.name}{" "}
+                                    <span className="text-[0.7rem] text-slate-400">
+                                        ({app.id})
+                                    </span>
+                                </p>
+                                <p className="text-[0.7rem] text-slate-400">
+                                    {app.kind} · lifecycle: {app.lifecycle}
+                                </p>
+                            </div>
+                            <AppHealthBadge status={app.status} />
+                        </div>
+                        {app.missing.length > 0 && (
+                            <p className="mt-0.5 text-[0.75rem] text-slate-300">
+                                Missing:{" "}
+                                {app.missing
+                                    .map((key) => `"${key}"`)
+                                    .join(", ")}
+                            </p>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/* ---------- Status badges + chips ---------- */
+
+function StatusBadge({ status }: { status: AiEndpointStatus }) {
+    const base =
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium ring-1";
+
+    let tone =
+        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
+    let label: string = status;
+
+    if (status === "ok") {
+        tone =
+            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+        label = "OK";
+    } else if (status === "planned") {
+        tone =
+            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
+        label = "Planned";
+    } else if (status === "missing") {
+        tone =
+            "bg-rose-500/10 text-rose-200 ring-rose-500/60";
+        label = "Missing";
+    }
+
+    return <span className={base + " " + tone}>{label}</span>;
+}
+
+function AppHealthBadge({ status }: { status: AppHealthStatus }) {
+    const base =
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-medium ring-1";
+
+    let tone =
+        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
+    let label: string;
+
+    if (status === "good") {
+        tone =
+            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+        label = "Good";
+    } else if (status === "needs_wiring") {
+        tone =
+            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
+        label = "Needs wiring";
+    } else {
+        tone =
+            "bg-sky-500/10 text-sky-200 ring-sky-500/60";
+        label = "Idea only";
+    }
+
+    return <span className={base + " " + tone}>{label}</span>;
+}
+
+function AppsHealthChip(props: {
+    status: AppHealthStatus;
+    value: number;
+    label: string;
+}) {
+    const { status, value, label } = props;
+
+    const base =
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-medium ring-1";
+
+    let tone =
+        "bg-slate-900/80 text-slate-300 ring-slate-700/80";
+
+    if (status === "good") {
+        tone =
+            "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+    } else if (status === "needs_wiring") {
+        tone =
+            "bg-amber-500/10 text-amber-200 ring-amber-500/60";
+    } else if (status === "idea_only") {
+        tone =
+            "bg-sky-500/10 text-sky-200 ring-sky-500/60";
+    }
+
+    return (
+        <span className={base + " " + tone}>
+            <span>{value}</span>
+            <span>{label}</span>
+        </span>
+    );
+}
+
+/* ---------- Right-hand notes card (static for now) ---------- */
+
+function DevNotesCard() {
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Dev notes / future wiring
+            </p>
+            <p className="mt-1 text-sm text-slate-200">
+                Space for quick notes about branches, WIP features, and where AI
+                assistants should plug into your stack.
+            </p>
+            <ul className="mt-3 space-y-1.5 text-[0.85rem]">
+                <li>
+                    • Next wiring: let Dev Workbench suggest test commands and Insomnia
+                    routes based on the current feature branch.
+                </li>
+                <li>
+                    • Later: show CI status, open PRs, and recent deploys here so you can
+                    debug from one screen.
+                </li>
+                <li>
+                    • Use the health diagnostics on the left before assuming a bug is in
+                    your UI — sometimes it&apos;s just a missing endpoint.
+                </li>
+            </ul>
         </div>
     );
 }
