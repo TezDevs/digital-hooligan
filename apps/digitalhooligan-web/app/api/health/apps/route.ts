@@ -3,87 +3,86 @@
 import { NextResponse } from "next/server";
 import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
 
-type AppHealthStatus = "nominal" | "internal-only" | "missing-paths";
+export const dynamic = "force-dynamic";
 
-type AppHealthEntry = {
+export type AppHealthStatus = "good" | "needs_wiring" | "idea_only";
+
+export type AppHealth = {
     id: string;
     name: string;
     kind: AppRegistryEntry["kind"];
     lifecycle: AppRegistryEntry["lifecycle"];
-    internalOnly: boolean;
-    marketingPath?: string | null;
-    ceoPath?: string | null;
-    labsPath?: string | null;
     status: AppHealthStatus;
-    missingPaths: string[];
+    missing: string[];
 };
 
-type AppsHealthResponse = {
+export type AppsHealthResponse = {
     ok: true;
-    type: "apps_health_snapshot";
-    total: number;
-    internalOnly: number;
-    publicFacing: number;
+    type: "apps_health";
+    apps: AppHealth[];
     timestamp: string;
-    entries: AppHealthEntry[];
 };
-
-export const dynamic = "force-dynamic";
 
 /**
- * Lightweight health snapshot for all apps/bots in the registry.
+ * Quick health snapshot for each app/bot in the registry.
  *
- * Intended for:
- * - CEO dashboard health cards
- * - Labs HQ / Dev Workbench wiring views
- * - Insomnia / Kong collections when testing routes
+ * Heuristic rules:
+ * - If lifecycle is "idea" or "design" → status "idea_only".
+ * - Else if important wiring is missing (paths / metrics) → "needs_wiring".
+ * - Else → "good".
+ *
+ * This is intentionally simple for now and just inspects APP_REGISTRY.
+ * Later you can:
+ * - Check real metrics / incidents.
+ * - Join with Dev Workbench or logging data.
  */
+function evaluateAppHealth(app: AppRegistryEntry): AppHealth {
+    const missing: string[] = [];
+
+    // Marketing path only matters for public-facing apps.
+    if (!app.marketingPath && app.kind === "public-app") {
+        missing.push("marketingPath");
+    }
+
+    if (!app.ceoPath) {
+        missing.push("ceoPath");
+    }
+
+    if (!app.labsPath) {
+        missing.push("labsPath");
+    }
+
+    const hasMetrics = Boolean(app.metricsKeys);
+    if (!hasMetrics) {
+        missing.push("metricsKeys");
+    }
+
+    let status: AppHealthStatus = "good";
+
+    if (app.lifecycle === "idea" || app.lifecycle === "design") {
+        status = "idea_only";
+    } else if (missing.length > 0) {
+        status = "needs_wiring";
+    }
+
+    return {
+        id: app.id,
+        name: app.name,
+        kind: app.kind,
+        lifecycle: app.lifecycle,
+        status,
+        missing,
+    };
+}
+
 export async function GET() {
-    const now = new Date().toISOString();
-
-    const entries: AppHealthEntry[] = APP_REGISTRY.map((app) => {
-        const missingPaths: string[] = [];
-
-        if (!app.marketingPath) missingPaths.push("marketingPath");
-        if (!app.ceoPath) missingPaths.push("ceoPath");
-        if (!app.labsPath) missingPaths.push("labsPath");
-
-        let status: AppHealthStatus = "nominal";
-
-        if (app.internalOnly) {
-            status = "internal-only";
-        }
-
-        if (missingPaths.length > 0) {
-            status = "missing-paths";
-        }
-
-        return {
-            id: app.id,
-            name: app.name,
-            kind: app.kind,
-            lifecycle: app.lifecycle,
-            internalOnly: app.internalOnly ?? false,
-            marketingPath: app.marketingPath ?? null,
-            ceoPath: app.ceoPath ?? null,
-            labsPath: app.labsPath ?? null,
-            status,
-            missingPaths,
-        };
-    });
-
-    const total = entries.length;
-    const internalOnly = entries.filter((e) => e.internalOnly).length;
-    const publicFacing = total - internalOnly;
+    const apps: AppHealth[] = APP_REGISTRY.map(evaluateAppHealth);
 
     const payload: AppsHealthResponse = {
         ok: true,
-        type: "apps_health_snapshot",
-        total,
-        internalOnly,
-        publicFacing,
-        timestamp: now,
-        entries,
+        type: "apps_health",
+        apps,
+        timestamp: new Date().toISOString(),
     };
 
     return NextResponse.json(payload);
