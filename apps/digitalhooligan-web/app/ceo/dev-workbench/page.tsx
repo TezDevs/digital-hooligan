@@ -1,414 +1,242 @@
-'use client';
+// apps/digitalhooligan-web/app/ceo/dev-workbench/page.tsx
 
-import React from 'react';
-import Link from 'next/link';
-import {
-    GitBranch,
-    GitPullRequest,
-    CheckCircle2,
-    Wrench,
-    ListChecks,
-    Code2,
-} from 'lucide-react';
+"use client";
 
-type TabProps = {
-    href: string;
-    label: string;
-    isActive?: boolean;
+import React from "react";
+import Link from "next/link";
+import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
+
+type ApiLinks = {
+    app: string;
+    appWithMetrics: string;
+    aiSummary: string;
 };
 
-function Tab({ href, label, isActive }: TabProps) {
+function buildApiLinks(id: string): ApiLinks {
+    return {
+        app: `/api/apps/${id}`,
+        appWithMetrics: `/api/apps/${id}?includeMetrics=true`,
+        aiSummary: `/api/ai/app-summary/${id}`,
+    };
+}
+
+export default function DevWorkbenchPage() {
+    const entries = APP_REGISTRY;
+
     return (
-        <Link
-            href={href}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                    ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
-                    : 'border border-border bg-card text-muted-foreground hover:bg-muted'
-                }`}
-        >
-            <span className="flex items-center gap-1.5">
-                <span>{label}</span>
-                {isActive && (
-                    <span className="h-2 w-2 rounded-full bg-primary ring-2 ring-primary/40" />
-                )}
-            </span>
-        </Link>
+        <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
+            <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
+                {/* Header / breadcrumbs */}
+                <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                            <Link
+                                href="/ceo"
+                                className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 font-medium text-[0.7rem] text-slate-300 ring-1 ring-slate-700/80 hover:text-emerald-300 hover:ring-emerald-500/70"
+                            >
+                                <span className="mr-1 text-[0.7rem]">←</span>
+                                CEO overview
+                            </Link>
+                            <span className="inline-flex items-center rounded-full bg-slate-900/50 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate-400 ring-1 ring-slate-800/80">
+                                CEO · Dev Workbench
+                            </span>
+                        </div>
+
+                        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
+                            Dev Workbench
+                        </h1>
+                        <p className="mt-2 max-w-2xl text-sm text-slate-300/85 md:text-base">
+                            Internal control center for Digital Hooligan apps, bots, and tools. Powered by{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
+                                APP_REGISTRY
+                            </code>{" "}
+                            plus registry-backed API endpoints.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                        <Link
+                            href="/labs/app-registry"
+                            className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1.5 text-[0.7rem] font-medium text-slate-300 transition hover:border-emerald-500/60 hover:text-emerald-200"
+                        >
+                            <span className="mr-1.5 text-xs">🧪</span>
+                            Open registry in Labs
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Info strip */}
+                <section className="mb-6 grid gap-4 md:grid-cols-3">
+                    <InfoCard
+                        label="Apps & tools"
+                        value={entries.length.toString()}
+                        hint="Backed by APP_REGISTRY"
+                    />
+                    <InfoCard
+                        label="Per-app detail API"
+                        value="/api/apps/[id]"
+                        hint="Single app payload + optional metrics"
+                    />
+                    <InfoCard
+                        label="AI summary API"
+                        value="/api/ai/app-summary/[id]"
+                        hint="AI-friendly summary + structured data"
+                    />
+                </section>
+
+                {/* App grid */}
+                <section className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
+                            Registry-backed app list
+                        </h2>
+                        <p className="text-xs text-slate-400">
+                            Click or copy URLs to use in Insomnia/Kong or future AI assistants.
+                        </p>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {entries.map((app) => (
+                            <AppCard key={app.id} app={app} />
+                        ))}
+                    </div>
+                </section>
+            </div>
+        </main>
     );
 }
 
-type BranchStatus = 'Active' | 'Ready for PR' | 'Merged';
-
-type Branch = {
-    name: string;
-    status: BranchStatus;
-    scope: string;
-    base: string;
-    note: string;
-};
-
-const BRANCHES: Branch[] = [
-    {
-        name: 'feature/ceo-overview-copilot',
-        status: 'Merged',
-        scope: 'CEO dashboard',
-        base: 'main',
-        note: 'Adds CEO Copilot preview panel on /ceo.',
-    },
-    {
-        name: 'feature/ceo-ai-hub-dev-workbench',
-        status: 'Ready for PR',
-        scope: 'AI Hub',
-        base: 'main',
-        note: 'Defines Dev Workbench assistant and roadmap.',
-    },
-    {
-        name: 'feature/ceo-dev-workbench',
-        status: 'Active',
-        scope: 'Dev Workbench view',
-        base: 'main',
-        note: 'This feature: surface branches, PRs, and refactor nudge.',
-    },
-];
-
-type CheckStatus = 'Pass' | 'Warn' | 'Fail';
-
-type Check = {
-    name: string;
-    status: CheckStatus;
-    note: string;
-};
-
-const CHECKS: Check[] = [
-    {
-        name: 'TypeScript & lint',
-        status: 'Pass',
-        note: 'No blocking TS errors in the CEO views.',
-    },
-    {
-        name: 'Vercel builds',
-        status: 'Pass',
-        note: 'Latest main deployed cleanly.',
-    },
-    {
-        name: 'Refactor backlog',
-        status: 'Warn',
-        note: 'CEO nav duplication could be consolidated later.',
-    },
-];
-
-type WorkItem = {
-    label: string;
-    area: 'UI polish' | 'Refactor' | 'DX / tooling';
-};
-
-const WORK_QUEUE: WorkItem[] = [
-    {
-        label: 'Extract shared CEO Tab component to a single place.',
-        area: 'Refactor',
-    },
-    {
-        label: 'Add simple types/shared config for apps & metrics.',
-        area: 'DX / tooling',
-    },
-    {
-        label: 'Tighten spacing + consistency across all CEO cards.',
-        area: 'UI polish',
-    },
-];
-
-function statusBadgeClasses(status: BranchStatus) {
-    switch (status) {
-        case 'Active':
-            return 'bg-sky-500/10 text-sky-400';
-        case 'Ready for PR':
-            return 'bg-emerald-500/10 text-emerald-400';
-        case 'Merged':
-            return 'bg-purple-500/10 text-purple-300';
-        default:
-            return 'bg-slate-500/10 text-slate-200';
-    }
-}
-
-function checkStatusClasses(status: CheckStatus) {
-    switch (status) {
-        case 'Pass':
-            return 'bg-emerald-500/10 text-emerald-400';
-        case 'Warn':
-            return 'bg-amber-500/10 text-amber-300';
-        case 'Fail':
-            return 'bg-rose-500/10 text-rose-300';
-        default:
-            return 'bg-slate-500/10 text-slate-200';
-    }
-}
-
-function workAreaClasses(area: WorkItem['area']) {
-    switch (area) {
-        case 'UI polish':
-            return 'bg-pink-500/10 text-pink-300';
-        case 'Refactor':
-            return 'bg-sky-500/10 text-sky-400';
-        case 'DX / tooling':
-            return 'bg-amber-500/10 text-amber-300';
-        default:
-            return 'bg-slate-500/10 text-slate-200';
-    }
-}
-
-export default function CeoDevWorkbenchPage() {
+function InfoCard(props: { label: string; value: string; hint?: string }) {
     return (
-        <div className="space-y-6">
-            {/* Header + nav */}
-            <header className="space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                            Dev Workbench
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            A simple place to see branches, PR status, checks, and a small
-                            refactor queue for Digital Hooligan.
-                        </p>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
-                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                        <span>Goal: never wonder “what branch am I on?” again</span>
-                    </div>
-                </div>
-
-                <nav className="flex flex-wrap gap-2">
-                    <Tab href="/ceo" label="Overview" />
-                    <Tab href="/ceo/tasks" label="Tasks" />
-                    <Tab href="/ceo/deals" label="Deals" />
-                    <Tab href="/ceo/finance" label="Finance" />
-                    <Tab href="/ceo/performance" label="Performance" />
-                    <Tab href="/ceo/ai-hub" label="AI Hub" />
-                    <Tab href="/ceo/dev-workbench" label="Dev WB" isActive />
-                    <Tab href="/ceo/settings" label="Settings" />
-                    <Tab href="/ceo/logout" label="Logout" />
-                </nav>
-            </header>
-
-            {/* Top row: Branches + Checks */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1.3fr)]">
-                {/* Branches */}
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Active branches
-                            </p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                High-level view of the work you&apos;ve got in flight.
-                            </p>
-                        </div>
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                            <GitBranch className="h-4 w-4" />
-                        </div>
-                    </div>
-
-                    <ul className="mt-4 space-y-2 text-xs">
-                        {BRANCHES.map((branch) => (
-                            <li
-                                key={branch.name}
-                                className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
-                            >
-                                <div>
-                                    <p className="font-mono text-[11px]">{branch.name}</p>
-                                    <p className="mt-1 text-[11px] text-muted-foreground">
-                                        {branch.scope} · base:{' '}
-                                        <span className="font-mono">{branch.base}</span>
-                                    </p>
-                                    <p className="mt-1 text-[11px] text-muted-foreground">
-                                        {branch.note}
-                                    </p>
-                                </div>
-                                <span
-                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusBadgeClasses(
-                                        branch.status,
-                                    )}`}
-                                >
-                                    {branch.status}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                {/* Checks summary */}
-                <div className="space-y-4">
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Checks & CI mood
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    TypeScript, builds, and structural refactors at a glance.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <CheckCircle2 className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <ul className="mt-4 space-y-2 text-xs">
-                            {CHECKS.map((check) => (
-                                <li
-                                    key={check.name}
-                                    className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
-                                >
-                                    <div>
-                                        <p className="font-medium">{check.name}</p>
-                                        <p className="mt-1 text-[11px] text-muted-foreground">
-                                            {check.note}
-                                        </p>
-                                    </div>
-                                    <span
-                                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${checkStatusClasses(
-                                            check.status,
-                                        )}`}
-                                    >
-                                        {check.status}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground shadow-sm">
-                        <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted">
-                                <GitPullRequest className="h-3.5 w-3.5" />
-                            </div>
-                            <div>
-                                <p className="font-semibold">
-                                    How this pairs with your AI dev flow
-                                </p>
-                                <p className="mt-1 text-[11px]">
-                                    Use this board to pick a branch, then let your AI pair
-                                    programmer help write/refactor code. Dev Workbench keeps track
-                                    of the &quot;meta&quot;: branches, checks, and what&apos;s
-                                    next.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Bottom row: Work queue + Workflow checklist */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)]">
-                {/* Work queue */}
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Refactor & polish queue
-                            </p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Tiny bites of dev work you can ship between bigger tasks.
-                            </p>
-                        </div>
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                            <Wrench className="h-4 w-4" />
-                        </div>
-                    </div>
-
-                    <ul className="mt-4 space-y-2 text-xs">
-                        {WORK_QUEUE.map((item) => (
-                            <li
-                                key={item.label}
-                                className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
-                            >
-                                <div className="mt-1 flex h-2.5 w-2.5 items-center justify-center">
-                                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-primary/80" />
-                                </div>
-                                <div>
-                                    <p className="font-medium">{item.label}</p>
-                                    <span
-                                        className={`mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${workAreaClasses(
-                                            item.area,
-                                        )}`}
-                                    >
-                                        {item.area}
-                                    </span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-
-                    <p className="mt-3 text-[11px] text-muted-foreground">
-                        Later, this can sync with a real task list and show which refactors
-                        are attached to which branches and PRs.
-                    </p>
-                </div>
-
-                {/* Workflow checklist */}
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Workflow & guardrails
-                            </p>
-                        </div>
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                            <ListChecks className="h-4 w-4" />
-                        </div>
-                    </div>
-
-                    <ul className="mt-4 space-y-2 text-xs">
-                        <li className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
-                            <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card">
-                                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                            </div>
-                            <div>
-                                <p className="font-medium">One feature per branch</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Keep branches small and named after the feature (like you&apos;ve
-                                    been doing) so CEO and Dev views stay readable.
-                                </p>
-                            </div>
-                        </li>
-
-                        <li className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
-                            <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card">
-                                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                            </div>
-                            <div>
-                                <p className="font-medium">Green checks before PR</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    TS + lint should be clean locally before you push. Later,
-                                    Dev Workbench can read CI status from GitHub directly.
-                                </p>
-                            </div>
-                        </li>
-
-                        <li className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-2">
-                            <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card">
-                                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                            </div>
-                            <div>
-                                <p className="font-medium">Refactor with a buddy</p>
-                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                    Use your AI pair programmer for code + refactor details; Dev
-                                    Workbench keeps the bigger picture and suggests where to focus
-                                    next.
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-
-                    <div className="mt-3 flex items-start gap-3 rounded-xl border border-dashed border-border bg-background/60 px-3 py-2 text-[11px] text-muted-foreground">
-                        <Code2 className="mt-0.5 h-3.5 w-3.5" />
-                        <p>
-                            Future: This card can pull real branch/PR/CI stats from GitHub and
-                            show which repos are clean vs. need attention across the whole
-                            Digital Hooligan monorepo.
-                        </p>
-                    </div>
-                </div>
-            </section>
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 px-4 py-3 shadow-sm shadow-black/40">
+            <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
+                {props.label}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-slate-50">{props.value}</p>
+            {props.hint && (
+                <p className="mt-1 text-xs text-slate-400/90">{props.hint}</p>
+            )}
         </div>
+    );
+}
+
+function AppCard({ app }: { app: AppRegistryEntry }) {
+    const api = buildApiLinks(app.id);
+
+    const lifecycleLabel = app.lifecycle;
+    const kindLabel =
+        app.kind === "public-app"
+            ? "Public app"
+            : app.kind === "internal-tool"
+                ? "Internal tool"
+                : app.kind === "bot"
+                    ? "Automation bot"
+                    : "Infra";
+
+    const audienceLabel = app.internalOnly ? "Internal-only" : "User-facing";
+
+    return (
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+            {/* Header row */}
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-slate-900/90 text-xl">
+                        {app.icon?.type === "emoji" ? app.icon.value : "⛓"}
+                    </div>
+                    <div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <h3 className="text-sm font-semibold text-slate-50">
+                                {app.name}
+                            </h3>
+                            <span className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                                {lifecycleLabel}
+                            </span>
+                        </div>
+                        <p className="mt-1 text-[0.75rem] text-slate-400 line-clamp-2">
+                            {app.description}
+                        </p>
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[0.65rem] text-slate-400">
+                            <span className="rounded-full bg-slate-900/80 px-2 py-0.5">
+                                {kindLabel}
+                            </span>
+                            <span className="rounded-full bg-slate-900/80 px-2 py-0.5">
+                                {audienceLabel}
+                            </span>
+                            <code className="rounded bg-slate-900 px-2 py-0.5 text-[0.65rem] text-slate-300">
+                                id: {app.id}
+                            </code>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-1 text-[0.65rem] text-slate-400">
+                    {app.ceoPath && (
+                        <Link
+                            href={app.ceoPath}
+                            className="rounded-full border border-slate-700/80 bg-slate-900/80 px-2 py-0.5 text-[0.65rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                        >
+                            CEO view →
+                        </Link>
+                    )}
+                    {app.labsPath && (
+                        <Link
+                            href={app.labsPath}
+                            className="rounded-full border border-slate-800 bg-slate-950/80 px-2 py-0.5 text-[0.65rem] text-slate-300 hover:border-emerald-500/60 hover:text-emerald-200"
+                        >
+                            Labs view →
+                        </Link>
+                    )}
+                </div>
+            </div>
+
+            {/* API links */}
+            <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-950/90 p-3">
+                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
+                    API routes
+                </p>
+
+                <ApiRow label="App details" url={api.app} />
+                <ApiRow label="App details + metrics" url={api.appWithMetrics} />
+                <ApiRow label="AI app summary" url={api.aiSummary} />
+            </div>
+        </div>
+    );
+}
+
+function ApiRow({ label, url }: { label: string; url: string }) {
+    return (
+        <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+                <p className="text-[0.7rem] font-medium text-slate-300">{label}</p>
+                <code className="mt-0.5 block max-w-full truncate text-[0.7rem] text-slate-400">
+                    {url}
+                </code>
+            </div>
+            <CopyButton text={url} />
+        </div>
+    );
+}
+
+function CopyButton({ text }: { text: string }) {
+    const [copied, setCopied] = React.useState(false);
+
+    async function handleCopy() {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1200);
+        } catch (err) {
+            console.error("Failed to copy to clipboard:", err);
+        }
+    }
+
+    return (
+        <button
+            type="button"
+            onClick={handleCopy}
+            className="shrink-0 rounded-full border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+        >
+            {copied ? "Copied" : "Copy"}
+        </button>
     );
 }
