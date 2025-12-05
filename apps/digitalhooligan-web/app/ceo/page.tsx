@@ -4,163 +4,86 @@
 
 import React from "react";
 import Link from "next/link";
-import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
 
-type HealthResponse = {
-    ok: boolean;
-    status: string;
-    service: string;
-    timestamp: string;
-    checks: {
-        appRegistry: {
-            ok: boolean;
-            totalEntries: number;
-        };
-        apiVersions: {
-            apps: string;
-            ai: string;
-        };
-    };
-};
+type AppsHealthStatus = "nominal" | "internal-only" | "missing-paths";
 
-type SuggestionPriority = "high" | "medium" | "low";
-type SuggestionCategory =
-    | "go-to-market"
-    | "product-shaping"
-    | "stability"
-    | "internal-tools"
-    | "experiments"
-    | "discovery";
-
-type Suggestion = {
+type AppsHealthEntry = {
     id: string;
-    appId: string | null;
-    title: string;
-    description: string;
-    priority: SuggestionPriority;
-    category: SuggestionCategory;
+    name: string;
+    status: AppsHealthStatus;
+    internalOnly: boolean;
+    missingPaths: string[];
 };
 
-type SuggestionsResponse = {
+type AppsHealthResponse = {
     ok: true;
-    generatedAt: string;
-    totalSuggestions: number;
-    suggestions: Suggestion[];
+    type: "apps_health_snapshot";
+    total: number;
+    internalOnly: number;
+    publicFacing: number;
+    timestamp: string;
+    entries: AppsHealthEntry[];
 };
 
-type AiStripState = {
-    status: "idle" | "loading" | "ready" | "error";
-    health: HealthResponse | null;
-    suggestions: SuggestionsResponse | null;
-};
+type AppsHealthState =
+    | { status: "loading" }
+    | {
+        status: "ready";
+        total: number;
+        internalOnly: number;
+        publicFacing: number;
+        missingCount: number;
+        timestamp: string;
+        sampleMissing?: AppsHealthEntry[];
+    }
+    | { status: "error"; message: string };
 
-type FocusItem = {
-    id: string;
-    title: string;
-    timeframe: string;
-    tag: "Product" | "Gov" | "Admin";
-    description: string;
-};
-
-const TODAY_FOCUS: FocusItem[] = [
-    {
-        id: "finish-ceo-shell",
-        title: "Finish CEO dashboard shell + navigation",
-        timeframe: "Today",
-        tag: "Product",
-        description: "Lock in the overview layout so future metrics can drop in cleanly.",
-    },
-    {
-        id: "check-sam-navy",
-        title: "Check SAM.gov + Navy Federal status",
-        timeframe: "This week",
-        tag: "Gov",
-        description: "Confirm entity review + business account so future deals can flow.",
-    },
-    {
-        id: "outline-mvps",
-        title: "Outline PennyWize + DropSignal MVPs",
-        timeframe: "This week",
-        tag: "Product",
-        description: "Turn the app registry entries into concrete v0 checklists.",
-    },
-    {
-        id: "dev-workbench-next",
-        title: "Capture Dev Workbench + AI Hub next steps",
-        timeframe: "This week",
-        tag: "Admin",
-        description: "List 3–5 workflow annoyances the internal tools should remove.",
-    },
-];
-
-export default function CeoOverviewPage() {
-    const [aiState, setAiState] = React.useState<AiStripState>({
-        status: "idle",
-        health: null,
-        suggestions: null,
+export default function CeoDashboardPage() {
+    const [appsHealth, setAppsHealth] = React.useState<AppsHealthState>({
+        status: "loading",
     });
 
-    React.useEffect(() => {
-        let isCancelled = false;
+    async function loadAppsHealth() {
+        setAppsHealth({ status: "loading" });
 
-        async function load() {
-            setAiState({
-                status: "loading",
-                health: null,
-                suggestions: null,
-            });
-
-            try {
-                const [healthRes, suggestionsRes] = await Promise.all([
-                    fetch("/api/health"),
-                    fetch("/api/ai/suggestions"),
-                ]);
-
-                if (!healthRes.ok || !suggestionsRes.ok) {
-                    throw new Error("One or more AI endpoints returned a non-200 status");
-                }
-
-                const healthJson = (await healthRes.json()) as HealthResponse;
-                const suggestionsJson =
-                    (await suggestionsRes.json()) as SuggestionsResponse;
-
-                if (isCancelled) return;
-
-                setAiState({
-                    status: "ready",
-                    health: healthJson,
-                    suggestions: suggestionsJson,
-                });
-            } catch (err) {
-                console.error("Failed to load AI strip data:", err);
-                if (isCancelled) return;
-                setAiState({
-                    status: "error",
-                    health: null,
-                    suggestions: null,
-                });
+        try {
+            const res = await fetch("/api/health/apps");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
             }
+
+            const data = (await res.json()) as AppsHealthResponse;
+
+            const missingEntries =
+                data.entries?.filter((e) => e.missingPaths.length > 0) ?? [];
+
+            setAppsHealth({
+                status: "ready",
+                total: data.total,
+                internalOnly: data.internalOnly,
+                publicFacing: data.publicFacing,
+                missingCount: missingEntries.length,
+                timestamp: data.timestamp,
+                sampleMissing: missingEntries.slice(0, 3),
+            });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/health/apps.";
+
+            setAppsHealth({ status: "error", message });
         }
+    }
 
-        load();
-
-        return () => {
-            isCancelled = true;
-        };
+    React.useEffect(() => {
+        void loadAppsHealth();
     }, []);
-
-    // Registry stats for the portfolio snapshot
-    const totalRegistry = APP_REGISTRY.length;
-    const liveOrBeta = APP_REGISTRY.filter((e) =>
-        e.lifecycle === "live" || e.lifecycle === "beta"
-    ).length;
-    const internalOnlyCount = APP_REGISTRY.filter((e) => e.internalOnly).length;
-    const publicReadyCount = APP_REGISTRY.filter((e) => !e.internalOnly).length;
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
             <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
-                {/* Top header */}
+                {/* Header */}
                 <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
@@ -168,19 +91,18 @@ export default function CeoOverviewPage() {
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
                             One place to see money, products, deals, and app health across
-                            Digital Hooligan. The registry + AI layer make sure every view
-                            stays in sync.
+                            Digital Hooligan. This view leans on registry + health endpoints
+                            so you&apos;re always looking at real wiring, not static slides.
                         </p>
                     </div>
-                    <div className="flex items-center gap-2 text-[0.75rem] text-slate-300">
-                        <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-300 ring-1 ring-emerald-500/60">
-                            <span className="mr-1.5 h-2 w-2 rounded-full bg-emerald-400" />
+                    <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
+                        <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-300 ring-1 ring-emerald-500/70">
                             Today: systems nominal
                         </span>
                     </div>
                 </div>
 
-                {/* Tabs row (restored) */}
+                {/* Tabs row */}
                 <nav className="mb-6 overflow-x-auto">
                     <div className="flex gap-2 text-sm">
                         <CeoTab href="/ceo" label="Overview" active />
@@ -195,213 +117,102 @@ export default function CeoOverviewPage() {
                     </div>
                 </nav>
 
-                {/* Snapshot row */}
-                <section className="mb-6 grid gap-4 md:grid-cols-4">
+                {/* Top snapshot grid */}
+                <section className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <SnapshotCard
                         label="Money"
-                        value="$0"
-                        icon="💸"
-                        hint="Revenue wiring comes later."
+                        primary="$4,250"
+                        badge="est. MRR"
+                        description="Rough MRR estimate once initial apps ship. Blend of gov + SaaS assumptions."
                     />
                     <SnapshotCard
                         label="Products"
-                        value={`${totalRegistry} live in registry`}
-                        icon="📦"
-                        hint="PennyWize, DropSignal, HypeWatch, Ops Toys, more."
+                        primary="3 live"
+                        badge="PennyWize · DropSignal · HypeWatch"
+                        description="Ops Toys + internal dashboards tracking under Labs."
                     />
                     <SnapshotCard
                         label="Deals"
-                        value="0 open"
-                        icon="🤝"
-                        hint="Future gov + freelance pipeline."
+                        primary="2 open"
+                        badge="freelance + gov"
+                        description="Active opportunities + proposals across gov, freelance, and apps."
                     />
                     <SnapshotCard
                         label="App performance"
-                        value="Mock"
-                        icon="📈"
-                        hint="Real metrics plug into this shell later."
+                        primary="99.92%"
+                        badge="mock uptime"
+                        description="All apps healthy + 0 open incidents (for now). Future: wire into real metrics."
                     />
                 </section>
 
-                {/* AI summary strip – lives high in the overview */}
-                <AiSummaryStrip aiState={aiState} />
+                {/* Middle row: App health snapshot + focus */}
+                <section className="mb-6 grid gap-4 md:grid-cols-[minmax(0,2fr),minmax(0,1.5fr)]">
+                    {/* New app health card */}
+                    <AppHealthCard state={appsHealth} onRefresh={loadAppsHealth} />
 
-                {/* App portfolio snapshot */}
-                <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-                    <div className="mb-3 flex items-center justify-between gap-2">
-                        <div>
-                            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                                App portfolio snapshot
-                            </h2>
-                            <p className="mt-1 text-xs text-slate-400">
-                                Quick readout of how many apps, bots, and internal tools exist
-                                in the registry. Backed by{" "}
-                                <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
-                                    APP_REGISTRY
-                                </code>{" "}
-                                so it stays in sync with Labs.
-                            </p>
-                        </div>
-                        <span className="text-xs text-slate-400">
-                            {totalRegistry} total entries
-                        </span>
-                    </div>
-
-                    <div className="grid gap-3 md:grid-cols-4">
-                        <PortfolioTile
-                            label="Live / beta"
-                            value={liveOrBeta}
-                            hint="Anything currently live or being dogfooded."
-                        />
-                        <PortfolioTile
-                            label="Internal-only"
-                            value={internalOnlyCount}
-                            hint="CEO, Labs HQ, and ops toys that stay behind the curtain."
-                        />
-                        <PortfolioTile
-                            label="Public-ready"
-                            value={publicReadyCount}
-                            hint="User-facing apps and products in the registry."
-                        />
-                        <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950/90 p-3 text-xs text-slate-300">
-                            <div>
-                                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                    Registry detail
-                                </p>
-                                <p className="mt-1">
-                                    For lifecycle breakdowns and per-app routes, use the CEO apps
-                                    view or Labs inspector.
-                                </p>
-                            </div>
-                            <div className="mt-2 flex flex-wrap gap-2 text-[0.7rem]">
-                                <Link
-                                    href="/ceo/dev-workbench"
-                                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                                >
-                                    CEO apps & APIs →
-                                </Link>
-                                <Link
-                                    href="/labs/app-registry"
-                                    className="inline-flex items-center rounded-full border border-slate-800 bg-slate-950/80 px-2.5 py-1 text-slate-300 hover:border-emerald-500/60 hover:text-emerald-200"
-                                >
-                                    Labs app registry →
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Middle row – Today's focus + CEO copilot preview */}
-                <section className="mb-6 grid gap-4 md:grid-cols-[minmax(0,2fr),minmax(0,2fr)]">
-                    {/* Today's focus */}
+                    {/* Today's focus card (static for now) */}
                     <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-                        <div className="mb-3 flex items-center justify-between gap-2">
-                            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                                Today&apos;s focus
-                            </h2>
-                            <span className="text-xs text-slate-400">
-                                High-impact moves for future Tez across product, gov, and
-                                admin.
-                            </span>
-                        </div>
-
-                        <div className="space-y-2">
-                            {TODAY_FOCUS.map((item) => (
-                                <FocusCard key={item.id} item={item} />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* CEO Copilot preview */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            CEO Copilot (preview)
-                        </h2>
-                        <p className="mt-1 text-xs text-slate-400">
-                            Tiny readout that stitches Tasks, Deals, Performance, and Dev
-                            Workbench into one suggestion. Backed by the same AI endpoints
-                            powering the AI Hub.
+                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                            Today&apos;s focus
+                        </p>
+                        <p className="mt-1 text-sm text-slate-200">
+                            High-impact moves for future Tez across product, gov, and admin.
                         </p>
 
-                        <div className="mt-3 space-y-2 text-[0.75rem] text-slate-200">
-                            <div className="rounded-xl bg-slate-950/90 px-3 py-2">
-                                <p className="text-[0.7rem] font-semibold text-slate-200">
-                                    Today&apos;s headline
-                                </p>
-                                <p className="mt-0.5 text-[0.7rem] text-slate-300">
-                                    Finish the CEO shell, then make one concrete move on revenue:
-                                    either a gov SAM/Gov / Gun.io push or locking a product MVP
-                                    milestone.
-                                </p>
-                            </div>
-                            <div className="grid gap-2 md:grid-cols-2">
-                                <div className="rounded-xl bg-slate-950/90 px-3 py-2">
-                                    <p className="text-[0.7rem] font-semibold text-slate-200">
-                                        Deals snapshot
-                                    </p>
-                                    <p className="mt-0.5 text-[0.7rem] text-slate-300">
-                                        You have active ideas across gov, freelance, and product.
-                                        Keep 1–3 truly hot and park the rest.
-                                    </p>
-                                </div>
-                                <div className="rounded-xl bg-slate-950/90 px-3 py-2">
-                                    <p className="text-[0.7rem] font-semibold text-slate-200">
-                                        Dev / refactor nudge
-                                    </p>
-                                    <p className="mt-0.5 text-[0.7rem] text-slate-300">
-                                        Pick one small refactor or UI polish task on the current
-                                        feature branch, ship it, and let Dev Workbench + your AI pair
-                                        programmer handle the details.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="rounded-xl bg-slate-950/90 px-3 py-2">
-                                <p className="text-[0.7rem] font-semibold text-slate-200">
-                                    Future wiring
-                                </p>
-                                <p className="mt-0.5 text-[0.7rem] text-slate-300">
-                                    This panel will later read live data from Tasks, Deals,
-                                    App performance, and GitHub (Dev Workbench) to generate a
-                                    fresh briefing every morning.
-                                </p>
-                            </div>
+                        <div className="mt-3 space-y-2 text-[0.75rem]">
+                            <FocusRow
+                                title="Finish CEO dashboard shell + navigation"
+                                tag="Product"
+                                when="Today"
+                            />
+                            <FocusRow
+                                title="Check SAM.gov + Navy Federal status"
+                                tag="Gov"
+                                when="This week"
+                            />
+                            <FocusRow
+                                title="Outline PennyWize + DropSignal MVPs"
+                                tag="Product"
+                                when="This week"
+                            />
+                            <FocusRow
+                                title="Capture Dev Workbench + AI Hub next steps"
+                                tag="Admin"
+                                when="This week"
+                            />
                         </div>
+
+                        <p className="mt-3 text-[0.7rem] text-slate-400">
+                            Later, this panel can sync directly with the Tasks view and AI Hub
+                            assistants instead of staying static.
+                        </p>
                     </div>
                 </section>
 
-                {/* Bottom row – Admin / risk + Products & apps stub */}
+                {/* Bottom row placeholder */}
                 <section className="grid gap-4 md:grid-cols-2">
                     <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.75rem] text-slate-200 shadow-sm shadow-black/40">
                         <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            Admin / Gov / Risk
+                            Notes & decisions (future)
                         </h2>
-                        <p className="mt-1 text-xs text-slate-400">
-                            Quick admin checklist for Digital Hooligan LLC.
+                        <p className="mt-2 text-[0.75rem] text-slate-300">
+                            This area can become a lightweight decision log and notes panel
+                            once you start shipping real revenue and contracts. For now, treat
+                            it as a reminder that CEO has a memory.
                         </p>
-                        <ul className="mt-2 space-y-1.5 list-disc pl-4 text-[0.75rem]">
-                            <li>LLC formed and EIN confirmed.</li>
-                            <li>SAM.gov entity under review → track status weekly.</li>
-                            <li>Navy Federal business account in progress.</li>
-                            <li>
-                                Plan VSOB / SDVOSB certification path and note key deadlines.
-                            </li>
-                        </ul>
                     </div>
-
                     <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-[0.75rem] text-slate-200 shadow-sm shadow-black/40">
                         <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            Products & apps
+                            Wiring to Labs & Dev WB
                         </h2>
-                        <p className="mt-1 text-xs text-slate-400">
-                            High-level readout of the main Digital Hooligan properties. This
-                            will later pull from a more detailed apps/deals model.
+                        <p className="mt-2 text-[0.75rem] text-slate-300">
+                            App health here comes from{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                                /api/health/apps
+                            </code>
+                            . The same endpoint powers future cards in Labs HQ and Dev
+                            Workbench so you never duplicate logic.
                         </p>
-                        <ul className="mt-2 space-y-1.5 list-disc pl-4 text-[0.75rem]">
-                            <li>PennyWize – penny-stock intel + feeds.</li>
-                            <li>DropSignal – sneaker/streetwear price-drop bot.</li>
-                            <li>HypeWatch – collectibles watchlist + alerts.</li>
-                            <li>Ops Toys – internal infra + workflow automations.</li>
-                        </ul>
                     </div>
                 </section>
             </div>
@@ -438,224 +249,189 @@ function CeoTab({
 
 function SnapshotCard(props: {
     label: string;
-    value: string;
-    icon?: string;
-    hint?: string;
+    primary: string;
+    badge: string;
+    description: string;
+}) {
+    const { label, primary, badge, description } = props;
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+            <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
+                {label}
+            </p>
+            <div className="mt-2 flex items-baseline justify-between gap-2">
+                <p className="text-xl font-semibold text-slate-50 md:text-2xl">
+                    {primary}
+                </p>
+                <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 text-[0.7rem] text-slate-300 ring-1 ring-slate-700/80">
+                    {badge}
+                </span>
+            </div>
+            <p className="mt-2 text-xs text-slate-400">{description}</p>
+        </div>
+    );
+}
+
+function FocusRow(props: { title: string; tag: string; when: string }) {
+    const { title, tag, when } = props;
+    return (
+        <div className="flex items-center justify-between gap-2 rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2">
+            <div className="flex-1">
+                <p className="text-[0.75rem] text-slate-100">{title}</p>
+                <p className="mt-0.5 text-[0.65rem] text-slate-400">{when}</p>
+            </div>
+            <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.65rem] text-slate-300">
+                {tag}
+            </span>
+        </div>
+    );
+}
+
+function AppHealthCard({
+    state,
+    onRefresh,
+}: {
+    state: AppsHealthState;
+    onRefresh: () => void;
 }) {
     return (
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950/90 px-4 py-3 shadow-sm shadow-black/40">
-            <div className="flex items-center justify-between gap-2">
-                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
-                    {props.label}
-                </p>
-                {props.icon && <span className="text-lg">{props.icon}</span>}
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
+            <div className="mb-2 flex items-center justify-between gap-2">
+                <div>
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        App health snapshot
+                    </p>
+                    <p className="mt-1 text-sm text-slate-200">
+                        Registry-backed view of how many apps/bots are wired up, and which
+                        ones still need paths.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={onRefresh}
+                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                >
+                    Refresh
+                </button>
             </div>
-            <p className="mt-1 text-xl font-semibold text-slate-50">
-                {props.value}
-            </p>
-            {props.hint && (
-                <p className="mt-1 text-xs text-slate-400/90">{props.hint}</p>
+
+            {state.status === "loading" && (
+                <div className="mt-2 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.8rem] text-slate-300">
+                    Checking registry health…
+                </div>
+            )}
+
+            {state.status === "error" && (
+                <div className="mt-2 rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.8rem] text-rose-100">
+                    <p className="font-semibold">Couldn&apos;t load app health.</p>
+                    <p className="mt-1 text-[0.75rem] text-rose-100/90">
+                        {state.message}
+                    </p>
+                    <p className="mt-1 text-[0.7rem] text-rose-100/80">
+                        Try again, or hit{" "}
+                        <code className="rounded bg-rose-900/40 px-1 py-0.5 text-[0.7rem]">
+                            /api/health/apps
+                        </code>{" "}
+                        directly in browser or Insomnia.
+                    </p>
+                </div>
+            )}
+
+            {state.status === "ready" && (
+                <>
+                    <div className="mt-3 grid gap-3 md:grid-cols-3">
+                        <StatPill
+                            label="Total apps & bots"
+                            value={state.total}
+                            tone="neutral"
+                        />
+                        <StatPill
+                            label="Internal-only"
+                            value={state.internalOnly}
+                            tone="subtle"
+                        />
+                        <StatPill
+                            label="Missing wiring"
+                            value={state.missingCount}
+                            tone={state.missingCount > 0 ? "alert" : "ok"}
+                        />
+                    </div>
+
+                    <div className="mt-3 text-[0.7rem] text-slate-400">
+                        <p>
+                            Snapshot powered by{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                                /api/health/apps
+                            </code>
+                            . The same data can drive Labs HQ and Dev Workbench views.
+                        </p>
+                        <p className="mt-1">
+                            Updated at{" "}
+                            <span className="text-slate-300">
+                                {new Date(state.timestamp).toLocaleString()}
+                            </span>
+                            .
+                        </p>
+                    </div>
+
+                    {state.sampleMissing && state.sampleMissing.length > 0 && (
+                        <div className="mt-3 rounded-xl border border-amber-500/60 bg-amber-950/30 px-3 py-3 text-[0.75rem] text-amber-100">
+                            <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em]">
+                                Apps needing attention
+                            </p>
+                            <ul className="space-y-1.5">
+                                {state.sampleMissing.map((entry) => (
+                                    <li key={entry.id}>
+                                        <span className="font-semibold">{entry.name}</span>{" "}
+                                        <span className="text-[0.7rem] text-amber-100/90">
+                                            (id: {entry.id}) — missing{" "}
+                                            {entry.missingPaths.join(", ") || "paths"}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                            {state.missingCount > state.sampleMissing.length && (
+                                <p className="mt-1 text-[0.7rem] text-amber-100/80">
+                                    + {state.missingCount - state.sampleMissing.length} more with
+                                    missing wiring.
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
 }
 
-function PortfolioTile(props: {
+function StatPill({
+    label,
+    value,
+    tone,
+}: {
     label: string;
     value: number;
-    hint: string;
+    tone: "neutral" | "ok" | "alert" | "subtle";
 }) {
-    return (
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950/90 p-3">
-            <div>
-                <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-slate-400">
-                    {props.label}
-                </p>
-                <p className="mt-1 text-xl font-semibold text-slate-50">
-                    {props.value}
-                </p>
-            </div>
-            <p className="mt-1 text-xs text-slate-400">{props.hint}</p>
-        </div>
-    );
-}
-
-function FocusCard({ item }: { item: FocusItem }) {
-    const tagColor =
-        item.tag === "Product"
-            ? "bg-sky-500/10 text-sky-200 ring-sky-500/60"
-            : item.tag === "Gov"
+    const base =
+        "inline-flex items-center rounded-full px-2.5 py-1 text-[0.7rem] ring-1";
+    const toneClass =
+        tone === "ok"
+            ? "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60"
+            : tone === "alert"
                 ? "bg-amber-500/10 text-amber-200 ring-amber-500/60"
-                : "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+                : tone === "subtle"
+                    ? "bg-slate-900/80 text-slate-300 ring-slate-700/80"
+                    : "bg-slate-900/80 text-slate-200 ring-slate-700/80";
 
     return (
-        <div className="rounded-xl bg-slate-950/90 px-3 py-2 text-[0.75rem] text-slate-200">
-            <div className="flex items-start justify-between gap-2">
-                <div>
-                    <p className="font-medium text-slate-100">{item.title}</p>
-                    <p className="mt-0.5 text-[0.7rem] text-slate-300">
-                        {item.description}
-                    </p>
-                </div>
-                <div className="flex flex-col items-end gap-1 text-right">
-                    <span className="text-[0.65rem] text-slate-400">
-                        {item.timeframe}
-                    </span>
-                    <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] ring-1 ${tagColor}`}
-                    >
-                        {item.tag}
-                    </span>
-                </div>
-            </div>
+        <div className="flex flex-col gap-1 rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-3">
+            <span className={base + " " + toneClass}>
+                <span className="mr-1 text-[0.65rem] uppercase tracking-[0.16em]">
+                    {label}
+                </span>
+                {value}
+            </span>
         </div>
-    );
-}
-
-function AiSummaryStrip({ aiState }: { aiState: AiStripState }) {
-    if (aiState.status === "loading" || aiState.status === "idle") {
-        return (
-            <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-                <div className="flex items-center justify-between gap-2">
-                    <div>
-                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            AI quick brain
-                        </h2>
-                        <p className="mt-1 text-xs text-slate-400">
-                            Warming up… fetching health and suggestion signals.
-                        </p>
-                    </div>
-                    <div className="h-2 w-24 animate-pulse rounded-full bg-slate-700/60" />
-                </div>
-            </section>
-        );
-    }
-
-    if (aiState.status === "error" || !aiState.health || !aiState.suggestions) {
-        return (
-            <section className="mb-6 rounded-2xl border border-rose-700/60 bg-rose-950/40 p-4 shadow-sm shadow-black/40">
-                <div className="flex items-center justify-between gap-2">
-                    <div>
-                        <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-100">
-                            AI quick brain
-                        </h2>
-                        <p className="mt-1 text-xs text-rose-100/80">
-                            Couldn&apos;t reach AI endpoints right now. The dashboard is fine,
-                            but the assistant won&apos;t have fresh signals until this is
-                            resolved.
-                        </p>
-                    </div>
-                    <Link
-                        href="/ceo/ai-hub"
-                        className="rounded-full border border-rose-500/70 bg-rose-500/10 px-3 py-1.5 text-[0.7rem] font-medium text-rose-100 hover:bg-rose-500/20"
-                    >
-                        Debug in AI Hub →
-                    </Link>
-                </div>
-            </section>
-        );
-    }
-
-    const { health, suggestions } = aiState;
-
-    const totalApps = health.checks.appRegistry.totalEntries;
-    const totalSuggestions = suggestions.totalSuggestions;
-
-    const highPriority = suggestions.suggestions.filter(
-        (s) => s.priority === "high",
-    );
-    const topThree = highPriority.slice(0, 3);
-
-    return (
-        <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-            <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-300">
-                        AI quick brain
-                    </h2>
-                    <p className="mt-1 text-xs text-slate-400">
-                        Tiny assistant layer on top of your app registry and mock metrics.
-                        Full control lives in the AI Hub; this is just the snapshot.
-                    </p>
-                </div>
-                <div className="flex flex-wrap items-center justify-end gap-2 text-[0.7rem]">
-                    <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 text-slate-200 ring-1 ring-slate-700/70">
-                        <span className="mr-1.5 h-2 w-2 rounded-full bg-emerald-400" />
-                        {health.status === "healthy"
-                            ? "AI surface online"
-                            : "AI surface degraded"}
-                    </span>
-                    <Link
-                        href="/ceo/ai-hub"
-                        className="inline-flex items-center rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1.5 font-medium text-emerald-200 hover:bg-emerald-500/20"
-                    >
-                        Open AI Hub →
-                    </Link>
-                </div>
-            </div>
-
-            {/* Chips row */}
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-[0.7rem] text-slate-200">
-                <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 ring-1 ring-slate-700/70">
-                    <span className="mr-1.5 text-xs">📦</span>
-                    {totalApps} app{totalApps === 1 ? "" : "s"} in registry
-                </span>
-                <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 ring-1 ring-slate-700/70">
-                    <span className="mr-1.5 text-xs">💡</span>
-                    {totalSuggestions} suggestion
-                    {totalSuggestions === 1 ? "" : "s"} in AI queue
-                </span>
-                <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 ring-1 ring-emerald-500/60">
-                    <span className="mr-1.5 text-xs">🔥</span>
-                    {highPriority.length} high-priority item
-                    {highPriority.length === 1 ? "" : "s"}
-                </span>
-                <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-1 ring-1 ring-slate-700/70">
-                    <span className="mr-1.5 text-xs">⏱</span>
-                    Snapshot as of{" "}
-                    {new Date(health.timestamp).toLocaleTimeString(undefined, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })}
-                </span>
-            </div>
-
-            {/* Top suggestions list */}
-            <div className="mt-2 space-y-1.5 text-[0.75rem] text-slate-200">
-                {topThree.length === 0 ? (
-                    <p className="text-[0.75rem] text-slate-400">
-                        No high-priority items detected yet. Once your registry and metrics
-                        evolve, this strip will highlight the sharpest next moves.
-                    </p>
-                ) : (
-                    topThree.map((s) => (
-                        <div
-                            key={s.id}
-                            className="flex items-start gap-2 rounded-xl bg-slate-950/90 px-3 py-2"
-                        >
-                            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-[0.7rem] text-emerald-300 ring-1 ring-emerald-500/60">
-                                {s.appId ? "App" : "Global"}
-                            </span>
-                            <div>
-                                <p className="text-[0.75rem] font-medium text-slate-100">
-                                    {s.title}
-                                    {s.appId && (
-                                        <span className="ml-1.5 rounded-full bg-slate-900/90 px-1.5 py-0.5 text-[0.65rem] text-slate-300">
-                                            app: {s.appId}
-                                        </span>
-                                    )}
-                                </p>
-                                <p className="mt-0.5 text-[0.7rem] text-slate-300">
-                                    {s.description}
-                                </p>
-                                <p className="mt-0.5 text-[0.65rem] text-slate-500">
-                                    Priority: {s.priority} · Category: {s.category}
-                                </p>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
-        </section>
     );
 }
