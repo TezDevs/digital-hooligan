@@ -1,318 +1,259 @@
-'use client';
+// apps/digitalhooligan-web/app/ceo/finance/page.tsx
 
-import React from 'react';
-import Link from 'next/link';
-import {
-    DollarSign,
-    PiggyBank,
-    TrendingUp,
-    TrendingDown,
-    Wallet,
-    Calculator,
-    Receipt,
-} from 'lucide-react';
+"use client";
 
-type TabProps = {
-    href: string;
+import React from "react";
+import Link from "next/link";
+
+type RevenueStream = "gov" | "freelance" | "product";
+
+type FinanceStream = {
+    stream: RevenueStream;
     label: string;
-    isActive?: boolean;
+    mrrUsd: number;
+    notes: string;
 };
 
-function Tab({ href, label, isActive }: TabProps) {
+type FinanceResponse = {
+    ok: true;
+    type: "ceo_finance_summary";
+    mrrEstimateUsd: number;
+    arrEstimateUsd: number;
+    cashOnHandUsd: number | null;
+    runwayMonthsEstimate: number | null;
+    streams: FinanceStream[];
+    timestamp: string;
+};
+
+type FinanceState =
+    | { status: "loading" }
+    | { status: "ready"; data: FinanceResponse }
+    | { status: "error"; message: string };
+
+export default function CeoFinancePage() {
+    const [state, setState] = React.useState<FinanceState>({ status: "loading" });
+
+    async function loadFinance() {
+        setState({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/ceo/finance");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as FinanceResponse;
+            setState({ status: "ready", data });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/ceo/finance.";
+
+            setState({ status: "error", message });
+        }
+    }
+
+    React.useEffect(() => {
+        void loadFinance();
+    }, []);
+
+    return (
+        <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
+            <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
+                {/* Header */}
+                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
+                            CEO finance
+                        </h1>
+                        <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
+                            Rough-but-useful view of MRR, ARR, and where money could come
+                            from across gov, freelance, and products. Backed by a typed{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
+                                /api/ceo/finance
+                            </code>{" "}
+                            endpoint so dashboards and AI assistants stay in sync.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={loadFinance}
+                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    >
+                        Refresh
+                    </button>
+                </div>
+
+                {/* Tabs row */}
+                <nav className="mb-6 overflow-x-auto">
+                    <div className="flex gap-2 text-sm">
+                        <CeoTab href="/ceo" label="Overview" />
+                        <CeoTab href="/ceo/tasks" label="Tasks" />
+                        <CeoTab href="/ceo/deals" label="Deals" />
+                        <CeoTab href="/ceo/finance" label="Finance" active />
+                        <CeoTab href="/ceo/performance" label="Performance" />
+                        <CeoTab href="/ceo/ai-hub" label="AI Hub" />
+                        <CeoTab href="/ceo/dev-workbench" label="Dev WB" />
+                        <CeoTab href="/ceo/settings" label="Settings" />
+                        <CeoTab href="/ceo/logout" label="Logout" />
+                    </div>
+                </nav>
+
+                {/* States */}
+                {state.status === "loading" && (
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-300 shadow-sm shadow-black/40">
+                        Loading finance snapshot…
+                    </div>
+                )}
+
+                {state.status === "error" && (
+                    <div className="rounded-2xl border border-rose-500/60 bg-rose-950/40 p-4 text-sm text-rose-100 shadow-sm shadow-black/40">
+                        <p className="font-semibold">Couldn&apos;t load finance data.</p>
+                        <p className="mt-1 text-[0.85rem]">{state.message}</p>
+                        <p className="mt-2 text-[0.75rem] text-rose-100/90">
+                            Hit{" "}
+                            <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
+                                /api/ceo/finance
+                            </code>{" "}
+                            directly in browser or Insomnia to debug the payload.
+                        </p>
+                    </div>
+                )}
+
+                {state.status === "ready" && (
+                    <>
+                        {/* Top summary grid */}
+                        <section className="mb-6 grid gap-4 md:grid-cols-3">
+                            <SummaryCard
+                                label="Est. MRR"
+                                value={`$${state.data.mrrEstimateUsd.toLocaleString()}`}
+                                note="Once gov + freelance + products are all humming."
+                            />
+                            <SummaryCard
+                                label="Est. ARR"
+                                value={`$${state.data.arrEstimateUsd.toLocaleString()}`}
+                                note="Purely a projection. Useful for direction, not taxes."
+                            />
+                            <SummaryCard
+                                label="Runway"
+                                value={
+                                    state.data.runwayMonthsEstimate != null
+                                        ? `${state.data.runwayMonthsEstimate} months`
+                                        : "Not wired yet"
+                                }
+                                note={
+                                    state.data.runwayMonthsEstimate != null
+                                        ? "Based on cash-on-hand and estimated monthly burn."
+                                        : "Later, wire this to real cash + burn numbers."
+                                }
+                            />
+                        </section>
+
+                        {/* Streams breakdown */}
+                        <section className="mb-6 grid gap-4 md:grid-cols-3">
+                            {state.data.streams.map((stream) => (
+                                <StreamCard key={stream.stream} stream={stream} />
+                            ))}
+                        </section>
+
+                        {/* Footer notes */}
+                        <p className="text-[0.7rem] text-slate-400">
+                            All of this is intentionally rough. The point is to keep a simple
+                            picture of where money could come from, not to replace a real
+                            accountant.
+                        </p>
+                        <p className="mt-1 text-[0.7rem] text-slate-400">
+                            Source of truth:{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                                /api/ceo/finance
+                            </code>
+                            . Last updated:{" "}
+                            <span className="text-slate-300">
+                                {new Date(state.data.timestamp).toLocaleString()}
+                            </span>
+                            .
+                        </p>
+                    </>
+                )}
+            </div>
+        </main>
+    );
+}
+
+function CeoTab({
+    href,
+    label,
+    active,
+}: {
+    href: string;
+    label: string;
+    active?: boolean;
+}) {
+    if (active) {
+        return (
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-900">
+                {label}
+            </span>
+        );
+    }
+
     return (
         <Link
             href={href}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
-                : 'border border-border bg-card text-muted-foreground hover:bg-muted'
-                }`}
+            className="inline-flex items-center rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700/80 hover:bg-slate-800 hover:text-emerald-200 hover:ring-emerald-500/70"
         >
-            <span className="flex items-center gap-1.5">
-                <span>{label}</span>
-                {isActive && (
-                    <span className="h-2 w-2 rounded-full bg-primary ring-2 ring-primary/40" />
-                )}
-            </span>
+            {label}
         </Link>
     );
 }
 
-type ProductRow = {
-    name: string;
-    mrr: string;
-    status: string;
-    notes: string;
-};
-
-const productRows: ProductRow[] = [
-    {
-        name: 'PennyWize',
-        mrr: '$2,400',
-        status: 'Building',
-        notes: 'Early users, scraper + alerts.',
-    },
-    {
-        name: 'DropSignal',
-        mrr: '$1,200',
-        status: 'Pre-launch',
-        notes: 'Assist mode first, bots + apps later.',
-    },
-    {
-        name: 'HypeWatch',
-        mrr: '$650',
-        status: 'Pre-launch',
-        notes: 'Collectibles version of DropSignal.',
-    },
-];
-
-type Movement = {
-    type: 'Income' | 'Expense';
-    label: string;
-    amount: string;
-    when: string;
-};
-
-const movements: Movement[] = [
-    {
-        type: 'Income',
-        label: 'Freelance / Gun.io, first milestone',
-        amount: '+$4,000',
-        when: 'This week',
-    },
-    {
-        type: 'Expense',
-        label: 'Vercel, domain, infra basics',
-        amount: '-$120',
-        when: 'This week',
-    },
-    {
-        type: 'Expense',
-        label: 'Mac mini / storage upgrades (capex)',
-        amount: '-$220',
-        when: 'This month',
-    },
-];
-
-export default function CeoFinancePage() {
+function SummaryCard(props: { label: string; value: string; note: string }) {
+    const { label, value, note } = props;
     return (
-        <div className="space-y-6">
-            {/* Header + nav */}
-            <header className="space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                            Finance
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Simple picture of money in, money out, and how Digital Hooligan is
-                            trending.
-                        </p>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
-                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                        <span>Runway: comfortable (solo founder mode)</span>
-                    </div>
-                </div>
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                {label}
+            </p>
+            <p className="mt-2 text-xl font-semibold text-slate-50 md:text-2xl">
+                {value}
+            </p>
+            <p className="mt-2 text-[0.75rem] text-slate-400">{note}</p>
+        </div>
+    );
+}
 
-                <nav className="flex flex-wrap gap-2">
-                    <Tab href="/ceo" label="Overview" />
-                    <Tab href="/ceo/tasks" label="Tasks" />
-                    <Tab href="/ceo/deals" label="Deals" />
-                    <Tab href="/ceo/finance" label="Finance" isActive />
-                    <Tab href="/ceo/performance" label="Performance" />
-                    <Tab href="/ceo/ai-hub" label="AI Hub" />
-                    <Tab href="/ceo/dev-workbench" label="Dev WB" />
-                    <Tab href="/ceo/settings" label="Settings" />
-                    <Tab href="/ceo/logout" label="Logout" />
-                </nav>
-            </header>
+function StreamCard({ stream }: { stream: FinanceStream }) {
+    const labelColor =
+        stream.stream === "gov"
+            ? "text-sky-200"
+            : stream.stream === "freelance"
+                ? "text-amber-200"
+                : "text-emerald-200";
 
-            {/* Top stats */}
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Est. MRR
-                            </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">$4,250</p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Across PennyWize, DropSignal, and HypeWatch.
-                            </p>
-                        </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                            <DollarSign className="h-4 w-4" />
-                        </div>
-                    </div>
-                </div>
+    const pillLabel =
+        stream.stream === "gov"
+            ? "Gov / contracts"
+            : stream.stream === "freelance"
+                ? "Freelance"
+                : "Products & apps";
 
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Pipeline value
-                            </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">$40,550</p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Weighted across gov + freelance opportunities.
-                            </p>
-                        </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                            <TrendingUp className="h-4 w-4" />
-                        </div>
-                    </div>
-                </div>
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Revenue stream
+                </p>
+                <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-0.5 text-[0.65rem] text-slate-300">
+                    <span className={labelColor}>{pillLabel}</span>
+                </span>
+            </div>
 
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Runway / buffer
-                            </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">12+ months</p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Conservative solo-founder runway with current burn.
-                            </p>
-                        </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                            <PiggyBank className="h-4 w-4" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                This month
-                            </p>
-                            <p className="mt-1 text-xl font-semibold sm:text-2xl">
-                                +$3,680 net
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Rough picture after infra + admin costs.
-                            </p>
-                        </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-muted">
-                            <Wallet className="h-4 w-4" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* By product + movements */}
-            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)]">
-                {/* By product */}
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                By product
-                            </p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Quick breakdown of where revenue is coming from.
-                            </p>
-                        </div>
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                            <Calculator className="h-4 w-4" />
-                        </div>
-                    </div>
-
-                    <div className="mt-4 overflow-x-auto">
-                        <table className="min-w-full text-left text-xs">
-                            <thead className="border-b border-border text-[11px] uppercase text-muted-foreground">
-                                <tr>
-                                    <th className="pb-2 pr-4">Product</th>
-                                    <th className="pb-2 pr-4">Est. MRR</th>
-                                    <th className="pb-2 pr-4">Status</th>
-                                    <th className="pb-2">Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/60">
-                                {productRows.map((row) => (
-                                    <tr key={row.name}>
-                                        <td className="py-2 pr-4 font-medium">{row.name}</td>
-                                        <td className="py-2 pr-4">{row.mrr}</td>
-                                        <td className="py-2 pr-4">
-                                            <span className="inline-flex rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                                                {row.status}
-                                            </span>
-                                        </td>
-                                        <td className="py-2 text-muted-foreground">{row.notes}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Movements */}
-                <div className="space-y-4">
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Recent cash movements
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Just enough detail for &quot;where did the money go?&quot;
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <Receipt className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <ul className="mt-4 space-y-2 text-xs">
-                            {movements.map((m, idx) => (
-                                <li
-                                    key={idx}
-                                    className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 px-3 py-2"
-                                >
-                                    <div>
-                                        <p className="font-medium">{m.label}</p>
-                                        <p className="mt-1 text-[11px] text-muted-foreground">
-                                            {m.type} · {m.when}
-                                        </p>
-                                    </div>
-                                    <span
-                                        className={`text-xs font-semibold ${m.amount.startsWith('+')
-                                            ? 'text-emerald-400'
-                                            : 'text-rose-400'
-                                            }`}
-                                    >
-                                        {m.amount}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Future integrations
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Placeholder for Stripe, bank feeds, and auto-updated
-                                    dashboards.
-                                </p>
-                            </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                                <TrendingDown className="h-4 w-4" />
-                            </div>
-                        </div>
-
-                        <p className="mt-4 text-xs text-muted-foreground">
-                            Later, this card can pull real data from Stripe, your bank, or an
-                            accounting tool. For now, it&apos;s just a reminder that the
-                            grown-up version of this screen is waiting whenever you&apos;re
-                            ready.
-                        </p>
-                    </div>
-                </div>
-            </section>
+            <p className="mt-2 text-xl font-semibold text-slate-50">
+                ${stream.mrrUsd.toLocaleString()}{" "}
+                <span className="text-sm font-normal text-slate-400">/ month</span>
+            </p>
+            <p className="mt-2 text-[0.75rem] text-slate-400">{stream.notes}</p>
         </div>
     );
 }
