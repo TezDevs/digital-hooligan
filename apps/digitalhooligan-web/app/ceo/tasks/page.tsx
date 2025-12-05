@@ -1,302 +1,305 @@
-'use client';
+// apps/digitalhooligan-web/app/ceo/tasks/page.tsx
 
-import React from 'react';
-import Link from 'next/link';
-import {
-    ClipboardList,
-    Target,
-    Clock,
-    AlertTriangle,
-    CheckCircle2,
-} from 'lucide-react';
+"use client";
 
-type TabProps = {
-    href: string;
-    label: string;
-    isActive?: boolean;
+import React from "react";
+import Link from "next/link";
+
+type TaskArea = "product" | "gov" | "admin" | "infra";
+type TaskWhen = "today" | "this_week" | "later";
+type TaskStatus = "todo" | "in_progress" | "done";
+
+type CeoTask = {
+    id: string;
+    title: string;
+    description: string;
+    area: TaskArea;
+    when: TaskWhen;
+    status: TaskStatus;
+    tags: string[];
 };
 
-function Tab({ href, label, isActive }: TabProps) {
+type TasksResponse = {
+    ok: true;
+    type: "ceo_tasks";
+    tasks: CeoTask[];
+    timestamp: string;
+};
+
+type TasksState =
+    | { status: "loading" }
+    | { status: "ready"; tasks: CeoTask[]; timestamp: string }
+    | { status: "error"; message: string };
+
+export default function CeoTasksPage() {
+    const [state, setState] = React.useState<TasksState>({ status: "loading" });
+
+    async function loadTasks() {
+        setState({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/ceo/tasks");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as TasksResponse;
+            setState({
+                status: "ready",
+                tasks: data.tasks,
+                timestamp: data.timestamp,
+            });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/ceo/tasks.";
+
+            setState({ status: "error", message });
+        }
+    }
+
+    React.useEffect(() => {
+        void loadTasks();
+    }, []);
+
+    const tasksToday =
+        state.status === "ready"
+            ? state.tasks.filter((t) => t.when === "today")
+            : [];
+    const tasksThisWeek =
+        state.status === "ready"
+            ? state.tasks.filter((t) => t.when === "this_week")
+            : [];
+    const tasksLater =
+        state.status === "ready"
+            ? state.tasks.filter((t) => t.when === "later")
+            : [];
+
+    return (
+        <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
+            <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
+                {/* Header */}
+                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
+                            CEO tasks
+                        </h1>
+                        <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
+                            High-impact to-dos across product, gov, admin, and infra. Backed
+                            by a typed /api/ceo/tasks endpoint so future AI assistants and
+                            dashboards can pull from the same list.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={loadTasks}
+                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    >
+                        Refresh
+                    </button>
+                </div>
+
+                {/* Tabs row (same as other CEO pages) */}
+                <nav className="mb-6 overflow-x-auto">
+                    <div className="flex gap-2 text-sm">
+                        <CeoTab href="/ceo" label="Overview" />
+                        <CeoTab href="/ceo/tasks" label="Tasks" active />
+                        <CeoTab href="/ceo/deals" label="Deals" />
+                        <CeoTab href="/ceo/finance" label="Finance" />
+                        <CeoTab href="/ceo/performance" label="Performance" />
+                        <CeoTab href="/ceo/ai-hub" label="AI Hub" />
+                        <CeoTab href="/ceo/dev-workbench" label="Dev WB" />
+                        <CeoTab href="/ceo/settings" label="Settings" />
+                        <CeoTab href="/ceo/logout" label="Logout" />
+                    </div>
+                </nav>
+
+                {/* Status states */}
+                {state.status === "loading" && (
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-300 shadow-sm shadow-black/40">
+                        Loading CEO tasks…
+                    </div>
+                )}
+
+                {state.status === "error" && (
+                    <div className="rounded-2xl border border-rose-500/60 bg-rose-950/40 p-4 text-sm text-rose-100 shadow-sm shadow-black/40">
+                        <p className="font-semibold">Couldn&apos;t load tasks.</p>
+                        <p className="mt-1 text-[0.85rem]">{state.message}</p>
+                        <p className="mt-2 text-[0.75rem] text-rose-100/90">
+                            Hit{" "}
+                            <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
+                                /api/ceo/tasks
+                            </code>{" "}
+                            directly in browser or Insomnia to debug the payload.
+                        </p>
+                    </div>
+                )}
+
+                {state.status === "ready" && (
+                    <>
+                        <section className="mb-6 grid gap-4 md:grid-cols-3">
+                            <TasksColumn
+                                title="Today"
+                                subtitle="What moves the needle today."
+                                tasks={tasksToday}
+                            />
+                            <TasksColumn
+                                title="This week"
+                                subtitle="Keep the flywheel turning."
+                                tasks={tasksThisWeek}
+                            />
+                            <TasksColumn
+                                title="Later"
+                                subtitle="Good ideas parked, not lost."
+                                tasks={tasksLater}
+                            />
+                        </section>
+
+                        <p className="text-[0.7rem] text-slate-400">
+                            Backed by{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                                /api/ceo/tasks
+                            </code>{" "}
+                            as the source of truth. Later, the CEO Copilot, AI Hub, and Labs
+                            can pull from the same endpoint.
+                        </p>
+
+                        <p className="mt-1 text-[0.7rem] text-slate-400">
+                            Last updated:{" "}
+                            <span className="text-slate-300">
+                                {new Date(state.timestamp).toLocaleString()}
+                            </span>
+                            .
+                        </p>
+                    </>
+                )}
+            </div>
+        </main>
+    );
+}
+
+function CeoTab({
+    href,
+    label,
+    active,
+}: {
+    href: string;
+    label: string;
+    active?: boolean;
+}) {
+    if (active) {
+        return (
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-900">
+                {label}
+            </span>
+        );
+    }
+
     return (
         <Link
             href={href}
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${isActive
-                ? 'bg-white text-slate-900 ring-2 ring-primary shadow-sm'
-                : 'border border-border bg-card text-muted-foreground hover:bg-muted'
-                }`}
+            className="inline-flex items-center rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700/80 hover:bg-slate-800 hover:text-emerald-200 hover:ring-emerald-500/70"
         >
-            <span className="flex items-center gap-1.5">
-                <span>{label}</span>
-                {isActive && (
-                    <span className="h-2 w-2 rounded-full bg-primary ring-2 ring-primary/40" />
-                )}
-            </span>
+            {label}
         </Link>
     );
 }
 
-type TaskLaneKey = 'inbox' | 'thisWeek' | 'inProgress' | 'blocked' | 'done';
-
-type Task = {
+function TasksColumn(props: {
     title: string;
-    lane: TaskLaneKey;
-    tag: 'Product' | 'Finance' | 'Admin' | 'Gov' | 'Ops';
-    note?: string;
-    when?: string;
-};
+    subtitle: string;
+    tasks: CeoTask[];
+}) {
+    const { title, subtitle, tasks } = props;
 
-const TASKS: Task[] = [
-    {
-        title: 'Finish CEO dashboard shell + navigation',
-        lane: 'inProgress',
-        tag: 'Product',
-        note: 'Overview, tabs, and performance view wired in.',
-        when: 'This sprint',
-    },
-    {
-        title: 'Polish Digital Hooligan marketing site copy',
-        lane: 'thisWeek',
-        tag: 'Product',
-        note: 'Make it sound like a real studio, not just a NAICS code.',
-    },
-    {
-        title: 'Navy Federal business account follow-up',
-        lane: 'thisWeek',
-        tag: 'Admin',
-        note: 'Confirm status + upload any missing docs.',
-    },
-    {
-        title: 'SAM.gov entity review check-in',
-        lane: 'thisWeek',
-        tag: 'Gov',
-        note: 'See if the review has moved and capture next steps.',
-    },
-    {
-        title: 'Define PennyWize MVP feature list',
-        lane: 'inbox',
-        tag: 'Product',
-        note: 'Scraper, alerts, simple social layer later.',
-    },
-    {
-        title: 'Outline DropSignal assist mode launch',
-        lane: 'inbox',
-        tag: 'Product',
-        note: 'Price-drop alerts + links before bots.',
-    },
-    {
-        title: 'Capture AI assistant ideas in AI Hub',
-        lane: 'inProgress',
-        tag: 'Ops',
-        note: 'CEO Copilot, Contract Scout, Ops Monitor.',
-    },
-    {
-        title: 'Lock in Digital Hooligan admin sprint checklist',
-        lane: 'done',
-        tag: 'Admin',
-        note: 'LLC, EIN, SAM.gov submission tracked.',
-    },
-];
-
-const LANE_LABELS: Record<TaskLaneKey, string> = {
-    inbox: 'Inbox',
-    thisWeek: 'This week',
-    inProgress: 'In progress',
-    blocked: 'Blocked',
-    done: 'Done',
-};
-
-function laneIcon(lane: TaskLaneKey) {
-    switch (lane) {
-        case 'inbox':
-            return <ClipboardList className="h-3.5 w-3.5" />;
-        case 'thisWeek':
-            return <Clock className="h-3.5 w-3.5" />;
-        case 'inProgress':
-            return <Target className="h-3.5 w-3.5" />;
-        case 'blocked':
-            return <AlertTriangle className="h-3.5 w-3.5" />;
-        case 'done':
-            return <CheckCircle2 className="h-3.5 w-3.5" />;
-        default:
-            return null;
-    }
-}
-
-function tagColor(tag: Task['tag']) {
-    switch (tag) {
-        case 'Product':
-            return 'bg-sky-500/10 text-sky-400';
-        case 'Finance':
-            return 'bg-emerald-500/10 text-emerald-400';
-        case 'Admin':
-            return 'bg-purple-500/10 text-purple-300';
-        case 'Gov':
-            return 'bg-amber-500/10 text-amber-400';
-        case 'Ops':
-            return 'bg-pink-500/10 text-pink-400';
-        default:
-            return 'bg-slate-500/10 text-slate-300';
-    }
-}
-
-export default function CeoTasksPage() {
     return (
-        <div className="space-y-6">
-            {/* Header + nav */}
-            <header className="space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                            Tasks
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Simple personal kanban for the CEO dashboard so you never lose the
-                            plot across apps, admin, and gov work.
-                        </p>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
-                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                        <span>Rule: keep this list honest, not perfect</span>
-                    </div>
-                </div>
-
-                <nav className="flex flex-wrap gap-2">
-                    <Tab href="/ceo" label="Overview" />
-                    <Tab href="/ceo/tasks" label="Tasks" isActive />
-                    <Tab href="/ceo/deals" label="Deals" />
-                    <Tab href="/ceo/finance" label="Finance" />
-                    <Tab href="/ceo/performance" label="Performance" />
-                    <Tab href="/ceo/ai-hub" label="AI Hub" />
-                    <Tab href="/ceo/dev-workbench" label="Dev WB" />
-                    <Tab href="/ceo/settings" label="Settings" />
-                    <Tab href="/ceo/logout" label="Logout" />
-                </nav>
-            </header>
-
-            {/* Today focus summary */}
-            <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-                <div className="flex items-center justify-between gap-3">
-                    <div>
-                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                            Today&apos;s focus snapshot
-                        </p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Quick readout pulled from your lanes. Later this can be automated
-                            from due dates and effort scores.
-                        </p>
-                    </div>
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-muted">
-                        <Target className="h-4 w-4" />
-                    </div>
-                </div>
-
-                <div className="mt-4 grid gap-3 text-xs sm:grid-cols-3">
-                    <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                        <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                            Deep work
-                        </p>
-                        <p className="mt-1 font-semibold">
-                            CEO dashboard &amp; internal views
-                        </p>
-                        <p className="mt-1 text-[11px] text-muted-foreground">
-                            Finish core tabs and basic navigation for /ceo and labs.
-                        </p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                        <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                            Admin
-                        </p>
-                        <p className="mt-1 font-semibold">Navy Fed + SAM.gov follow-up</p>
-                        <p className="mt-1 text-[11px] text-muted-foreground">
-                            Have a clear answer on status by end of week.
-                        </p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-background/60 px-3 py-2">
-                        <p className="text-[11px] font-medium uppercase text-muted-foreground">
-                            Product
-                        </p>
-                        <p className="mt-1 font-semibold">PennyWize + DropSignal MVPs</p>
-                        <p className="mt-1 text-[11px] text-muted-foreground">
-                            Rough feature lists for assist-mode versions of each app.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Lanes */}
-            <section className="grid gap-4 lg:grid-cols-5">
-                {(Object.keys(LANE_LABELS) as TaskLaneKey[]).map((laneKey) => {
-                    const laneTasks = TASKS.filter((t) => t.lane === laneKey);
-                    const label = LANE_LABELS[laneKey];
-
-                    return (
-                        <div
-                            key={laneKey}
-                            className="flex flex-col rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4"
-                        >
-                            <div className="flex items-center justify-between gap-2">
-                                <div className="inline-flex items-center gap-2">
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-border bg-muted">
-                                        {laneIcon(laneKey)}
-                                    </span>
-                                    <div>
-                                        <p className="text-xs font-semibold">{label}</p>
-                                        <p className="text-[11px] text-muted-foreground">
-                                            {laneTasks.length} task
-                                            {laneTasks.length === 1 ? '' : 's'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-3 space-y-2 text-xs">
-                                {laneTasks.length === 0 ? (
-                                    <p className="rounded-xl border border-dashed border-border bg-background/40 px-3 py-2 text-[11px] text-muted-foreground">
-                                        Nothing here yet. Future Tez can drag tasks into this lane
-                                        when you build the interactive version.
-                                    </p>
-                                ) : (
-                                    laneTasks.map((task) => (
-                                        <div
-                                            key={task.title}
-                                            className="rounded-xl border border-border bg-background/60 px-3 py-2"
-                                        >
-                                            <p className="font-medium">{task.title}</p>
-                                            {task.note && (
-                                                <p className="mt-1 text-[11px] text-muted-foreground">
-                                                    {task.note}
-                                                </p>
-                                            )}
-                                            <div className="mt-2 flex items-center justify-between gap-2">
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${tagColor(
-                                                        task.tag,
-                                                    )}`}
-                                                >
-                                                    {task.tag}
-                                                </span>
-                                                {task.when && (
-                                                    <span className="text-[11px] text-muted-foreground">
-                                                        {task.when}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
-            </section>
-
-            <section className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground shadow-sm sm:p-5">
-                <p>
-                    Later, this screen can wire into a real database, drag-and-drop
-                    columns, and AI suggestions from the AI Hub. For now, it&apos;s a
-                    simple place to keep the most important work visible in one grid.
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <div className="mb-2">
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    {title}
                 </p>
-            </section>
+                <p className="mt-1 text-[0.75rem] text-slate-300">{subtitle}</p>
+            </div>
+
+            {tasks.length === 0 && (
+                <p className="mt-2 text-[0.75rem] text-slate-500">
+                    Nothing here yet. That&apos;s either focus or a gap—your call.
+                </p>
+            )}
+
+            <ul className="mt-2 space-y-2">
+                {tasks.map((task) => (
+                    <li
+                        key={task.id}
+                        className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-2"
+                    >
+                        <div className="flex items-start justify-between gap-2">
+                            <div>
+                                <p className="text-[0.8rem] font-medium text-slate-100">
+                                    {task.title}
+                                </p>
+                                <p className="mt-1 text-[0.75rem] text-slate-300">
+                                    {task.description}
+                                </p>
+                            </div>
+                            <StatusBadge status={task.status} />
+                        </div>
+
+                        <div className="mt-2 flex flex-wrap gap-1 text-[0.65rem] text-slate-400">
+                            <span className="rounded-full bg-slate-900/80 px-2 py-0.5">
+                                {areaLabel(task.area)}
+                            </span>
+                            {task.tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="rounded-full bg-slate-900/80 px-2 py-0.5"
+                                >
+                                    #{tag}
+                                </span>
+                            ))}
+                        </div>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
+}
+
+function StatusBadge({ status }: { status: TaskStatus }) {
+    const base =
+        "rounded-full px-2 py-0.5 text-[0.65rem] font-medium ring-1 inline-flex items-center";
+    let tone = "bg-slate-900/80 text-slate-300 ring-slate-700/80";
+
+    if (status === "todo") {
+        tone = "bg-slate-900/80 text-slate-200 ring-slate-700/80";
+    } else if (status === "in_progress") {
+        tone = "bg-amber-500/10 text-amber-200 ring-amber-500/60";
+    } else if (status === "done") {
+        tone = "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60";
+    }
+
+    const label =
+        status === "todo"
+            ? "To do"
+            : status === "in_progress"
+                ? "In progress"
+                : "Done";
+
+    return <span className={base + " " + tone}>{label}</span>;
+}
+
+function areaLabel(area: TaskArea): string {
+    switch (area) {
+        case "product":
+            return "Product";
+        case "gov":
+            return "Gov / contracts";
+        case "admin":
+            return "Admin";
+        case "infra":
+            return "Infra";
+        default:
+            return area;
+    }
 }
