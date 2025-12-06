@@ -22,17 +22,22 @@ type AiSummaryState =
     | { status: "ready"; appId: string; data: AiAppSummaryResponse }
     | { status: "error"; appId: string; message: string };
 
-const DEFAULT_APP_ID = "digital-hooligan-site";
+type AppRegistryApiResponse = {
+    ok: boolean;
+    apps: {
+        id: string;
+        name: string;
+        shortName?: string;
+        internalOnly?: boolean;
+    }[];
+};
 
-const AI_HUB_APPS: { id: string; label: string }[] = [
-    {
-        id: "digital-hooligan-site",
-        label: "Digital Hooligan Site (digital-hooligan-site)",
-    },
-    { id: "pennywize", label: "PennyWize (pennywize)" },
-    { id: "dropsignal", label: "DropSignal (dropsignal)" },
-    { id: "hypewatch", label: "HypeWatch (hypewatch)" },
-];
+type AppSelectItem = {
+    id: string;
+    label: string;
+};
+
+const DEFAULT_APP_ID = "digital-hooligan-site";
 
 /* ---------- Page ---------- */
 
@@ -45,9 +50,61 @@ export default function AiHubPage() {
         appId: DEFAULT_APP_ID,
     });
 
+    const [appOptions, setAppOptions] = React.useState<AppSelectItem[]>([
+        {
+            id: DEFAULT_APP_ID,
+            label: "Digital Hooligan Site (digital-hooligan-site)",
+        },
+    ]);
+
+    const [appsLoading, setAppsLoading] = React.useState<boolean>(false);
+    const [appsError, setAppsError] = React.useState<string | null>(null);
+
     React.useEffect(() => {
+        void loadAppsFromRegistry();
         void runSummary(DEFAULT_APP_ID);
     }, []);
+
+    async function loadAppsFromRegistry() {
+        setAppsLoading(true);
+        setAppsError(null);
+
+        try {
+            const res = await fetch("/api/apps/registry");
+            if (!res.ok) {
+                throw new Error(`Registry API ${res.status}`);
+            }
+
+            const data = (await res.json()) as AppRegistryApiResponse;
+
+            const mapped: AppSelectItem[] = data.apps.map((app) => {
+                const labelName = app.shortName ?? app.name;
+                return {
+                    id: app.id,
+                    label: `${labelName} (${app.id})`,
+                };
+            });
+
+            if (mapped.length > 0) {
+                setAppOptions(mapped);
+
+                // If current selection isn&apos;t in the registry, snap to the first app.
+                const stillValid = mapped.some((opt) => opt.id === selectedAppId);
+                if (!stillValid) {
+                    setSelectedAppId(mapped[0].id);
+                    void runSummary(mapped[0].id);
+                }
+            }
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading app registry.";
+            setAppsError(message);
+        } finally {
+            setAppsLoading(false);
+        }
+    }
 
     async function runSummary(appId: string) {
         const cleaned = appId.trim();
@@ -76,7 +133,9 @@ export default function AiHubPage() {
     }
 
     function handleAppChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        setSelectedAppId(event.target.value);
+        const id = event.target.value;
+        setSelectedAppId(id);
+        void runSummary(id);
     }
 
     return (
@@ -129,6 +188,9 @@ export default function AiHubPage() {
                         onChangeApp={handleAppChange}
                         onRefresh={handleRefresh}
                         summaryState={summaryState}
+                        appOptions={appOptions}
+                        appsLoading={appsLoading}
+                        appsError={appsError}
                     />
                     <AiWiringNotesCard />
                 </section>
@@ -171,8 +233,19 @@ function AppInsightColumn(props: {
     onChangeApp: (event: React.ChangeEvent<HTMLSelectElement>) => void;
     onRefresh: () => void;
     summaryState: AiSummaryState;
+    appOptions: AppSelectItem[];
+    appsLoading: boolean;
+    appsError: string | null;
 }) {
-    const { selectedAppId, onChangeApp, onRefresh, summaryState } = props;
+    const {
+        selectedAppId,
+        onChangeApp,
+        onRefresh,
+        summaryState,
+        appOptions,
+        appsLoading,
+        appsError,
+    } = props;
 
     return (
         <div className="space-y-3">
@@ -188,8 +261,11 @@ function AppInsightColumn(props: {
                             <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
                                 /api/ai/app-summary
                             </code>
-                            . Pick any app from the list and this card will re-run the AI
-                            summary for it.
+                            . App list is loaded from{" "}
+                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
+                                /api/apps/registry
+                            </code>{" "}
+                            so it stays in sync with Labs + CEO.
                         </p>
                     </div>
 
@@ -201,7 +277,7 @@ function AppInsightColumn(props: {
                                 onChange={onChangeApp}
                                 className="rounded-full border border-slate-700 bg-slate-950 px-3 py-1 text-[0.8rem] text-slate-100 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/70"
                             >
-                                {AI_HUB_APPS.map((app) => (
+                                {appOptions.map((app) => (
                                     <option key={app.id} value={app.id}>
                                         {app.label}
                                     </option>
@@ -218,16 +294,29 @@ function AppInsightColumn(props: {
                     </div>
                 </div>
 
-                {/* States */}
+                {/* Registry load state */}
+                {appsLoading && (
+                    <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-[0.8rem] text-slate-300">
+                        Loading app registry…
+                    </p>
+                )}
+
+                {appsError && (
+                    <p className="rounded-xl border border-amber-500/60 bg-amber-950/40 px-3 py-2 text-[0.8rem] text-amber-50">
+                        Couldn&apos;t load app registry: {appsError}
+                    </p>
+                )}
+
+                {/* AI summary states */}
                 {summaryState.status === "idle" && (
-                    <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                    <p className="mt-3 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
                         Pick an app and hit <span className="font-semibold">Refresh</span>{" "}
                         to see its AI summary.
                     </p>
                 )}
 
                 {summaryState.status === "loading" && (
-                    <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                    <p className="mt-3 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
                         Calling{" "}
                         <code className="bg-slate-900 px-1 py-0.5 text-[0.7rem]">
                             /api/ai/app-summary
@@ -237,7 +326,7 @@ function AppInsightColumn(props: {
                 )}
 
                 {summaryState.status === "error" && (
-                    <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
+                    <div className="mt-3 rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
                         <p className="font-semibold">
                             Error calling AI summary for {summaryState.appId}.
                         </p>
