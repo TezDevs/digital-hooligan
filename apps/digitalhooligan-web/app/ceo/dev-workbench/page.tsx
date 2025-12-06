@@ -4,6 +4,11 @@
 
 import React from "react";
 import Link from "next/link";
+import type {
+    AppHealthEntry,
+    AppHealthStatus,
+    AppsHealthResponse,
+} from "@/app/api/health/apps/route";
 
 /**
  * Local mirror of /api/ai/app-summary response.
@@ -31,6 +36,15 @@ type AiSummaryState =
 
 const DEFAULT_APP_ID = "pennywize";
 
+/**
+ * Health state wiring for /api/health/apps
+ */
+
+type AppsHealthState =
+    | { status: "loading" }
+    | { status: "ready"; entries: AppHealthEntry[]; timestamp: string }
+    | { status: "error"; message: string };
+
 export default function DevWorkbenchPage() {
     const [summaryState, setSummaryState] = React.useState<AiSummaryState>({
         status: "idle",
@@ -38,6 +52,40 @@ export default function DevWorkbenchPage() {
     });
 
     const [inputAppId, setInputAppId] = React.useState<string>(DEFAULT_APP_ID);
+
+    const [healthState, setHealthState] = React.useState<AppsHealthState>({
+        status: "loading",
+    });
+
+    // Load health snapshot once on mount.
+    React.useEffect(() => {
+        void loadHealthSnapshot();
+    }, []);
+
+    async function loadHealthSnapshot() {
+        setHealthState({ status: "loading" });
+
+        try {
+            const res = await fetch("/api/health/apps");
+            if (!res.ok) {
+                throw new Error(`Health API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as AppsHealthResponse;
+
+            setHealthState({
+                status: "ready",
+                entries: data.entries,
+                timestamp: data.timestamp,
+            });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error calling /api/health/apps.";
+            setHealthState({ status: "error", message });
+        }
+    }
 
     async function runSummary(appId: string) {
         if (!appId.trim()) {
@@ -119,7 +167,10 @@ export default function DevWorkbenchPage() {
 
                 {/* Layout: left = status panels, right = AI helper + notes */}
                 <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr),minmax(0,1.1fr)]">
-                    <DevStatusColumn />
+                    <DevStatusColumn
+                        healthState={healthState}
+                        onRefreshHealth={() => void loadHealthSnapshot()}
+                    />
                     <DevAiColumn
                         summaryState={summaryState}
                         inputAppId={inputAppId}
@@ -162,28 +213,89 @@ function CeoTab({
     );
 }
 
-/* ---------- Left column: status + wiring notes (lightweight) ---------- */
+/* ---------- Left column: status + wiring notes (now backed by health API) ---------- */
 
-function DevStatusColumn() {
+function DevStatusColumn(props: {
+    healthState: AppsHealthState;
+    onRefreshHealth: () => void;
+}) {
+    const { healthState, onRefreshHealth } = props;
+
     return (
         <div className="space-y-4">
             <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    Systems snapshot
-                </p>
-                <p className="mt-1 text-sm text-slate-200">
-                    High-level readout of how the Digital Hooligan stack is doing. Later,
-                    this can pull from real health endpoints and metrics.
-                </p>
-                <ul className="mt-3 space-y-1.5 text-[0.85rem]">
-                    <li>• Next.js app: dev + prod builds green.</li>
-                    <li>• Registry + AI endpoints reachable from local.</li>
-                    <li>• Vercel + GitHub wiring healthy after Next.js CVE fix.</li>
-                </ul>
-                <p className="mt-3 text-[0.7rem] text-slate-400">
-                    Future: this panel can query /api/health/* routes and show real
-                    up/down states per service.
-                </p>
+                <div className="mb-2 flex items-start justify-between gap-3">
+                    <div>
+                        <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                            Systems snapshot
+                        </p>
+                        <p className="mt-1 text-sm text-slate-200">
+                            High-level readout of how the Digital Hooligan stack is doing,
+                            now backed by{" "}
+                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
+                                /api/health/apps
+                            </code>
+                            .
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onRefreshHealth}
+                        className="inline-flex items-center self-start rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    >
+                        Refresh
+                    </button>
+                </div>
+
+                {healthState.status === "loading" && (
+                    <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                        Loading app health snapshot…
+                    </p>
+                )}
+
+                {healthState.status === "error" && (
+                    <div className="rounded-xl border border-amber-500/60 bg-amber-950/40 px-3 py-3 text-[0.85rem] text-amber-50">
+                        <p className="font-semibold">Health API unavailable.</p>
+                        <p className="mt-1 text-[0.8rem]">{healthState.message}</p>
+                        <p className="mt-2 text-[0.75rem] text-amber-100/90">
+                            Hit{" "}
+                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem]">
+                                /api/health/apps
+                            </code>{" "}
+                            directly in the browser or Insomnia/Kong to debug.
+                        </p>
+                    </div>
+                )}
+
+                {healthState.status === "ready" && (
+                    <div>
+                        <ul className="mt-3 space-y-1.5 text-[0.85rem]">
+                            {healthState.entries.map((entry) => (
+                                <li key={entry.id} className="flex items-start gap-2">
+                                    <span className="mt-[0.1rem] text-xs">
+                                        <StatusDot status={entry.status} />
+                                    </span>
+                                    <div>
+                                        <span className="font-medium text-slate-100">
+                                            {entry.name}
+                                        </span>
+                                        <span className="mx-1 text-[0.75rem] text-slate-400">
+                                            ({entry.id})
+                                        </span>
+                                        <span className="text-[0.8rem] text-slate-300">
+                                            – {entry.note}
+                                        </span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        <p className="mt-3 text-[0.7rem] text-slate-400">
+                            Snapshot timestamp: {healthState.timestamp}. Later this can be
+                            driven by real checks (pings, error rates, queue depth) instead of
+                            mocks.
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
@@ -193,6 +305,7 @@ function DevStatusColumn() {
                 <ul className="mt-2 space-y-1.5 text-[0.85rem]">
                     <li>• Can hit /api/apps/registry from browser + Insomnia/Kong.</li>
                     <li>• Can hit /api/ai/app-summary?appId=pennywize.</li>
+                    <li>• Can hit /api/health/apps and see per-app status.</li>
                     <li>• CEO → Labs → AI Hub paths working in local + Vercel.</li>
                     <li>• Feature branches pushing clean previews before merge.</li>
                 </ul>
@@ -202,6 +315,19 @@ function DevStatusColumn() {
                 </p>
             </div>
         </div>
+    );
+}
+
+function StatusDot({ status }: { status: AppHealthStatus }) {
+    let tone = "bg-slate-500";
+    if (status === "ok") tone = "bg-emerald-500";
+    if (status === "degraded") tone = "bg-amber-400";
+    if (status === "down") tone = "bg-rose-500";
+
+    return (
+        <span
+            className={`inline-block h-2.5 w-2.5 rounded-full ${tone} shadow-[0_0_0_3px_rgba(15,23,42,0.9)]`}
+        />
     );
 }
 
