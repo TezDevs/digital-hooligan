@@ -4,92 +4,84 @@
 
 import React from "react";
 import Link from "next/link";
+import type {
+    AppHealthEntry,
+    AppHealthStatus,
+    AppsHealthResponse,
+} from "@/app/api/health/apps/route";
 
-type AppPerformanceStatus = "healthy" | "watch" | "unknown";
+/**
+ * Local state for the health snapshot pulled from /api/health/apps.
+ */
 
-type AppPerformanceEntry = {
-    id: string;
-    name: string;
-    uptimePercent: number | null;
-    latencyP50Ms: number | null;
-    latencyP95Ms: number | null;
-    status: AppPerformanceStatus;
-};
-
-type PerformanceResponse = {
-    ok: true;
-    type: "ceo_performance_summary";
-    overallUptimePercent: number | null;
-    appsReporting: number;
-    appsHealthy: number;
-    entries: AppPerformanceEntry[];
-    timestamp: string;
-};
-
-type PerformanceState =
+type AppsHealthState =
     | { status: "loading" }
-    | { status: "ready"; data: PerformanceResponse }
+    | { status: "ready"; entries: AppHealthEntry[]; timestamp: string }
     | { status: "error"; message: string };
 
 export default function CeoPerformancePage() {
-    const [state, setState] = React.useState<PerformanceState>({
+    const [healthState, setHealthState] = React.useState<AppsHealthState>({
         status: "loading",
     });
 
-    async function loadPerformance() {
-        setState({ status: "loading" });
+    React.useEffect(() => {
+        void loadHealth();
+    }, []);
+
+    async function loadHealth() {
+        setHealthState({ status: "loading" });
 
         try {
-            const res = await fetch("/api/ceo/performance");
+            const res = await fetch("/api/health/apps");
             if (!res.ok) {
-                throw new Error(`API returned ${res.status}`);
+                throw new Error(`Health API returned ${res.status}`);
             }
 
-            const data = (await res.json()) as PerformanceResponse;
-            setState({ status: "ready", data });
+            const data = (await res.json()) as AppsHealthResponse;
+
+            setHealthState({
+                status: "ready",
+                entries: data.entries,
+                timestamp: data.timestamp,
+            });
         } catch (err: unknown) {
             const message =
                 err instanceof Error
                     ? err.message
-                    : "Unexpected error loading /api/ceo/performance.";
-
-            setState({ status: "error", message });
+                    : "Unexpected error calling /api/health/apps.";
+            setHealthState({ status: "error", message });
         }
     }
-
-    React.useEffect(() => {
-        void loadPerformance();
-    }, []);
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
             <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
                 {/* Header */}
-                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
-                            App performance
+                            Performance
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            Snapshot of uptime and latency across Digital Hooligan apps. This
-                            view is powered by a typed{" "}
-                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
-                                /api/ceo/performance
-                            </code>{" "}
-                            endpoint so CEO, Labs, and Dev Workbench can all see the same
-                            numbers.
+                            High-level health and reliability view across Digital Hooligan
+                            apps. Later this can plug into real uptime, latency, and incident
+                            feeds.
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={loadPerformance}
-                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                    >
-                        Refresh
-                    </button>
-                </div>
+                    <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
+                        <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-300 ring-1 ring-emerald-500/70">
+                            Mode: CEO / reliability
+                        </span>
+                        <Link
+                            href="/ceo"
+                            className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                        >
+                            ← Back to CEO overview
+                        </Link>
+                    </div>
+                </header>
 
-                {/* Tabs row */}
+                {/* CEO nav tabs */}
                 <nav className="mb-6 overflow-x-auto">
                     <div className="flex gap-2 text-sm">
                         <CeoTab href="/ceo" label="Overview" />
@@ -104,81 +96,26 @@ export default function CeoPerformancePage() {
                     </div>
                 </nav>
 
-                {/* States */}
-                {state.status === "loading" && (
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-300 shadow-sm shadow-black/40">
-                        Loading performance snapshot…
-                    </div>
-                )}
+                {/* Layout: headline metrics + health snapshot */}
+                <section className="grid gap-4 lg:grid-cols-2">
+                    <PerformanceSummaryCard />
+                    <AppHealthSnapshotCard
+                        state={healthState}
+                        onRefresh={() => void loadHealth()}
+                    />
+                </section>
 
-                {state.status === "error" && (
-                    <div className="rounded-2xl border border-rose-500/60 bg-rose-950/40 p-4 text-sm text-rose-100 shadow-sm shadow-black/40">
-                        <p className="font-semibold">Couldn&apos;t load performance data.</p>
-                        <p className="mt-1 text-[0.85rem]">{state.message}</p>
-                        <p className="mt-2 text-[0.75rem] text-rose-100/90">
-                            Hit{" "}
-                            <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
-                                /api/ceo/performance
-                            </code>{" "}
-                            directly in browser or Insomnia to debug the payload.
-                        </p>
-                    </div>
-                )}
-
-                {state.status === "ready" && (
-                    <>
-                        {/* Top summary row */}
-                        <section className="mb-6 grid gap-4 md:grid-cols-3">
-                            <SummaryCard
-                                label="Overall uptime"
-                                value={
-                                    state.data.overallUptimePercent != null
-                                        ? `${state.data.overallUptimePercent.toFixed(2)}%`
-                                        : "n/a"
-                                }
-                                note="Average across apps reporting metrics."
-                            />
-                            <SummaryCard
-                                label="Apps reporting"
-                                value={state.data.appsReporting.toString()}
-                                note="Apps with performance metrics available."
-                            />
-                            <SummaryCard
-                                label="Healthy apps"
-                                value={`${state.data.appsHealthy}/${state.data.entries.length}`}
-                                note='Marked "healthy" when uptime ≥ 99.5%.'
-                            />
-                        </section>
-
-                        {/* Per-app grid */}
-                        <section className="mb-6 grid gap-4 md:grid-cols-2">
-                            {state.data.entries.map((entry) => (
-                                <AppCard key={entry.id} entry={entry} />
-                            ))}
-                        </section>
-
-                        <p className="text-[0.7rem] text-slate-400">
-                            Numbers here are mock but intentionally conservative. Later, you
-                            can wire this to real metrics to spot regressions before users
-                            complain.
-                        </p>
-                        <p className="mt-1 text-[0.7rem] text-slate-400">
-                            Source of truth:{" "}
-                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
-                                /api/ceo/performance
-                            </code>
-                            . Last updated:{" "}
-                            <span className="text-slate-300">
-                                {new Date(state.data.timestamp).toLocaleString()}
-                            </span>
-                            .
-                        </p>
-                    </>
-                )}
+                {/* Future section placeholder */}
+                <section className="mt-4 grid gap-4 lg:grid-cols-2">
+                    <IncidentsPlaceholderCard />
+                    <LatencyPlaceholderCard />
+                </section>
             </div>
         </main>
     );
 }
+
+/* ---------- Shared CEO tab component ---------- */
 
 function CeoTab({
     href,
@@ -207,81 +144,211 @@ function CeoTab({
     );
 }
 
-function SummaryCard(props: { label: string; value: string; note: string }) {
-    const { label, value, note } = props;
+/* ---------- Left card: high-level performance summary (mock for now) ---------- */
+
+function PerformanceSummaryCard() {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                {label}
+            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Reliability snapshot
             </p>
-            <p className="mt-2 text-xl font-semibold text-slate-50 md:text-2xl">
-                {value}
+            <p className="mt-1 text-sm text-slate-200">
+                Quick read on uptime, stability, and incidents. Numbers are mocked for
+                now, but structure maps cleanly to future metrics.
             </p>
-            <p className="mt-2 text-[0.75rem] text-slate-400">{note}</p>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <MetricChip label="Overall uptime (30d)" value="99.92%" tone="good" />
+                <MetricChip label="Open incidents" value="0" tone="good" />
+                <MetricChip label="Apps in good standing" value="5 / 6" tone="warn" />
+            </div>
+
+            <p className="mt-3 text-[0.7rem] text-slate-400">
+                Later, this card can pull from a metrics store (CloudWatch, Grafana,
+                etc.) and incident tracker instead of static values.
+            </p>
         </div>
     );
 }
 
-function AppCard({ entry }: { entry: AppPerformanceEntry }) {
-    const statusLabel =
-        entry.status === "healthy"
-            ? "Healthy"
-            : entry.status === "watch"
-                ? "Watch"
-                : "Unknown";
+function MetricChip({
+    label,
+    value,
+    tone,
+}: {
+    label: string;
+    value: string;
+    tone: "good" | "warn" | "bad";
+}) {
+    let bg = "bg-slate-900";
+    let ring = "ring-slate-700";
+    let text = "text-slate-100";
 
-    const statusTone =
-        entry.status === "healthy"
-            ? "bg-emerald-500/10 text-emerald-200 ring-emerald-500/60"
-            : entry.status === "watch"
-                ? "bg-amber-500/10 text-amber-200 ring-amber-500/60"
-                : "bg-slate-900/80 text-slate-300 ring-slate-700/80";
+    if (tone === "good") {
+        bg = "bg-emerald-500/10";
+        ring = "ring-emerald-500/60";
+        text = "text-emerald-200";
+    } else if (tone === "warn") {
+        bg = "bg-amber-500/10";
+        ring = "ring-amber-500/60";
+        text = "text-amber-200";
+    } else if (tone === "bad") {
+        bg = "bg-rose-500/10";
+        ring = "ring-rose-500/60";
+        text = "text-rose-200";
+    }
+
+    return (
+        <div
+            className={`flex flex-col justify-between rounded-xl ${bg} px-3 py-3 ring-1 ${ring}`}
+        >
+            <p className="text-[0.7rem] text-slate-300">{label}</p>
+            <p className={`mt-1 text-base font-semibold ${text}`}>{value}</p>
+        </div>
+    );
+}
+
+/* ---------- Right card: app health snapshot from /api/health/apps ---------- */
+
+function AppHealthSnapshotCard(props: {
+    state: AppsHealthState;
+    onRefresh: () => void;
+}) {
+    const { state, onRefresh } = props;
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="mb-2 flex items-start justify-between gap-3">
                 <div>
-                    <p className="text-[0.8rem] font-semibold text-slate-100">
-                        {entry.name}
+                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        App health snapshot
                     </p>
-                    <p className="text-[0.7rem] text-slate-400">id: {entry.id}</p>
+                    <p className="mt-1 text-sm text-slate-200">
+                        Per-app view backed by{" "}
+                        <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
+                            /api/health/apps
+                        </code>
+                        . This is the same feed powering Dev Workbench.
+                    </p>
                 </div>
-                <span
-                    className={
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium ring-1 " +
-                        statusTone
-                    }
+                <button
+                    type="button"
+                    onClick={onRefresh}
+                    className="inline-flex items-center self-start rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
                 >
-                    {statusLabel}
-                </span>
+                    Refresh
+                </button>
             </div>
 
-            <div className="mt-2 grid grid-cols-2 gap-3 text-[0.8rem] text-slate-200">
-                <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.16em] text-slate-400">
-                        Uptime
-                    </p>
-                    <p className="mt-1 text-[0.9rem] font-semibold text-slate-50">
-                        {entry.uptimePercent != null
-                            ? `${entry.uptimePercent.toFixed(2)}%`
-                            : "n/a"}
-                    </p>
-                </div>
-                <div>
-                    <p className="text-[0.7rem] uppercase tracking-[0.16em] text-slate-400">
-                        Latency (P50 / P95)
-                    </p>
-                    <p className="mt-1 text-[0.9rem] font-semibold text-slate-50">
-                        {entry.latencyP50Ms != null && entry.latencyP95Ms != null
-                            ? `${entry.latencyP50Ms}ms / ${entry.latencyP95Ms}ms`
-                            : "n/a"}
-                    </p>
-                </div>
-            </div>
+            {state.status === "loading" && (
+                <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
+                    Loading app health snapshot…
+                </p>
+            )}
 
+            {state.status === "error" && (
+                <div className="rounded-xl border border-amber-500/60 bg-amber-950/40 px-3 py-3 text-[0.85rem] text-amber-50">
+                    <p className="font-semibold">Health data unavailable.</p>
+                    <p className="mt-1 text-[0.8rem]">{state.message}</p>
+                    <p className="mt-2 text-[0.75rem] text-amber-100/90">
+                        Try hitting{" "}
+                        <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem]">
+                            /api/health/apps
+                        </code>{" "}
+                        directly in the browser or Insomnia/Kong to debug.
+                    </p>
+                </div>
+            )}
+
+            {state.status === "ready" && (
+                <div>
+                    <ul className="mt-3 space-y-1.5 text-[0.85rem]">
+                        {state.entries.map((entry) => (
+                            <li key={entry.id} className="flex items-start gap-2">
+                                <span className="mt-[0.1rem] text-xs">
+                                    <StatusDot status={entry.status} />
+                                </span>
+                                <div>
+                                    <span className="font-medium text-slate-100">
+                                        {entry.name}
+                                    </span>
+                                    <span className="mx-1 text-[0.75rem] text-slate-400">
+                                        ({entry.id})
+                                    </span>
+                                    <span className="text-[0.8rem] text-slate-300">
+                                        – {entry.note}
+                                    </span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                    <p className="mt-3 text-[0.7rem] text-slate-400">
+                        Snapshot timestamp: {state.timestamp}. Later, incidents and latency
+                        charts can sit alongside this list.
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function StatusDot({ status }: { status: AppHealthStatus }) {
+    let tone = "bg-slate-500";
+    if (status === "ok") tone = "bg-emerald-500";
+    if (status === "degraded") tone = "bg-amber-400";
+    if (status === "down") tone = "bg-rose-500";
+
+    return (
+        <span
+            className={`inline-block h-2.5 w-2.5 rounded-full ${tone} shadow-[0_0_0_3px_rgba(15,23,42,0.9)]`}
+        />
+    );
+}
+
+/* ---------- Extra placeholders so the page feels complete ---------- */
+
+function IncidentsPlaceholderCard() {
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Incidents & risk (future)
+            </p>
+            <p className="mt-1 text-sm text-slate-200">
+                Slot reserved for a small incidents timeline – even if it&apos;s just a
+                list of &quot;stuff that went wrong&quot; with links to Dev Workbench
+                or GitHub.
+            </p>
+            <ul className="mt-3 space-y-1.5 text-[0.85rem] text-slate-300">
+                <li>• Track incident date, blast radius, and root cause.</li>
+                <li>• Map each incident back to an app or service.</li>
+                <li>• Allow quick jump to the relevant logs or PR.</li>
+            </ul>
             <p className="mt-3 text-[0.7rem] text-slate-400">
-                Later, this card can link to deeper performance dashboards and real
-                incident history.
+                For now this is just copy, but it pins the design so we don&apos;t lose
+                the idea.
+            </p>
+        </div>
+    );
+}
+
+function LatencyPlaceholderCard() {
+    return (
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Latency & usage (future)
+            </p>
+            <p className="mt-1 text-sm text-slate-200">
+                Long-term home for simple charts: requests, p95 latency, or anything
+                else that matters to CEO Tez.
+            </p>
+            <ul className="mt-3 space-y-1.5 text-[0.85rem] text-slate-300">
+                <li>• One chart per app or a combined &quot;stack health&quot; view.</li>
+                <li>• Highlight regressions when a new deploy lands.</li>
+                <li>• Feed this data into AI Hub for smarter summaries.</li>
+            </ul>
+            <p className="mt-3 text-[0.7rem] text-slate-400">
+                No real metrics yet, but the card keeps a parking spot for when the
+                data is ready.
             </p>
         </div>
     );
