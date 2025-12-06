@@ -4,7 +4,7 @@
 
 import React from "react";
 import Link from "next/link";
-
+import { HealthStatusChip } from "@/components/ceo/HealthStatusChip";
 /**
  * Local mirror of /api/apps/registry response shape.
  * We only care about a subset of fields on the client.
@@ -95,20 +95,24 @@ export default function CeoDashboardPage() {
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
             <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
                 {/* Header */}
-                <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <header className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
                             CEO dashboard
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            One place to see money, products, deals, and app health across
-                            Digital Hooligan.
+                            One place to see money, products, deals, and app health across Digital Hooligan.
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
-                        <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-300 ring-1 ring-emerald-500/70">
-                            Today: systems nominal
-                        </span>
+                        {/* New dynamic health chip */}
+                        <HealthStatusChip />
+
+                        {/* Keep any existing mode chip / buttons you already have here */}
+                        {/* Example, if you have something like: */}
+                        {/* <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 ring-1 ring-slate-700/80">
+      Mode: CEO / overview
+    </span> */}
                     </div>
                 </header>
 
