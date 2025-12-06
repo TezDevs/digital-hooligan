@@ -1,18 +1,25 @@
-// apps/digitalhooligan-web/app/ceo/dev-workbench/page.tsx
-
 "use client";
 
 import React from "react";
 import Link from "next/link";
-import type {
-    AppHealthEntry,
-    AppHealthStatus,
-    AppsHealthResponse,
-} from "@/app/api/health/apps/route";
 
-/**
- * Local mirror of /api/ai/app-summary response.
- */
+/* ---------- Types ---------- */
+
+type AppHealthStatus = "ok" | "degraded" | "down";
+
+type AppHealthEntry = {
+    id: string;
+    name: string;
+    status: AppHealthStatus;
+    note: string;
+};
+
+type AppsHealthResponse = {
+    ok: boolean;
+    entries: AppHealthEntry[];
+    timestamp: string;
+};
+
 type AiAppSummaryResponse = {
     ok: true;
     type: "ai_app_summary";
@@ -27,37 +34,31 @@ type AiAppSummaryResponse = {
 type AiSummaryState =
     | { status: "idle"; appId: string }
     | { status: "loading"; appId: string }
-    | {
-        status: "ready";
-        appId: string;
-        data: AiAppSummaryResponse;
-    }
+    | { status: "ready"; appId: string; data: AiAppSummaryResponse }
     | { status: "error"; appId: string; message: string };
-
-const DEFAULT_APP_ID = "pennywize";
-
-/**
- * Health state wiring for /api/health/apps
- */
 
 type AppsHealthState =
     | { status: "loading" }
     | { status: "ready"; entries: AppHealthEntry[]; timestamp: string }
     | { status: "error"; message: string };
 
+const DEFAULT_APP_ID = "pennywize";
+
+/* ---------- Page ---------- */
+
 export default function DevWorkbenchPage() {
+    const [healthState, setHealthState] = React.useState<AppsHealthState>({
+        status: "loading",
+    });
+
     const [summaryState, setSummaryState] = React.useState<AiSummaryState>({
         status: "idle",
         appId: DEFAULT_APP_ID,
     });
 
-    const [inputAppId, setInputAppId] = React.useState<string>(DEFAULT_APP_ID);
+    const [inputAppId, setInputAppId] =
+        React.useState<string>(DEFAULT_APP_ID);
 
-    const [healthState, setHealthState] = React.useState<AppsHealthState>({
-        status: "loading",
-    });
-
-    // Load health snapshot once on mount.
     React.useEffect(() => {
         void loadHealthSnapshot();
     }, []);
@@ -67,11 +68,8 @@ export default function DevWorkbenchPage() {
 
         try {
             const res = await fetch("/api/health/apps");
-            if (!res.ok) {
-                throw new Error(`Health API returned ${res.status}`);
-            }
-
-            const data = (await res.json()) as AppsHealthResponse;
+            if (!res.ok) throw new Error(`Health API ${res.status}`);
+            const data: AppsHealthResponse = await res.json();
 
             setHealthState({
                 status: "ready",
@@ -88,38 +86,24 @@ export default function DevWorkbenchPage() {
     }
 
     async function runSummary(appId: string) {
-        if (!appId.trim()) {
-            return;
-        }
-
         const cleaned = appId.trim();
+        if (!cleaned) return;
+
         setSummaryState({ status: "loading", appId: cleaned });
 
         try {
             const params = new URLSearchParams({ appId: cleaned });
             const res = await fetch(`/api/ai/app-summary?${params.toString()}`);
+            if (!res.ok) throw new Error(`AI summary API ${res.status}`);
+            const data: AiAppSummaryResponse = await res.json();
 
-            if (!res.ok) {
-                throw new Error(`AI summary API returned ${res.status}`);
-            }
-
-            const data = (await res.json()) as AiAppSummaryResponse;
-
-            setSummaryState({
-                status: "ready",
-                appId: cleaned,
-                data,
-            });
+            setSummaryState({ status: "ready", appId: cleaned, data });
         } catch (err: unknown) {
             const message =
                 err instanceof Error
                     ? err.message
                     : "Unexpected error calling /api/ai/app-summary.";
-            setSummaryState({
-                status: "error",
-                appId: cleaned,
-                message,
-            });
+            setSummaryState({ status: "error", appId: cleaned, message });
         }
     }
 
@@ -133,8 +117,8 @@ export default function DevWorkbenchPage() {
                             Dev Workbench
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            Internal console for wiring checks, health endpoints, and now a
-                            tiny AI helper that can read summaries for any app id.
+                            Internal console for wiring checks, health endpoints, and a tiny
+                            AI helper that can read summaries for any app id.
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
@@ -150,7 +134,7 @@ export default function DevWorkbenchPage() {
                     </div>
                 </header>
 
-                {/* CEO nav tabs */}
+                {/* CEO tabs */}
                 <nav className="mb-6 overflow-x-auto">
                     <div className="flex gap-2 text-sm">
                         <CeoTab href="/ceo" label="Overview" />
@@ -165,8 +149,8 @@ export default function DevWorkbenchPage() {
                     </div>
                 </nav>
 
-                {/* Layout: left = status panels, right = AI helper + notes */}
-                <section className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr),minmax(0,1.1fr)]">
+                {/* 2-column layout */}
+                <section className="grid gap-4 lg:grid-cols-2">
                     <DevStatusColumn
                         healthState={healthState}
                         onRefreshHealth={() => void loadHealthSnapshot()}
@@ -184,17 +168,15 @@ export default function DevWorkbenchPage() {
     );
 }
 
-/* ---------- Shared tab component ---------- */
+/* ---------- Shared tab ---------- */
 
-function CeoTab({
-    href,
-    label,
-    active,
-}: {
+function CeoTab(props: {
     href: string;
     label: string;
     active?: boolean;
 }) {
+    const { href, label, active } = props;
+
     if (active) {
         return (
             <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-900">
@@ -213,7 +195,7 @@ function CeoTab({
     );
 }
 
-/* ---------- Left column: status + wiring notes (now backed by health API) ---------- */
+/* ---------- Left column ---------- */
 
 function DevStatusColumn(props: {
     healthState: AppsHealthState;
@@ -223,6 +205,7 @@ function DevStatusColumn(props: {
 
     return (
         <div className="space-y-4">
+            {/* Systems snapshot */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
                 <div className="mb-2 flex items-start justify-between gap-3">
                     <div>
@@ -230,8 +213,7 @@ function DevStatusColumn(props: {
                             Systems snapshot
                         </p>
                         <p className="mt-1 text-sm text-slate-200">
-                            High-level readout of how the Digital Hooligan stack is doing,
-                            now backed by{" "}
+                            High-level readout of how the stack is doing, backed by{" "}
                             <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
                                 /api/health/apps
                             </code>
@@ -258,11 +240,8 @@ function DevStatusColumn(props: {
                         <p className="font-semibold">Health API unavailable.</p>
                         <p className="mt-1 text-[0.8rem]">{healthState.message}</p>
                         <p className="mt-2 text-[0.75rem] text-amber-100/90">
-                            Hit{" "}
-                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem]">
-                                /api/health/apps
-                            </code>{" "}
-                            directly in the browser or Insomnia/Kong to debug.
+                            Hit <code>/api/health/apps</code> directly (browser or Insomnia)
+                            to debug.
                         </p>
                     </div>
                 )}
@@ -272,7 +251,7 @@ function DevStatusColumn(props: {
                         <ul className="mt-3 space-y-1.5 text-[0.85rem]">
                             {healthState.entries.map((entry) => (
                                 <li key={entry.id} className="flex items-start gap-2">
-                                    <span className="mt-[0.1rem] text-xs">
+                                    <span className="mt-[0.15rem]">
                                         <StatusDot status={entry.status} />
                                     </span>
                                     <div>
@@ -290,14 +269,13 @@ function DevStatusColumn(props: {
                             ))}
                         </ul>
                         <p className="mt-3 text-[0.7rem] text-slate-400">
-                            Snapshot timestamp: {healthState.timestamp}. Later this can be
-                            driven by real checks (pings, error rates, queue depth) instead of
-                            mocks.
+                            Snapshot timestamp: {healthState.timestamp}.
                         </p>
                     </div>
                 )}
             </div>
 
+            {/* Dev wiring checklist */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
                 <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                     Dev wiring checklist
@@ -306,12 +284,11 @@ function DevStatusColumn(props: {
                     <li>• Can hit /api/apps/registry from browser + Insomnia/Kong.</li>
                     <li>• Can hit /api/ai/app-summary?appId=pennywize.</li>
                     <li>• Can hit /api/health/apps and see per-app status.</li>
-                    <li>• CEO → Labs → AI Hub paths working in local + Vercel.</li>
-                    <li>• Feature branches pushing clean previews before merge.</li>
+                    <li>• CEO → Labs → AI Hub paths valid in local + Vercel.</li>
+                    <li>• Feature branches push clean previews before merge.</li>
                 </ul>
                 <p className="mt-3 text-[0.7rem] text-slate-400">
-                    Later: tie each checklist item to automated checks or CI jobs that
-                    report into this view.
+                    Later: promote each checklist item into an automated check or CI job.
                 </p>
             </div>
         </div>
@@ -331,7 +308,7 @@ function StatusDot({ status }: { status: AppHealthStatus }) {
     );
 }
 
-/* ---------- Right column: Dev AI helper ---------- */
+/* ---------- Right column ---------- */
 
 function DevAiColumn(props: {
     summaryState: AiSummaryState;
@@ -348,6 +325,7 @@ function DevAiColumn(props: {
 
     return (
         <div className="space-y-4">
+            {/* Dev assistant (AI) */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
                 <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div>
@@ -355,12 +333,12 @@ function DevAiColumn(props: {
                             Dev assistant (AI)
                         </p>
                         <p className="mt-1 text-sm text-slate-200">
-                            Tiny helper that hits{" "}
+                            Helper that calls{" "}
                             <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
                                 /api/ai/app-summary
                             </code>{" "}
                             for any app id. Use this as a scratch pad while you shape the
-                            summary contract and assistant behavior.
+                            summary contract.
                         </p>
                     </div>
                     <div className="flex flex-col items-stretch gap-2 self-start text-[0.75rem] md:flex-row md:items-center">
@@ -369,8 +347,8 @@ function DevAiColumn(props: {
                             <input
                                 type="text"
                                 value={inputAppId}
-                                onChange={(event) => onChangeInput(event.target.value)}
-                                className="w-36 rounded-full border border-slate-700 bg-slate-950 px-3 py-1 text-[0.8rem] text-slate-100 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/70"
+                                onChange={(e) => onChangeInput(e.target.value)}
+                                className="w-40 rounded-full border border-slate-700 bg-slate-950 px-3 py-1 text-[0.8rem] text-slate-100 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/70"
                                 placeholder="pennywize"
                             />
                         </label>
@@ -396,8 +374,7 @@ function DevAiColumn(props: {
                 {summaryState.status === "idle" && (
                     <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
                         Enter an app id and hit <span className="font-semibold">Run</span>{" "}
-                        to see what the AI summary endpoint returns. Great for tweaking the
-                        response shape before wiring into other assistants.
+                        to see what the AI summary endpoint returns.
                     </p>
                 )}
 
@@ -407,8 +384,7 @@ function DevAiColumn(props: {
                         <code className="bg-slate-900 px-1 py-0.5 text-[0.7rem]">
                             /api/ai/app-summary
                         </code>{" "}
-                        for{" "}
-                        <span className="font-semibold">{summaryState.appId}</span>…
+                        for <span className="font-semibold">{summaryState.appId}</span>…
                     </p>
                 )}
 
@@ -418,13 +394,6 @@ function DevAiColumn(props: {
                             Error calling AI summary for {summaryState.appId}.
                         </p>
                         <p className="mt-1 text-[0.8rem]">{summaryState.message}</p>
-                        <p className="mt-2 text-[0.75rem] text-rose-100/90">
-                            Hit{" "}
-                            <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
-                                /api/ai/app-summary?appId={summaryState.appId}
-                            </code>{" "}
-                            directly in the browser or Insomnia/Kong to debug.
-                        </p>
                     </div>
                 )}
 
@@ -434,41 +403,36 @@ function DevAiColumn(props: {
                             <p className="text-[0.8rem] font-semibold text-emerald-200">
                                 {summaryState.data.headline}
                             </p>
-                            {summaryState.data.bullets?.length > 0 && (
+                            {summaryState.data.bullets.length > 0 && (
                                 <ul className="mt-2 space-y-1.5 text-[0.85rem] text-slate-200">
-                                    {summaryState.data.bullets.map((item, index) => (
-                                        <li key={index}>• {item}</li>
+                                    {summaryState.data.bullets.map((item, idx) => (
+                                        <li key={idx}>• {item}</li>
                                     ))}
                                 </ul>
                             )}
                         </div>
 
-                        {summaryState.data.suggestions?.length > 0 && (
+                        {summaryState.data.suggestions.length > 0 && (
                             <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-3 text-[0.85rem]">
                                 <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                     Suggested next moves
                                 </p>
                                 <ul className="mt-2 space-y-1.5">
-                                    {summaryState.data.suggestions.map((item, index) => (
-                                        <li key={index}>• {item}</li>
+                                    {summaryState.data.suggestions.map((item, idx) => (
+                                        <li key={idx}>• {item}</li>
                                     ))}
                                 </ul>
-                                <p className="mt-2 text-[0.7rem] text-slate-400">
-                                    Later, Dev Workbench can turn these into buttons that trigger
-                                    test runs, API checks, or GitHub actions.
-                                </p>
                             </div>
                         )}
 
                         <p className="text-[0.7rem] text-slate-400">
-                            Timestamp: {summaryState.data.timestamp}. You can copy/paste this
-                            payload or inspect it in the network tab while you iterate on the
-                            endpoint design.
+                            Timestamp: {summaryState.data.timestamp}.
                         </p>
                     </div>
                 )}
             </div>
 
+            {/* Notes for future Dev AI */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
                 <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                     Notes for future Dev AI
@@ -476,13 +440,9 @@ function DevAiColumn(props: {
                 <ul className="mt-2 space-y-1.5 text-[0.85rem]">
                     <li>• Let the assistant see recent build + deploy logs.</li>
                     <li>• Wire in /api/health/* so it can point at failing services.</li>
-                    <li>• Let it open GitHub branches/PR links directly from here.</li>
-                    <li>• Eventually, let it draft PR descriptions or test plans.</li>
+                    <li>• Let it open GitHub branches/PRs directly from here.</li>
+                    <li>• Eventually let it draft PR descriptions or test plans.</li>
                 </ul>
-                <p className="mt-3 text-[0.7rem] text-slate-400">
-                    For now, this column is just text, but it keeps the roadmap visible
-                    while you build the plumbing.
-                </p>
             </div>
         </div>
     );
