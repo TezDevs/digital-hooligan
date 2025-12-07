@@ -3,81 +3,83 @@
 import React from "react";
 import Link from "next/link";
 
-/* ---------- Types shared with /api/health/apps ---------- */
+/* ---------- Types ---------- */
 
 type AppHealthStatus = "ok" | "degraded" | "down";
 
-type AppHealthEntry = {
+type StackHealthApp = {
     id: string;
     name: string;
     status: AppHealthStatus;
     note: string;
 };
 
-type AppsHealthResponse = {
+type StackHealthReady = {
     ok: boolean;
-    entries: AppHealthEntry[];
     timestamp: string;
+    apps: StackHealthApp[];
 };
 
-type AppsHealthState =
+type StackHealthState =
     | { status: "loading" }
-    | { status: "ready"; entries: AppHealthEntry[]; timestamp: string }
+    | { status: "ready"; data: StackHealthReady }
     | { status: "error"; message: string };
 
 /* ---------- Page ---------- */
 
 export default function PerformancePage() {
-    const [healthState, setHealthState] = React.useState<AppsHealthState>({
+    const [stackState, setStackState] = React.useState<StackHealthState>({
         status: "loading",
     });
 
     React.useEffect(() => {
-        void loadHealthSnapshot();
-    }, []);
+        let cancelled = false;
 
-    async function loadHealthSnapshot() {
-        setHealthState({ status: "loading" });
+        async function load() {
+            try {
+                const res = await fetch("/api/health/stack");
+                if (!res.ok) {
+                    throw new Error(`Stack health responded with ${res.status}`);
+                }
 
-        try {
-            const res = await fetch("/api/health/apps");
-            if (!res.ok) throw new Error(`Health API ${res.status}`);
+                const data = (await res.json()) as StackHealthReady;
 
-            const data: AppsHealthResponse = await res.json();
-
-            setHealthState({
-                status: "ready",
-                entries: data.entries,
-                timestamp: data.timestamp,
-            });
-        } catch (err: unknown) {
-            const message =
-                err instanceof Error
-                    ? err.message
-                    : "Unexpected error calling /api/health/apps.";
-            setHealthState({ status: "error", message });
+                if (cancelled) return;
+                setStackState({ status: "ready", data });
+            } catch (err: unknown) {
+                if (cancelled) return;
+                const message =
+                    err instanceof Error
+                        ? err.message
+                        : "Unexpected error calling /api/health/stack.";
+                setStackState({ status: "error", message });
+            }
         }
-    }
 
-    const metrics = summariseHealth(healthState);
+        void load();
+        const id = setInterval(() => {
+            void load();
+        }, 60_000);
+
+        return () => {
+            cancelled = true;
+            clearInterval(id);
+        };
+    }, []);
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
             <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
                 {/* Header */}
-                <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <header className="mb-4 flex flex-col gap-3 md:mb-6 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
                             Performance
                         </h1>
                         <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
                             High-level health and reliability view across Digital Hooligan
-                            apps. Backed by{" "}
-                            <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
-                                /api/health/apps
-                            </code>
-                            . Later this can plug into real uptime, latency, and incident
-                            feeds.
+                            apps. Later this can plug into real uptime, latency, and
+                            incident feeds.
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
@@ -108,45 +110,27 @@ export default function PerformancePage() {
                     </div>
                 </nav>
 
-                {/* Top: Reliability snapshot + App health snapshot (2 columns on desktop) */}
-                <section className="mb-6 grid gap-4 lg:grid-cols-2">
-                    <ReliabilitySnapshotCard
-                        healthState={healthState}
-                        metrics={metrics}
-                        onRefresh={() => void loadHealthSnapshot()}
-                    />
-                    <AppHealthSnapshotCard healthState={healthState} />
-                </section>
+                {/* Main grid:
+           - First row: Reliability + App health side-by-side on desktop (lg:grid-cols-2)
+           - Second row: Incidents + Latency placeholders
+        */}
+                <section className="space-y-4">
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <ReliabilitySnapshotCard state={stackState} />
+                        <AppHealthSnapshotCard state={stackState} />
+                    </div>
 
-                {/* Bottom: future sections (keep mostly static for now) */}
-                <section className="grid gap-4 md:grid-cols-2">
-                    <IncidentsPanel />
-                    <LatencyPanel />
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <IncidentsFutureCard />
+                        <LatencyFutureCard />
+                    </div>
                 </section>
             </div>
         </main>
     );
 }
 
-/* ---------- Small helpers ---------- */
-
-function summariseHealth(state: AppsHealthState) {
-    if (state.status !== "ready") {
-        return {
-            totalApps: 0,
-            okCount: 0,
-            nonOkCount: 0,
-        };
-    }
-
-    const totalApps = state.entries.length;
-    const okCount = state.entries.filter((e) => e.status === "ok").length;
-    const nonOkCount = totalApps - okCount;
-
-    return { totalApps, okCount, nonOkCount };
-}
-
-/* ---------- Shared CEO tab component ---------- */
+/* ---------- Shared: CEO tab ---------- */
 
 function CeoTab(props: {
     href: string;
@@ -173,171 +157,172 @@ function CeoTab(props: {
     );
 }
 
-/* ---------- Reliability snapshot card ---------- */
+/* ---------- Card: Reliability snapshot ---------- */
 
-function ReliabilitySnapshotCard(props: {
-    healthState: AppsHealthState;
-    metrics: { totalApps: number; okCount: number; nonOkCount: number };
-    onRefresh: () => void;
-}) {
-    const { healthState, metrics, onRefresh } = props;
+function ReliabilitySnapshotCard(props: { state: StackHealthState }) {
+    const { state } = props;
 
-    const uptimeDisplay = "99.92%"; // keep a friendly static placeholder for now
+    // For now we keep uptime numbers mocked, but color them based on stack ok.
+    const uptimeText = "99.92%";
+    const period = "Overall uptime (30d)";
 
-    const appsInGoodStandingText =
-        metrics.totalApps === 0
-            ? "–"
-            : `${metrics.okCount} / ${metrics.totalApps}`;
+    const isOk = state.status === "ready" ? state.data.ok : null;
 
-    const openIncidentsText =
-        metrics.totalApps === 0 ? "–" : String(metrics.nonOkCount);
+    let uptimeTone =
+        "bg-emerald-500/10 text-emerald-200 ring-emerald-500/70";
+    if (isOk === false) {
+        uptimeTone = "bg-amber-500/10 text-amber-100 ring-amber-500/80";
+    }
+    if (isOk === null) {
+        uptimeTone =
+            "bg-slate-900/80 text-slate-200 ring-slate-700/80";
+    }
 
     return (
-        <div className="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
             <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
                     <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                         Reliability snapshot
                     </p>
-                    <p className="mt-1 max-w-md text-sm text-slate-200">
-                        Quick read on uptime, stability, and incidents. Numbers are mocked
-                        for now but status is backed by{" "}
-                        <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
-                            /api/health/apps
-                        </code>
-                        .
+                    <p className="mt-1 text-sm text-slate-300">
+                        Quick read on uptime, stability, and incidents. Numbers are
+                        mocked for now, but structure maps cleanly to future metrics.
                     </p>
                 </div>
                 <button
                     type="button"
-                    onClick={onRefresh}
-                    className="inline-flex items-center self-start rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
                 >
                     Refresh
                 </button>
             </div>
 
-            {/* Stat tiles */}
-            <div className="grid flex-1 gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3">
-                    <p className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
-                        Overall uptime (30d)
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-emerald-300">
-                        {uptimeDisplay}
-                    </p>
-                    <p className="mt-1 text-[0.75rem] text-slate-400">
-                        Placeholder. Later this can come from real monitoring.
+            <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+                    <p className="text-[0.7rem] text-slate-400">{period}</p>
+                    <div className="mt-1 flex items-baseline justify-between">
+                        <p className={`text-xl font-semibold ${uptimeTone.split(" ")[1]}`}>
+                            {uptimeText}
+                        </p>
+                        <span
+                            className={[
+                                "inline-flex items-center rounded-full px-2 py-0.5 text-[0.7rem] font-medium",
+                                "ring-1",
+                                uptimeTone,
+                            ].join(" ")}
+                        >
+                            {isOk === null
+                                ? "Checking stack…"
+                                : isOk
+                                    ? "Stack healthy"
+                                    : "Attention needed"}
+                        </span>
+                    </div>
+                    <p className="mt-2 text-[0.75rem] text-slate-400">
+                        Later, this can pull from a metrics store (CloudWatch, Grafana,
+                        etc.) and incident tracker instead of static values.
                     </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3">
-                    <p className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
-                        Open incidents
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-amber-300">
-                        {openIncidentsText}
-                    </p>
-                    <p className="mt-1 text-[0.75rem] text-slate-400">
-                        Counts apps that are not in an &quot;ok&quot; state.
-                    </p>
-                </div>
-
-                <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3">
-                    <p className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
-                        Apps in good standing
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold text-sky-300">
-                        {appsInGoodStandingText}
-                    </p>
-                    <p className="mt-1 text-[0.75rem] text-slate-400">
-                        Matches the per-app snapshot on this page and Dev Workbench.
+                <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+                    <p className="text-[0.7rem] text-slate-400">Apps in good standing</p>
+                    <div className="mt-1 flex items-baseline justify-between">
+                        <p className="text-xl font-semibold text-slate-50">
+                            {state.status === "ready"
+                                ? state.data.apps.filter((a) => a.status === "ok").length
+                                : "-"}
+                            {state.status === "ready" && (
+                                <span className="text-sm text-slate-400">
+                                    {" "}
+                                    / {state.data.apps.length}
+                                </span>
+                            )}
+                        </p>
+                    </div>
+                    <p className="mt-2 text-[0.75rem] text-slate-400">
+                        Later, this slot can call deeper health endpoints for latency,
+                        error rates, and incident counts.
                     </p>
                 </div>
             </div>
 
-            {healthState.status === "loading" && (
-                <p className="mt-3 text-[0.75rem] text-slate-400">
-                    Loading health snapshot…
-                </p>
-            )}
-
-            {healthState.status === "error" && (
-                <p className="mt-3 text-[0.75rem] text-amber-300">
-                    Health API unavailable: {healthState.message}
-                </p>
-            )}
-
-            {healthState.status === "ready" && (
+            {state.status === "ready" && (
                 <p className="mt-3 text-[0.7rem] text-slate-500">
-                    Snapshot timestamp: {healthState.timestamp}.
+                    Snapshot timestamp: {state.data.timestamp}
+                </p>
+            )}
+            {state.status === "loading" && (
+                <p className="mt-3 text-[0.7rem] text-slate-500">
+                    Loading stack health…
+                </p>
+            )}
+            {state.status === "error" && (
+                <p className="mt-3 text-[0.7rem] text-amber-300">
+                    Error loading stack health: {state.message}
                 </p>
             )}
         </div>
     );
 }
 
-/* ---------- App health snapshot card ---------- */
+/* ---------- Card: App health snapshot ---------- */
 
-function AppHealthSnapshotCard(props: { healthState: AppsHealthState }) {
-    const { healthState } = props;
+function AppHealthSnapshotCard(props: { state: StackHealthState }) {
+    const { state } = props;
 
     return (
-        <div className="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
             <div className="mb-2 flex items-start justify-between gap-3">
                 <div>
                     <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                         App health snapshot
                     </p>
-                    <p className="mt-1 text-sm text-slate-200">
+                    <p className="mt-1 text-sm text-slate-300">
                         Per-app view backed by{" "}
                         <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
-                            /api/health/apps
+                            /api/health/stack
                         </code>
-                        . Same feed powers Dev Workbench.
+                        . This is the same feed powering Dev Workbench later.
                     </p>
                 </div>
             </div>
 
-            {healthState.status === "loading" && (
-                <p className="mt-2 text-[0.85rem] text-slate-300">
+            {state.status === "loading" && (
+                <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
                     Loading app health…
                 </p>
             )}
 
-            {healthState.status === "error" && (
-                <p className="mt-2 text-[0.85rem] text-amber-200">
-                    Couldn&apos;t load app health: {healthState.message}
-                </p>
+            {state.status === "error" && (
+                <div className="rounded-xl border border-amber-500/70 bg-amber-950/40 px-3 py-3 text-[0.85rem] text-amber-50">
+                    <p className="font-semibold">Unable to load app health snapshot.</p>
+                    <p className="mt-1 text-[0.8rem]">{state.message}</p>
+                </div>
             )}
 
-            {healthState.status === "ready" && (
-                <>
-                    <ul className="mt-3 space-y-1.5 text-[0.85rem]">
-                        {healthState.entries.map((entry) => (
-                            <li key={entry.id} className="flex items-start gap-2">
-                                <span className="mt-[0.2rem]">
-                                    <StatusDot status={entry.status} />
+            {state.status === "ready" && (
+                <ul className="mt-2 space-y-1.5 text-[0.85rem]">
+                    {state.data.apps.map((app) => (
+                        <li key={app.id} className="flex items-start gap-2">
+                            <span className="mt-[0.3rem]">
+                                <StatusDot status={app.status} />
+                            </span>
+                            <div>
+                                <span className="font-medium text-slate-100">
+                                    {app.name}
                                 </span>
-                                <div>
-                                    <span className="font-medium text-slate-100">
-                                        {entry.name}
-                                    </span>
-                                    <span className="mx-1 text-[0.75rem] text-slate-400">
-                                        ({entry.id})
-                                    </span>
-                                    <span className="text-[0.8rem] text-slate-300">
-                                        – {entry.note}
-                                    </span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                    <p className="mt-3 text-[0.7rem] text-slate-500">
-                        This list should feel familiar from Dev Workbench. Later we can
-                        link each entry to incidents, latency charts, or PRs.
-                    </p>
-                </>
+                                <span className="mx-1 text-[0.75rem] text-slate-400">
+                                    ({app.id})
+                                </span>
+                                <span className="text-[0.8rem] text-slate-300">
+                                    {" "}
+                                    – {app.note}
+                                </span>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
             )}
         </div>
     );
@@ -345,7 +330,6 @@ function AppHealthSnapshotCard(props: { healthState: AppsHealthState }) {
 
 function StatusDot({ status }: { status: AppHealthStatus }) {
     let tone = "bg-slate-500";
-
     if (status === "ok") tone = "bg-emerald-500";
     if (status === "degraded") tone = "bg-amber-400";
     if (status === "down") tone = "bg-rose-500";
@@ -357,44 +341,46 @@ function StatusDot({ status }: { status: AppHealthStatus }) {
     );
 }
 
-/* ---------- Bottom stub cards ---------- */
+/* ---------- Card: Incidents (future) ---------- */
 
-function IncidentsPanel() {
+function IncidentsFutureCard() {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 Incidents &amp; risk (future)
             </p>
-            <p className="mt-1 text-sm text-slate-200">
-                Slot reserved for a small incidents timeline — even if it&apos;s just a
-                list of &quot;stuff that went wrong&quot; with links to Dev Workbench
-                or GitHub.
+            <p className="mt-1 text-sm text-slate-300">
+                Slot reserved for a small incidents timeline — even if it’s just a
+                list of “stuff that went wrong” with links to Dev Workbench or
+                GitHub.
             </p>
-            <ul className="mt-3 space-y-1.5 text-[0.85rem] text-slate-300">
+            <ul className="mt-2 space-y-1.5 text-[0.85rem] text-slate-300">
                 <li>• Track incident date, blast radius, and root cause.</li>
                 <li>• Map each incident back to an app or service.</li>
                 <li>• Allow quick jump to the relevant logs or PR.</li>
             </ul>
             <p className="mt-3 text-[0.7rem] text-slate-500">
-                For now this is just copy, but it keeps the design so we don&apos;t
-                lose the idea.
+                For now this is just copy, but it pins the design so you don’t lose
+                the idea.
             </p>
         </div>
     );
 }
 
-function LatencyPanel() {
+/* ---------- Card: Latency & usage (future) ---------- */
+
+function LatencyFutureCard() {
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
             <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 Latency &amp; usage (future)
             </p>
-            <p className="mt-1 text-sm text-slate-200">
+            <p className="mt-1 text-sm text-slate-300">
                 Long-term home for simple charts: requests, p95 latency, or anything
                 else that matters to CEO Tez.
             </p>
-            <ul className="mt-3 space-y-1.5 text-[0.85rem] text-slate-300">
-                <li>• One chart per app or a combined &quot;stack health&quot; view.</li>
+            <ul className="mt-2 space-y-1.5 text-[0.85rem] text-slate-300">
+                <li>• One chart per app or a combined “stack health” view.</li>
                 <li>• Highlight regressions when a new deploy lands.</li>
                 <li>• Feed this data into AI Hub for smarter summaries.</li>
             </ul>
