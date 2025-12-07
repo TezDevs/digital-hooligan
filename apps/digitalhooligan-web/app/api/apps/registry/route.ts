@@ -1,59 +1,43 @@
+// apps/digitalhooligan-web/app/api/apps/registry/route.ts
+
 import { NextResponse } from "next/server";
 import {
-    appRegistry,
+    APP_REGISTRY,
     type AppRegistryEntry,
-    type AppId,
+    type AppKind,
+    type AppLifecycleStage,
 } from "@/lib/appRegistry";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Local extension of AppRegistryEntry for this API.
- * The shared type doesn’t currently expose every field
- * we want to filter on, so we mark them optional here.
- */
-type FilterableApp = AppRegistryEntry & {
-    internalOnly?: boolean;
-    kind?: string;
-    lifecycle?: string;
-    owner?: string;
-    tags?: string[];
-};
-
-/**
- * /api/apps/registry
- *
- * Central source of truth for app + bot metadata.
- * Query params (all optional):
- *   - includeInternal=true | false  (default: false)
- *   - id=<appId>                   (if present, returns a single app)
- *   - kind=<kind>                  (e.g. "public-app", "internal-only")
- *   - lifecycle=<stage>            (e.g. "design", "build", "live")
- *   - owner=<owner>                (e.g. "digital-hooligan")
- *   - tag=<tag>                    (filters if tag is present)
- */
+// GET /api/apps/registry
+// Optional query params:
+//   includeInternal=true
+//   id=<appId>
+//   kind=<AppKind> | "all"
+//   lifecycle=<AppLifecycleStage> | "all"
+//   owner=<string> | "all"
+//   tag=<string>
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
 
     const includeInternal = searchParams.get("includeInternal") === "true";
-    const id = (searchParams.get("id") as AppId | null) || null;
+    const id = searchParams.get("id");
     const kind = searchParams.get("kind");
     const lifecycle = searchParams.get("lifecycle");
     const owner = searchParams.get("owner");
     const tag = searchParams.get("tag");
 
-    // Treat registry entries as FilterableApp for this endpoint
-    let apps: FilterableApp[] = appRegistry as FilterableApp[];
+    let apps: AppRegistryEntry[] = [...APP_REGISTRY];
 
     // Hide internal-only apps unless explicitly requested
     if (!includeInternal) {
         apps = apps.filter((app) => !app.internalOnly);
     }
 
-    // If an id is provided, return a single app (or 404-style payload)
+    // If an id is provided, return a single app (or 404)
     if (id) {
         const app = apps.find((entry) => entry.id === id);
-
         if (!app) {
             return NextResponse.json(
                 {
@@ -62,7 +46,7 @@ export async function GET(request: Request) {
                     message: `No app found in registry for id "${id}".`,
                     id,
                 },
-                { status: 404 }
+                { status: 404 },
             );
         }
 
@@ -74,11 +58,13 @@ export async function GET(request: Request) {
 
     // Otherwise, apply filters and return a list
     if (kind && kind !== "all") {
-        apps = apps.filter((app) => app.kind === kind);
+        apps = apps.filter((app) => app.kind === (kind as AppKind));
     }
 
     if (lifecycle && lifecycle !== "all") {
-        apps = apps.filter((app) => app.lifecycle === lifecycle);
+        apps = apps.filter(
+            (app) => app.lifecycle === (lifecycle as AppLifecycleStage),
+        );
     }
 
     if (owner && owner !== "all") {
@@ -86,7 +72,7 @@ export async function GET(request: Request) {
     }
 
     if (tag) {
-        apps = apps.filter((app) => app.tags?.includes(tag));
+        apps = apps.filter((app) => app.tags?.includes(tag) ?? false);
     }
 
     return NextResponse.json({
