@@ -8,7 +8,11 @@ export type AppId =
     | "ceo-dashboard"
     | "labs-hq";
 
-export type AppKind = "external-app" | "internal-dashboard" | "bot" | "experimental";
+export type AppKind =
+    | "external-app"
+    | "internal-dashboard"
+    | "bot"
+    | "experimental";
 
 export type AppLifecycleStage =
     | "idea"
@@ -120,15 +124,37 @@ export function getAppById(id: AppId): AppRegistryEntry | undefined {
 }
 
 /**
- * Convenience helper: returns a simple map keyed by id.
- * Useful later for AI Hub, health endpoints, etc.
+ * Returns a map of appId -> registry entry.
+ * Useful for quick lookups in API routes.
  */
 export function appRegistryMap(): Record<AppId, AppRegistryEntry> {
-    return appRegistry.reduce(
-        (acc, app) => {
-            acc[app.id] = app;
-            return acc;
-        },
-        {} as Record<AppId, AppRegistryEntry>
-    );
+    const map = {} as Record<AppId, AppRegistryEntry>;
+    for (const app of appRegistry) {
+        map[app.id] = app;
+    }
+    return map;
+}
+
+/**
+ * Utility used by AI endpoints to build a short,
+ * human-readable descriptor for an app.
+ */
+export function formatAppSummaryLine(app: AppRegistryEntry): string {
+    const parts: string[] = [];
+
+    parts.push(app.name);
+
+    if (app.stage) {
+        parts.push(`stage: ${app.stage}`);
+    }
+
+    if (app.kind) {
+        parts.push(`kind: ${app.kind}`);
+    }
+
+    if (app.tagline) {
+        parts.push(`focus: ${app.tagline}`);
+    }
+
+    return parts.join(" • ");
 }
