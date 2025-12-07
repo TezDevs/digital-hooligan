@@ -1,151 +1,203 @@
 // apps/digitalhooligan-web/lib/appRegistry.ts
 
-export type AppId =
-    | "pennywize"
-    | "dropsignal"
-    | "hypewatch"
-    | "ops-toys"
-    | "ceo-dashboard"
-    | "labs-hq";
+export type AppId = string;
 
-export type AppKind =
-    | "external-app"
-    | "internal-dashboard"
-    | "bot"
-    | "experimental";
+export type AppKind = "public-app" | "internal-app" | "bot" | "dev-tool";
 
-export type AppLifecycleStage =
-    | "idea"
-    | "prototype"
-    | "alpha"
-    | "beta"
-    | "live";
+export type AppLifecycleStage = "idea" | "design" | "build" | "live";
 
-export type AppOwner = "tez" | "digital-hooligan";
+export type AppIcon =
+    | { type: "emoji"; value: string }
+    | { type: "text"; value: string };
+
+export type AppMetricsKeys = {
+    users?: string;
+    mrr?: string;
+    uptime?: string;
+};
 
 export type AppRegistryEntry = {
     id: AppId;
     name: string;
     shortName?: string;
+    description?: string;
+    tagline?: string;
     kind: AppKind;
-    owner: AppOwner;
-    stage: AppLifecycleStage;
-    /**
-     * One-liner describing what this thing is for.
-     * Used later in AI Hub, Labs HQ, docs, etc.
-     */
-    tagline: string;
-    /**
-     * Optional default health note + status so basic health endpoints
-     * can be mocked from the registry alone.
-     */
-    defaultHealthStatus?: "ok" | "degraded" | "down";
-    defaultHealthNote?: string;
+    lifecycle: AppLifecycleStage;
+    owner: string;
+
+    /** Marketing / public-facing route on the main site */
+    marketingPath?: string;
+
+    /** CEO dashboard route for this app */
+    ceoPath?: string;
+
+    /** Labs HQ route for this app */
+    labsPath?: string;
+
+    /** True = hide from public lists unless explicitly requested */
+    internalOnly?: boolean;
+
+    /** Simple icon used across CEO / Labs / registry tables */
+    icon?: AppIcon;
+
+    /** Free-form tags for filtering */
     tags?: string[];
+
+    /** Optional metric keys so /api/metrics can look things up later */
+    metricsKeys?: AppMetricsKeys;
 };
 
-export const appRegistry: AppRegistryEntry[] = [
+/**
+ * Core registry for all apps / bots under Digital Hooligan.
+ * This is the single source of truth that CEO, Labs, and API routes read from.
+ */
+export const APP_REGISTRY: AppRegistryEntry[] = [
     {
         id: "pennywize",
         name: "PennyWize",
         shortName: "PennyWize",
-        kind: "external-app",
-        owner: "tez",
-        stage: "alpha",
-        tagline: "Penny stock intel and signals for retail traders.",
-        defaultHealthStatus: "ok",
-        defaultHealthNote: "Mocked: registry + AI summary reachable.",
-        tags: ["stocks", "intel", "feed-future"],
+        description:
+            "Penny-stock and micro-cap intel tool with alerts, feeds, and future social + research layers.",
+        tagline: "Penny-stock intel with alerts + social layer.",
+        kind: "public-app",
+        lifecycle: "design",
+        owner: "digital-hooligan",
+        marketingPath: "/apps/pennywize",
+        ceoPath: "/ceo/apps/pennywize",
+        labsPath: "/labs/apps/pennywize",
+        icon: { type: "emoji", value: "🪙" },
+        tags: ["finance", "alerts", "research"],
+        metricsKeys: {
+            users: "pennywize_users",
+            mrr: "pennywize_mrr",
+            uptime: "pennywize_uptime",
+        },
     },
     {
         id: "dropsignal",
         name: "DropSignal",
         shortName: "DropSignal",
-        kind: "external-app",
-        owner: "tez",
-        stage: "idea",
-        tagline: "Sneaker and streetwear drop + price-drop alerts.",
-        defaultHealthStatus: "ok",
-        defaultHealthNote: "Mocked: feed + alert wiring planned, UI in design.",
+        description:
+            "Sneaker / streetwear price-drop bot with assist-mode alerts and future auto-cart wiring.",
+        tagline: "Sneaker/streetwear drop alerts.",
+        kind: "public-app",
+        lifecycle: "idea",
+        owner: "digital-hooligan",
+        marketingPath: "/apps/dropsignal",
+        ceoPath: "/ceo/apps/dropsignal",
+        labsPath: "/labs/apps/dropsignal",
+        icon: { type: "emoji", value: "👟" },
         tags: ["sneakers", "streetwear", "alerts"],
     },
     {
         id: "hypewatch",
         name: "HypeWatch",
         shortName: "HypeWatch",
-        kind: "external-app",
-        owner: "tez",
-        stage: "idea",
-        tagline: "Collectibles, cards, and hype assets price tracking.",
-        defaultHealthStatus: "degraded",
-        defaultHealthNote: "Mocked: concept stage only, Labs wiring not complete.",
-        tags: ["collectibles", "cards", "watchlist"],
+        description:
+            "Collectibles price-watch bot for cards, toys, and other display pieces. Differentiated from DropSignal.",
+        tagline: "Collectibles price-watch bot.",
+        kind: "public-app",
+        lifecycle: "idea",
+        owner: "digital-hooligan",
+        marketingPath: "/apps/hypewatch",
+        ceoPath: "/ceo/apps/hypewatch",
+        labsPath: "/labs/apps/hypewatch",
+        icon: { type: "emoji", value: "🧸" },
+        tags: ["collectibles", "cards", "alerts"],
     },
     {
         id: "ops-toys",
         name: "Ops Toys",
         shortName: "Ops Toys",
-        kind: "bot",
-        owner: "digital-hooligan",
-        stage: "prototype",
-        tagline: "Internal automations and tiny ops tools for the studio.",
-        defaultHealthStatus: "ok",
-        defaultHealthNote: "Mocked: ready for first scripts and jobs.",
-        tags: ["internal", "automation", "ops"],
+        description: "Internal drawer of ops automation toys and helpers.",
+        tagline: "Internal ops automation toys.",
+        kind: "dev-tool",
+        lifecycle: "build",
+        owner: "tez",
+        marketingPath: "/apps/ops-toys",
+        ceoPath: "/ceo/apps/ops-toys",
+        labsPath: "/labs/apps/ops-toys",
+        icon: { type: "emoji", value: "🧰" },
+        tags: ["internal", "automation"],
+        internalOnly: true,
+    },
+    {
+        id: "digital-hooligan-site",
+        name: "Digital Hooligan Site",
+        shortName: "DH Site",
+        description:
+            "Public-facing Digital Hooligan site that houses services, apps, and company information.",
+        tagline: "Main Digital Hooligan site.",
+        kind: "public-app",
+        lifecycle: "live",
+        owner: "tez",
+        marketingPath: "/",
+        ceoPath: "/ceo/apps/digital-hooligan-site",
+        labsPath: "/labs/apps/digital-hooligan-site",
+        icon: { type: "emoji", value: "🎛️" },
+        tags: ["marketing", "company"],
     },
     {
         id: "ceo-dashboard",
-        name: "CEO dashboard",
+        name: "CEO Dashboard",
         shortName: "CEO",
-        kind: "internal-dashboard",
-        owner: "digital-hooligan",
-        stage: "alpha",
-        tagline: "Top-level control panel for Digital Hooligan.",
-        defaultHealthStatus: "ok",
-        defaultHealthNote: "Mocked: views live with health + registry wiring.",
-        tags: ["internal", "dashboard", "ceo"],
+        description:
+            "Internal CEO dashboard for overview, tasks, finance, performance, AI Hub, and Dev Workbench.",
+        tagline: "Internal CEO control panel.",
+        kind: "internal-app",
+        lifecycle: "build",
+        owner: "tez",
+        marketingPath: "/ceo",
+        ceoPath: "/ceo",
+        labsPath: "/labs/apps/ceo-dashboard",
+        icon: { type: "emoji", value: "🧠" },
+        tags: ["internal", "dashboard"],
+        internalOnly: true,
     },
     {
         id: "labs-hq",
         name: "Hooligan Labs HQ",
         shortName: "Labs HQ",
-        kind: "internal-dashboard",
-        owner: "digital-hooligan",
-        stage: "alpha",
-        tagline: "Experiments backlog, prototypes, and bot playground.",
-        defaultHealthStatus: "ok",
-        defaultHealthNote: "Mocked: experiments + registry panels wired.",
+        description:
+            "Internal home for experiments, app roadmaps, and build pipeline for Digital Hooligan.",
+        tagline: "Internal lab for experiments + roadmaps.",
+        kind: "dev-tool",
+        lifecycle: "build",
+        owner: "tez",
+        marketingPath: "/labs/hq",
+        ceoPath: "/ceo/apps/labs-hq",
+        labsPath: "/labs/hq",
+        icon: { type: "emoji", value: "🧪" },
         tags: ["internal", "labs", "experiments"],
+        internalOnly: true,
     },
 ];
 
-export function getAppById(id: AppId): AppRegistryEntry | undefined {
-    return appRegistry.find((app) => app.id === id);
-}
-
 /**
- * Returns a map of appId -> registry entry.
- * Useful for quick lookups in API routes.
+ * Convenience helper: map AppId -> registry entry.
+ * Used by AI endpoints and any code that needs quick lookup.
  */
 export function appRegistryMap(): Record<AppId, AppRegistryEntry> {
-    const map = {} as Record<AppId, AppRegistryEntry>;
-    for (const app of appRegistry) {
-        map[app.id] = app;
-    }
-    return map;
+    return APP_REGISTRY.reduce(
+        (acc, app) => {
+            acc[app.id] = app;
+            return acc;
+        },
+        {} as Record<AppId, AppRegistryEntry>
+    );
 }
 
 /**
- * Utility used by AI endpoints to build a short,
- * human-readable descriptor for an app.
+ * Short, human-readable description line for AI summaries and UI.
  */
 export function formatAppSummaryLine(app: AppRegistryEntry): string {
     const parts: string[] = [];
 
     parts.push(app.name);
 
-    if (app.stage) {
-        parts.push(`stage: ${app.stage}`);
+    if (app.lifecycle) {
+        parts.push(`stage: ${app.lifecycle}`);
     }
 
     if (app.kind) {
@@ -156,5 +208,11 @@ export function formatAppSummaryLine(app: AppRegistryEntry): string {
         parts.push(`focus: ${app.tagline}`);
     }
 
-    return parts.join(" • ");
+    return parts.join(" · ");
 }
+
+/**
+ * Backwards-compat alias for older imports that still expect `appRegistry`.
+ * New code should prefer APP_REGISTRY and appRegistryMap().
+ */
+export const appRegistry = APP_REGISTRY;

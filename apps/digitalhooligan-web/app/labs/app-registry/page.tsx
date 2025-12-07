@@ -1,165 +1,202 @@
+// apps/digitalhooligan-web/app/labs/app-registry/page.tsx
 "use client";
 
-import React from "react";
 import Link from "next/link";
-import { appRegistry, type AppRegistryEntry } from "@/lib/appRegistry";
+import {
+    APP_REGISTRY,
+    type AppRegistryEntry,
+    type AppKind,
+    type AppLifecycleStage,
+} from "@/lib/appRegistry";
 
-// 👇 make sure your type looks like this
-type LabsRegistryEntry = AppRegistryEntry & {
-    description?: string;
-    internalOnly?: boolean;
-    marketingPath?: string;
-    ceoPath?: string;
-    labsPath?: string;
-    tags?: string[];
-};
-// Keep labels simple so we don't fight the exact union type
-const KIND_LABEL: Record<string, string> = {
+const KIND_LABELS: Record<AppKind, string> = {
     "public-app": "Public app",
     "internal-app": "Internal app",
     bot: "Bot",
     "dev-tool": "Dev tool",
 };
 
-const STAGE_LABEL: Record<string, string> = {
+const LIFECYCLE_LABELS: Record<AppLifecycleStage, string> = {
     idea: "Idea",
     design: "Design",
     build: "Build",
     live: "Live",
 };
 
+function kindLabel(kind: AppKind) {
+    return KIND_LABELS[kind] ?? kind;
+}
+
+function lifecycleLabel(stage: AppLifecycleStage) {
+    return LIFECYCLE_LABELS[stage] ?? stage;
+}
+
 export default function LabsAppRegistryPage() {
-    const entries = appRegistry as LabsRegistryEntry[];
+    const entries: AppRegistryEntry[] = APP_REGISTRY;
 
     return (
-        <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-950 text-slate-100">
-            <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
-                {/* Header / breadcrumbs */}
-                <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <main className="min-h-screen bg-slate-950 text-slate-50">
+            <div className="mx-auto max-w-6xl px-4 pb-16 pt-10 md:pt-12">
+                {/* Header */}
+                <header className="mb-6 flex items-center justify-between gap-4">
                     <div>
-                        <p className="mb-1 text-[0.75rem] uppercase tracking-[0.18em] text-slate-500">
-                            Labs &gt; App registry
+                        <p className="text-[0.75rem] font-medium uppercase tracking-[0.22em] text-slate-400">
+                            Labs / App registry
                         </p>
                         <h1 className="text-2xl font-semibold text-slate-50 md:text-3xl">
-                            App registry snapshot
+                            Labs registry table
                         </h1>
-                        <p className="mt-1 max-w-xl text-sm text-slate-400">
-                            Single source of truth for apps, bots, and internal tools under the
-                            Digital Hooligan umbrella. This powers CEO views, Labs, and Dev
-                            Workbench wiring.
+                        <p className="mt-1 text-sm text-slate-400">
+                            Full registry including internal-only entries. This is the design
+                            surface for future experiments and wiring.
                         </p>
                     </div>
 
                     <Link
                         href="/labs/hq"
-                        className="inline-flex items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/60 px-3 py-1 text-xs font-medium text-slate-200 hover:border-slate-500 hover:bg-slate-900"
+                        className="inline-flex items-center rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500 hover:bg-slate-900"
                     >
                         ← Back to Labs HQ
                     </Link>
-                </div>
+                </header>
 
-                {/* Registry table */}
-                <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/70">
-                    <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2">
-                        <span className="text-[0.7rem] uppercase tracking-[0.18em] text-slate-500">
-                            Apps &amp; tools ({entries.length})
-                        </span>
-                        <span className="text-[0.7rem] text-slate-500">
-                            This is backed by{" "}
-                            <code className="text-xs text-emerald-300">
-                                lib/appRegistry.ts
-                            </code>
-                        </span>
+                {/* Table */}
+                <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-slate-950/60">
+                    <div className="border-b border-slate-800 px-4 py-3">
+                        <h2 className="text-sm font-semibold text-slate-100">
+                            Registry entries
+                        </h2>
+                        <p className="mt-0.5 text-[0.8rem] text-slate-400">
+                            Includes marketing, CEO, and Labs paths, plus internal flag and
+                            tags. This is intentionally more verbose than the CEO view.
+                        </p>
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="min-w-full text-left text-sm">
-                            <thead className="border-b border-slate-800 bg-slate-950/80 text-[0.75rem] uppercase tracking-[0.16em] text-slate-500">
-                                <tr>
-                                    <th className="px-4 py-2">ID</th>
+                        <table className="min-w-full border-t border-slate-800 text-left text-[0.8rem] text-slate-200">
+                            <thead className="bg-slate-950/80">
+                                <tr className="border-b border-slate-800 text-[0.7rem] uppercase tracking-[0.16em] text-slate-500">
+                                    <th className="px-4 py-2">Id</th>
                                     <th className="px-4 py-2">Name</th>
                                     <th className="px-4 py-2">Kind</th>
-                                    <th className="px-4 py-2">Stage</th>
+                                    <th className="px-4 py-2">Lifecycle</th>
                                     <th className="px-4 py-2">Owner</th>
+                                    <th className="px-4 py-2">Paths</th>
                                     <th className="px-4 py-2">Internal?</th>
                                     <th className="px-4 py-2">Tags</th>
-                                    <th className="px-4 py-2">Paths</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-800/80">
+                            <tbody className="divide-y divide-slate-900">
                                 {entries.map((entry) => (
-                                    <tr key={entry.id} className="align-top">
-                                        <td className="px-4 py-2 text-[0.8rem] font-mono text-slate-300">
+                                    <tr key={entry.id} className="hover:bg-slate-900/40">
+                                        {/* Id */}
+                                        <td className="px-4 py-3 align-top font-mono text-[0.7rem] text-slate-400">
                                             {entry.id}
                                         </td>
-                                        <td className="px-4 py-2">
-                                            <div className="text-sm font-medium text-slate-50">
-                                                {entry.name}
-                                            </div>
-                                            {entry.description && (
-                                                <div className="mt-0.5 text-xs text-slate-400">
-                                                    {entry.description}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-2 text-xs text-slate-300">
-                                            {KIND_LABEL[entry.kind as string] ?? entry.kind}
-                                        </td>
-                                        <td className="px-4 py-2 text-xs text-slate-300">
-                                            {entry.stage
-                                                ? STAGE_LABEL[entry.stage as string] ?? entry.stage
-                                                : "—"}
-                                        </td>
-                                        <td className="px-4 py-2 text-xs text-slate-300">
-                                            {entry.owner ?? "—"}
-                                        </td>
-                                        <td className="px-4 py-2 text-xs text-slate-300">
-                                            {entry.internalOnly ? "Yes" : "No"}
-                                        </td>
-                                        <td className="px-4 py-2 text-xs text-slate-300">
-                                            {entry.tags && entry.tags.length > 0
-                                                ? entry.tags.join(", ")
-                                                : "—"}
-                                        </td>
-                                        <td className="px-4 py-2 text-xs text-slate-300">
+
+                                        {/* Name + description */}
+                                        <td className="px-4 py-3 align-top">
                                             <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-2">
+                                                    {entry.icon?.type === "emoji" && (
+                                                        <span className="text-base leading-none">
+                                                            {entry.icon.value}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-sm font-medium text-slate-50">
+                                                        {entry.name}
+                                                    </span>
+                                                </div>
+                                                {entry.description && (
+                                                    <p className="text-[0.75rem] text-slate-400">
+                                                        {entry.description}
+                                                    </p>
+                                                )}
+                                                {entry.tagline && (
+                                                    <p className="text-[0.7rem] text-emerald-300/90">
+                                                        {entry.tagline}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </td>
+
+                                        {/* Kind */}
+                                        <td className="px-4 py-3 align-top">
+                                            <span className="rounded-full bg-slate-900/80 px-2 py-1 text-[0.7rem] text-slate-200 ring-1 ring-slate-700/60">
+                                                {kindLabel(entry.kind)}
+                                            </span>
+                                        </td>
+
+                                        {/* Lifecycle */}
+                                        <td className="px-4 py-3 align-top">
+                                            <span className="rounded-full bg-slate-900/80 px-2 py-1 text-[0.7rem] text-slate-200 ring-1 ring-slate-700/60">
+                                                {lifecycleLabel(entry.lifecycle)}
+                                            </span>
+                                        </td>
+
+                                        {/* Owner */}
+                                        <td className="px-4 py-3 align-top text-[0.8rem] text-slate-300">
+                                            {entry.owner}
+                                        </td>
+
+                                        {/* Paths */}
+                                        <td className="px-4 py-3 align-top text-[0.75rem] text-slate-300">
+                                            <div className="flex flex-col gap-1">
                                                 {entry.marketingPath && (
-                                                    <span>
-                                                        <span className="text-slate-500">Marketing: </span>
+                                                    <div>
+                                                        <span className="mr-1 text-slate-400">Marketing:</span>
                                                         <code className="text-[0.7rem] text-slate-200">
                                                             {entry.marketingPath}
                                                         </code>
-                                                    </span>
+                                                    </div>
                                                 )}
                                                 {entry.ceoPath && (
-                                                    <span>
-                                                        <span className="text-slate-500">CEO: </span>
+                                                    <div>
+                                                        <span className="mr-1 text-slate-400">CEO:</span>
                                                         <code className="text-[0.7rem] text-slate-200">
                                                             {entry.ceoPath}
                                                         </code>
-                                                    </span>
+                                                    </div>
                                                 )}
                                                 {entry.labsPath && (
-                                                    <span>
-                                                        <span className="text-slate-500">Labs: </span>
+                                                    <div>
+                                                        <span className="mr-1 text-slate-400">Labs:</span>
                                                         <code className="text-[0.7rem] text-slate-200">
                                                             {entry.labsPath}
                                                         </code>
-                                                    </span>
+                                                    </div>
                                                 )}
                                             </div>
+                                        </td>
+
+                                        {/* Internal flag */}
+                                        <td className="px-4 py-3 align-top text-[0.75rem] text-slate-300">
+                                            {entry.internalOnly ? (
+                                                <span className="text-amber-300">Yes</span>
+                                            ) : (
+                                                <span className="text-slate-400">No</span>
+                                            )}
+                                        </td>
+
+                                        {/* Tags */}
+                                        <td className="px-4 py-3 align-top text-[0.75rem] text-slate-300">
+                                            {entry.tags?.length ? (
+                                                <span>{entry.tags.join(", ")}</span>
+                                            ) : (
+                                                <span className="text-slate-500">—</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+                </section>
 
-                    <div className="border-t border-slate-800 px-4 py-2 text-[0.7rem] text-slate-500">
-                        Later this view can be driven from a DB instead of static data, and
-                        feed health, AI Hub, and Dev Workbench.
-                    </div>
-                </div>
+                <p className="mt-4 text-[0.7rem] text-slate-500">
+                    This view is intentionally verbose so you can evolve the data contract
+                    for experiments without editing API routes first.
+                </p>
             </div>
         </main>
     );
