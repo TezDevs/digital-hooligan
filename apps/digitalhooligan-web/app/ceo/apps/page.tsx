@@ -1,163 +1,150 @@
-
-
 import Link from "next/link";
-import {
-    APP_REGISTRY,
-    type AppRegistryEntry,
-    type AppKind,
-    type AppLifecycleStage,
-} from "@/lib/appRegistry";
 
-const KIND_LABELS: Partial<Record<AppKind, string>> = {
-    "public-app": "Public app",
-    "internal-app": "Internal app",
-    bot: "Bot",
-    "dev-tool": "Dev tool",
+type AppPaths = {
+    marketing?: string;
+    ceo?: string;
+    labs?: string;
 };
 
-const LIFECYCLE_LABELS: Partial<Record<AppLifecycleStage, string>> = {
-    idea: "Idea",
-    design: "Design",
-    build: "Build",
-    live: "Live",
+type AppRegistryItem = {
+    id: string;
+    slug?: string;
+    name: string;
+    codeName?: string;
+    kind: string; // e.g. "internal", "external", "bot", etc.
+    lifecycle: string; // e.g. "idea", "prototype", "beta", "live"
+    owner?: string;
+    tags?: string[];
+    description?: string;
+    paths?: AppPaths;
 };
 
-function kindLabel(kind: AppKind) {
-    return KIND_LABELS[kind] ?? kind;
+type RegistryResponse = {
+    apps: AppRegistryItem[];
+};
+
+async function getAppRegistry(): Promise<RegistryResponse> {
+    const res = await fetch("/api/registry/apps", {
+        cache: "no-store",
+    });
+
+    if (!res.ok) {
+        throw new Error("Failed to load app registry");
+    }
+
+    return res.json();
 }
 
-function lifecycleLabel(stage: AppLifecycleStage) {
-    return LIFECYCLE_LABELS[stage] ?? stage;
-}
-
-function sortEntries(entries: AppRegistryEntry[]): AppRegistryEntry[] {
-    return [...entries].sort((a, b) => a.name.localeCompare(b.name));
-}
-
-export default function CeoAppsPage() {
-    const entries = sortEntries(APP_REGISTRY);
+export default async function CeoAppsPage() {
+    const { apps } = await getAppRegistry();
 
     return (
-        <main className="min-h-screen bg-slate-950 px-4 pb-16 pt-10 text-slate-50">
-            <div className="mx-auto max-w-5xl">
-                <header className="mb-8 flex items-center justify-between gap-4">
+        <main className="min-h-screen bg-slate-950 text-slate-50">
+            <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
+                {/* Header */}
+                <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <p className="text-[0.7rem] uppercase tracking-[0.2em] text-slate-500">
-                            CEO / Apps registry
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">
+                            CEO / App Registry
                         </p>
-                        <h1 className="text-2xl font-semibold text-slate-50">
-                            Apps & bots under Digital Hooligan
+                        <h1 className="text-3xl font-semibold tracking-tight">
+                            Apps & Bots
                         </h1>
-                        <p className="mt-2 max-w-2xl text-sm text-slate-400">
-                            Quick overview of every app in the stack. Later this can drive AI
-                            assistants, health checks, and roadmap views.
+                        <p className="mt-1 text-sm text-slate-400">
+                            Central registry for Digital Hooligan apps, bots, and internal tools.
+                            Click into an app for full CEO detail.
                         </p>
                     </div>
 
-                    <Link
-                        href="/ceo"
-                        className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 hover:border-slate-500 hover:text-slate-50"
-                    >
-                        ← Back to CEO overview
-                    </Link>
+                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                        <span className="inline-flex items-center rounded-full border border-emerald-500/40 px-3 py-1">
+                            <span className="mr-1 h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                            <span>Registry live</span>
+                        </span>
+                        <span className="hidden md:inline">
+                            {apps.length} {apps.length === 1 ? "entry" : "entries"}
+                        </span>
+                    </div>
                 </header>
 
-                <section className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/70 shadow-lg shadow-black/40">
-                    <table className="min-w-full text-left text-xs text-slate-200">
-                        <thead className="border-b border-slate-800 bg-slate-900/80 text-[0.7rem] uppercase tracking-[0.16em] text-slate-500">
-                            <tr>
-                                <th className="px-4 py-3">App</th>
-                                <th className="px-4 py-3">Kind</th>
-                                <th className="px-4 py-3">Lifecycle</th>
-                                <th className="px-4 py-3">Owner</th>
-                                <th className="px-4 py-3">Paths</th>
-                                <th className="px-4 py-3">Internal</th>
-                                <th className="px-4 py-3">Tags</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800">
-                            {entries.map((entry) => (
-                                <tr key={entry.id} className="align-top">
-                                    {/* App name + description */}
-                                    <td className="px-4 py-3 text-[0.8rem]">
-                                        <div className="font-medium text-slate-50">
-                                            {entry.name}
-                                        </div>
-                                        <div className="mt-1 text-[0.7rem] text-slate-400">
-                                            {entry.description ?? "—"}
-                                        </div>
-                                        <div className="mt-1 text-[0.65rem] text-slate-500">
-                                            ID: <code>{entry.id}</code>
-                                        </div>
-                                    </td>
+                {/* Grid of app cards */}
+                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {apps.map((app) => {
+                        const idOrSlug = app.slug || app.id;
+                        return (
+                            <Link
+                                key={app.id}
+                                href={`/ceo/apps/${encodeURIComponent(idOrSlug)}`}
+                                className="group flex flex-col rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-emerald-500/60 hover:bg-slate-900"
+                            >
+                                <div className="mb-2 flex items-center justify-between gap-2">
+                                    <h2 className="text-base font-semibold tracking-tight group-hover:text-emerald-300">
+                                        {app.name}
+                                    </h2>
+                                    <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-300">
+                                        {app.kind}
+                                    </span>
+                                </div>
 
-                                    {/* Kind */}
-                                    <td className="px-4 py-3 text-[0.75rem] text-slate-300">
-                                        {kindLabel(entry.kind)}
-                                    </td>
+                                {app.codeName && (
+                                    <p className="text-[11px] font-mono text-emerald-400">
+                                        {app.codeName}
+                                    </p>
+                                )}
 
-                                    {/* Lifecycle */}
-                                    <td className="px-4 py-3 text-[0.75rem] text-slate-300">
-                                        {lifecycleLabel(entry.lifecycle)}
-                                    </td>
+                                {app.description && (
+                                    <p className="mt-2 line-clamp-2 text-xs text-slate-400">
+                                        {app.description}
+                                    </p>
+                                )}
 
-                                    {/* Owner */}
-                                    <td className="px-4 py-3 text-[0.75rem] text-slate-300">
-                                        {entry.owner}
-                                    </td>
+                                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                                    {app.lifecycle && (
+                                        <span className="rounded-full bg-slate-900/80 px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-300">
+                                            {app.lifecycle}
+                                        </span>
+                                    )}
+                                    {app.owner && (
+                                        <span className="rounded-full bg-slate-900/80 px-2 py-0.5">
+                                            Owner: <span className="text-slate-200">{app.owner}</span>
+                                        </span>
+                                    )}
+                                </div>
 
-                                    {/* Paths */}
-                                    <td className="px-4 py-3 text-[0.7rem] text-slate-300">
-                                        <div className="flex flex-col gap-1">
-                                            {entry.marketingPath && (
-                                                <div>
-                                                    <span className="font-semibold text-slate-400">
-                                                        Marketing:{" "}
-                                                    </span>
-                                                    <code className="text-[0.65rem] text-slate-200">
-                                                        {entry.marketingPath}
-                                                    </code>
-                                                </div>
-                                            )}
-                                            {entry.ceoPath && (
-                                                <div>
-                                                    <span className="font-semibold text-slate-400">
-                                                        CEO:{" "}
-                                                    </span>
-                                                    <code className="text-[0.65rem] text-slate-200">
-                                                        {entry.ceoPath}
-                                                    </code>
-                                                </div>
-                                            )}
-                                            {entry.labsPath && (
-                                                <div>
-                                                    <span className="font-semibold text-slate-400">
-                                                        Labs:{" "}
-                                                    </span>
-                                                    <code className="text-[0.65rem] text-slate-200">
-                                                        {entry.labsPath}
-                                                    </code>
-                                                </div>
-                                            )}
-                                            {!entry.marketingPath && !entry.ceoPath && !entry.labsPath && (
-                                                <span className="text-slate-500">—</span>
-                                            )}
-                                        </div>
-                                    </td>
+                                {app.tags && app.tags.length > 0 && (
+                                    <div className="mt-3 flex flex-wrap gap-1.5">
+                                        {app.tags.map((tag) => (
+                                            <span
+                                                key={tag}
+                                                className="rounded-full bg-slate-900/90 px-2 py-0.5 text-[10px] text-slate-300"
+                                            >
+                                                #{tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
 
-                                    {/* Internal flag */}
-                                    <td className="px-4 py-3 text-[0.7rem] text-slate-300">
-                                        {entry.internalOnly ? "Yes" : "No"}
-                                    </td>
+                                <div className="mt-4 flex items-center justify-between text-[11px] text-slate-500">
+                                    <div className="flex items-center gap-1">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
+                                        <span>AI summary wired</span>
+                                    </div>
+                                    <span className="flex items-center gap-1 text-emerald-300 group-hover:text-emerald-200">
+                                        View CEO detail
+                                        <span aria-hidden="true">↗</span>
+                                    </span>
+                                </div>
+                            </Link>
+                        );
+                    })}
 
-                                    {/* Tags */}
-                                    <td className="px-4 py-3 text-[0.7rem] text-slate-300">
-                                        {entry.tags?.length ? entry.tags.join(", ") : "—"}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    {apps.length === 0 && (
+                        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-400">
+                            No apps in the registry yet. Once entries are added to{" "}
+                            <span className="font-mono text-emerald-300">/api/registry/apps</span>, they
+                            will appear here for the CEO.
+                        </div>
+                    )}
                 </section>
             </div>
         </main>
