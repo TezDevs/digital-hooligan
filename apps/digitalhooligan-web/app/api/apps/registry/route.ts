@@ -1,61 +1,97 @@
-// apps/digitalhooligan-web/app/api/apps/registry/route.ts
-
 import { NextResponse } from "next/server";
-import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
+import {
+    appRegistry,
+    type AppRegistryEntry,
+    type AppId,
+} from "@/lib/appRegistry";
 
 export const dynamic = "force-dynamic";
 
-type AppsRegistrySummary = {
-    total: number;
-    byKind: Record<string, number>;
-    byLifecycle: Record<string, number>;
-};
-
-type AppsRegistryResponse = {
-    ok: true;
-    type: "apps_registry";
-    apps: AppRegistryEntry[];
-    summary: AppsRegistrySummary;
-    timestamp: string;
+/**
+ * Local extension of AppRegistryEntry for this API.
+ * The shared type doesn’t currently expose every field
+ * we want to filter on, so we mark them optional here.
+ */
+type FilterableApp = AppRegistryEntry & {
+    internalOnly?: boolean;
+    kind?: string;
+    lifecycle?: string;
+    owner?: string;
+    tags?: string[];
 };
 
 /**
- * Returns the raw APP_REGISTRY plus a simple summary breakdown.
+ * /api/apps/registry
  *
- * This is the “plain truth” endpoint you can hit from:
- * - CEO views
- * - Labs HQ
- * - Dev Workbench
- * - Insomnia/Kong
- * - Future AI assistants
+ * Central source of truth for app + bot metadata.
+ * Query params (all optional):
+ *   - includeInternal=true | false  (default: false)
+ *   - id=<appId>                   (if present, returns a single app)
+ *   - kind=<kind>                  (e.g. "public-app", "internal-only")
+ *   - lifecycle=<stage>            (e.g. "design", "build", "live")
+ *   - owner=<owner>                (e.g. "digital-hooligan")
+ *   - tag=<tag>                    (filters if tag is present)
  */
-function buildSummary(apps: AppRegistryEntry[]): AppsRegistrySummary {
-    const byKind: Record<string, number> = {};
-    const byLifecycle: Record<string, number> = {};
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
 
-    for (const app of apps) {
-        byKind[app.kind] = (byKind[app.kind] ?? 0) + 1;
-        byLifecycle[app.lifecycle] = (byLifecycle[app.lifecycle] ?? 0) + 1;
+    const includeInternal = searchParams.get("includeInternal") === "true";
+    const id = (searchParams.get("id") as AppId | null) || null;
+    const kind = searchParams.get("kind");
+    const lifecycle = searchParams.get("lifecycle");
+    const owner = searchParams.get("owner");
+    const tag = searchParams.get("tag");
+
+    // Treat registry entries as FilterableApp for this endpoint
+    let apps: FilterableApp[] = appRegistry as FilterableApp[];
+
+    // Hide internal-only apps unless explicitly requested
+    if (!includeInternal) {
+        apps = apps.filter((app) => !app.internalOnly);
     }
 
-    return {
-        total: apps.length,
-        byKind,
-        byLifecycle,
-    };
-}
+    // If an id is provided, return a single app (or 404-style payload)
+    if (id) {
+        const app = apps.find((entry) => entry.id === id);
 
-export async function GET() {
-    const apps = APP_REGISTRY;
-    const summary = buildSummary(apps);
+        if (!app) {
+            return NextResponse.json(
+                {
+                    ok: false,
+                    error: "not_found",
+                    message: `No app found in registry for id "${id}".`,
+                    id,
+                },
+                { status: 404 }
+            );
+        }
 
-    const payload: AppsRegistryResponse = {
+        return NextResponse.json({
+            ok: true,
+            app,
+        });
+    }
+
+    // Otherwise, apply filters and return a list
+    if (kind && kind !== "all") {
+        apps = apps.filter((app) => app.kind === kind);
+    }
+
+    if (lifecycle && lifecycle !== "all") {
+        apps = apps.filter((app) => app.lifecycle === lifecycle);
+    }
+
+    if (owner && owner !== "all") {
+        apps = apps.filter((app) => app.owner === owner);
+    }
+
+    if (tag) {
+        apps = apps.filter((app) => app.tags?.includes(tag));
+    }
+
+    return NextResponse.json({
         ok: true,
-        type: "apps_registry",
+        total: apps.length,
         apps,
-        summary,
-        timestamp: new Date().toISOString(),
-    };
-
-    return NextResponse.json(payload);
+    });
 }
