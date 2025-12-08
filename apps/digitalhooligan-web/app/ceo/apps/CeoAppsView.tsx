@@ -116,7 +116,6 @@ export function CeoAppsView({
     });
 
     useEffect(() => {
-        // If there is no selected app yet, do nothing (keep previous AI state).
         if (!selected?.id) return;
 
         let cancelled = false;
@@ -310,6 +309,35 @@ export function CeoAppsView({
                                     ))}
                                 </div>
                             )}
+
+                            {/* Quick actions */}
+                            <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                                <Link
+                                    href={`/ceo/performance?appId=${encodeURIComponent(
+                                        selected.id
+                                    )}`}
+                                    className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-emerald-200 hover:bg-emerald-500/20"
+                                >
+                                    <span aria-hidden={true}>📈</span>
+                                    <span>View performance</span>
+                                </Link>
+                                <Link
+                                    href={`/ceo/dev-workbench?appId=${encodeURIComponent(
+                                        selected.id
+                                    )}`}
+                                    className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1 text-slate-200 hover:bg-slate-800"
+                                >
+                                    <span aria-hidden={true}>🛠️</span>
+                                    <span>Dev Workbench</span>
+                                </Link>
+                                <Link
+                                    href={`/labs/hq?appId=${encodeURIComponent(selected.id)}`}
+                                    className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1 text-slate-200 hover:bg-slate-800"
+                                >
+                                    <span aria-hidden={true}>🧪</span>
+                                    <span>Open in Labs HQ</span>
+                                </Link>
+                            </div>
                         </div>
 
                         {/* Paths + health + AI summary */}
