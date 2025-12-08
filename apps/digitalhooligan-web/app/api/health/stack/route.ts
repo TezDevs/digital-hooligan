@@ -1,65 +1,97 @@
-// apps/digitalhooligan-web/app/api/health/stack/route.ts
-
 import { NextResponse } from "next/server";
-import {
-    appRegistry,
-    type AppId,
-    type AppRegistryEntry,
-} from "@/lib/appRegistry";
 
-type AppHealthStatus = "ok" | "degraded" | "down";
+type AppHealthStatus = "ok" | "degraded" | "down" | "unknown" | string;
 
 type StackAppHealth = {
-    id: AppId;
-    name: string;
+    appId: string;
     status: AppHealthStatus;
-    note: string;
+    lastChecked: string;
+    notes?: string;
+    source: "registry-mock";
 };
 
-type StackHealthResponse = {
-    ok: boolean;
-    timestamp: string;
+type RegistryEntry = {
+    id: string;
+    slug?: string;
+    name?: string;
+    // Optional fields we want to support in this route
+    defaultHealthStatus?: AppHealthStatus;
+    defaultHealthNote?: string;
+    tagline?: string;
+    // allow extra properties from the real registry without strict typing
+    [key: string]: unknown;
+};
+
+type RegistryResponse = {
+    apps?: RegistryEntry[];
+};
+
+type HealthStackResponse = {
     apps: StackAppHealth[];
 };
 
-/**
- * Aggregated stack health endpoint.
- *
- * For now, this is mocked directly from the App Registry so there is a
- * single source of truth for:
- *  - Which apps exist (id, name, kind, stage)
- *  - Their default health status / note
- *
- * Later, we can override registry defaults with real metrics (uptime,
- * error rates, incidents) while keeping the registry as the "catalog"
- * of apps in the stack.
- */
+function getBaseUrl() {
+    const publicBase = process.env.NEXT_PUBLIC_APP_BASE_URL;
+    if (publicBase) return publicBase;
+
+    const vercel = process.env.VERCEL_URL;
+    if (vercel) return `https://${vercel}`;
+
+    return "http://localhost:3000";
+}
+
 export async function GET() {
-    const timestamp = new Date().toISOString();
+    try {
+        const baseUrl = getBaseUrl();
 
-    const apps: StackAppHealth[] = appRegistry.map((entry: AppRegistryEntry) => {
-        const status: AppHealthStatus = entry.defaultHealthStatus ?? "ok";
-        const note =
-            entry.defaultHealthNote ??
-            `Mocked from registry: ${entry.tagline || "Digital Hooligan app"}.`;
+        // Pull from the registry API
+        const registryRes = await fetch(`${baseUrl}/api/registry/apps`, {
+            cache: "no-store",
+        });
 
-        return {
-            id: entry.id,
-            name: entry.name,
-            status,
-            note,
-        };
-    });
+        if (!registryRes.ok) {
+            console.error(
+                "[Health stack] Failed to load registry",
+                registryRes.status,
+                registryRes.statusText
+            );
+            const empty: HealthStackResponse = { apps: [] };
+            return NextResponse.json(empty, { status: 200 });
+        }
 
-    const ok = apps.every((a) => a.status === "ok");
+        const registryData = (await registryRes.json()) as RegistryResponse;
+        const appRegistry: RegistryEntry[] = Array.isArray(registryData.apps)
+            ? registryData.apps
+            : [];
 
-    const body: StackHealthResponse = {
-        ok,
-        timestamp,
-        apps,
-    };
+        const now = new Date().toISOString();
 
-    return NextResponse.json(body, {
-        status: 200,
-    });
+        const apps: StackAppHealth[] = appRegistry.map((entry) => {
+            const status: AppHealthStatus =
+                entry.defaultHealthStatus ?? ("ok" as AppHealthStatus);
+
+            const note =
+                entry.defaultHealthNote ??
+                `Mocked from registry: ${(entry.tagline as string | undefined) ||
+                (entry.name as string | undefined) ||
+                "Digital Hooligan app"
+                }`;
+
+            return {
+                appId: entry.id,
+                status,
+                lastChecked: now,
+                notes: note,
+                source: "registry-mock",
+            };
+        });
+
+        const payload: HealthStackResponse = { apps };
+
+        return NextResponse.json(payload, { status: 200 });
+    } catch (err) {
+        console.error("[Health stack] Unexpected error", err);
+        const empty: HealthStackResponse = { apps: [] };
+        return NextResponse.json(empty, { status: 200 });
+    }
 }
