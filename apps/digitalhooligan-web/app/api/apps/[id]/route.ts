@@ -1,114 +1,116 @@
-// apps/digitalhooligan-web/app/api/apps/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
 
-import { NextResponse } from "next/server";
-import { APP_REGISTRY, type AppRegistryEntry } from "@/lib/appRegistry";
-import { getMockMetricValue } from "@/lib/mockMetrics";
-
-type AppMetrics = {
-    users: number | null;
-    mrr: number | null;
-    uptime: number | null;
-    errorsPerMin: number | null;
+type AppHealth = {
+    appId: string;
+    status: "healthy" | "degraded" | "down" | "unknown" | string;
+    uptime90d?: number;
+    lastChecked?: string;
+    notes?: string;
 };
 
-type AppDetailsSuccess = {
-    ok: true;
-    app: AppRegistryEntry;
-    metrics?: AppMetrics;
+type HealthResponse = {
+    apps?: AppHealth[];
 };
 
-type AppDetailsError = {
-    ok: false;
-    error: "not_found" | "bad_request" | "internal_error";
-    message: string;
-};
+function getBaseUrl() {
+    const publicBase = process.env.NEXT_PUBLIC_APP_BASE_URL;
+    if (publicBase) return publicBase;
 
-/**
- * GET /api/apps/[id]
- *
- * Returns a single app entry from APP_REGISTRY, with optional resolved mock metrics.
- *
- * Query params:
- *   includeMetrics=true  -> attaches a "metrics" object with resolved values
- *
- * Example:
- *   /api/apps/pennywize?includeMetrics=true
- */
-export async function GET(request: Request) {
+    const vercel = process.env.VERCEL_URL;
+    if (vercel) return `https://${vercel}`;
+
+    return "http://localhost:3000";
+}
+
+export async function GET(req: NextRequest) {
     try {
-        const url = new URL(request.url);
+        const baseUrl = getBaseUrl();
+        const url = new URL(req.url);
 
-        // Example: /api/apps/pennywize -> ["api", "apps", "pennywize"]
+        // Extract id from /api/apps/[Id]
         const segments = url.pathname.split("/").filter(Boolean);
-        const id = segments[2]; // 0 = "api", 1 = "apps", 2 = "<id>"
+        const idSegment = segments[segments.length - 1] ?? "";
+        const rawId = idSegment.toLowerCase();
 
-        if (!id) {
-            const errorPayload: AppDetailsError = {
-                ok: false,
-                error: "bad_request",
-                message: "Missing app id in route path.",
-            };
-            return NextResponse.json(errorPayload, { status: 400 });
+        const includeHealth =
+            url.searchParams.get("includeHealth") === "1" ||
+            url.searchParams.get("includeHealth") === "true";
+
+        // 1) Load registry (loose typing to avoid cross-file TS issues)
+        const registryRes = await fetch(`${baseUrl}/api/registry/apps`, {
+            cache: "no-store",
+        });
+
+        if (!registryRes.ok) {
+            console.error(
+                "[App details] Failed to load registry",
+                registryRes.status,
+                registryRes.statusText
+            );
+            return NextResponse.json(
+                { error: "Failed to load registry" },
+                { status: 500 }
+            );
         }
 
-        const normalizedId = id.trim().toLowerCase();
+        const registryData = (await registryRes.json()) as any;
+        const apps: any[] = Array.isArray(registryData?.apps)
+            ? registryData.apps
+            : [];
 
-        const app = APP_REGISTRY.find(
-            (entry) => entry.id.toLowerCase() === normalizedId,
-        );
+        const app =
+            apps.find((entry) => {
+                const id = String(entry.id ?? "").toLowerCase();
+                const slug = String(entry.slug ?? "").toLowerCase();
+                return id === rawId || slug === rawId;
+            }) ?? null;
 
         if (!app) {
-            const errorPayload: AppDetailsError = {
-                ok: false,
-                error: "not_found",
-                message: `No app found with id "${id}".`,
-            };
-
-            return NextResponse.json(errorPayload, { status: 404 });
+            return NextResponse.json(
+                {
+                    error: "App not found",
+                    id: rawId,
+                    available: apps.map((a) => a.slug || a.id),
+                },
+                { status: 404 }
+            );
         }
 
-        const includeMetrics = url.searchParams.get("includeMetrics") === "true";
-
-        const basePayload: AppDetailsSuccess = {
-            ok: true,
+        const response: any = {
             app,
+            metrics: null, // metrics stubbed for now
+            health: null,
         };
 
-        if (includeMetrics) {
-            const metricsKeys = app.metricsKeys ?? {};
+        // 2) Optional health
+        if (includeHealth) {
+            try {
+                const healthRes = await fetch(`${baseUrl}/api/health/apps`, {
+                    cache: "no-store",
+                });
 
-            const metrics: AppMetrics = {
-                users:
-                    metricsKeys.users != null
-                        ? getMockMetricValue(metricsKeys.users)
-                        : null,
-                mrr:
-                    metricsKeys.mrr != null
-                        ? getMockMetricValue(metricsKeys.mrr)
-                        : null,
-                uptime:
-                    metricsKeys.uptime != null
-                        ? getMockMetricValue(metricsKeys.uptime)
-                        : null,
-                errorsPerMin:
-                    metricsKeys.errorsPerMin != null
-                        ? getMockMetricValue(metricsKeys.errorsPerMin)
-                        : null,
-            };
+                if (healthRes.ok) {
+                    const healthData = (await healthRes.json()) as HealthResponse;
+                    const healthApps = Array.isArray(healthData.apps)
+                        ? healthData.apps
+                        : [];
 
-            basePayload.metrics = metrics;
+                    response.health =
+                        healthApps.find(
+                            (h) => h.appId === app.id || h.appId === app.slug
+                        ) ?? null;
+                }
+            } catch (err) {
+                console.error("[App details] Health fetch error", err);
+            }
         }
 
-        return NextResponse.json(basePayload);
+        return NextResponse.json(response, { status: 200 });
     } catch (err) {
-        console.error("Error in GET /api/apps/[id]:", err);
-
-        const errorPayload: AppDetailsError = {
-            ok: false,
-            error: "internal_error",
-            message: "Unexpected server error while resolving app details.",
-        };
-
-        return NextResponse.json(errorPayload, { status: 500 });
+        console.error("[App details] Unexpected error", err);
+        return NextResponse.json(
+            { error: "Unexpected server error" },
+            { status: 500 }
+        );
     }
 }
