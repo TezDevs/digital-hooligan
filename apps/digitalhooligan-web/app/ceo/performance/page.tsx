@@ -8,10 +8,13 @@ import Link from "next/link";
 type AppHealthStatus = "ok" | "degraded" | "down";
 
 type StackHealthApp = {
-    id: string;
+    // Some APIs give us appId, others id – support both.
+    appId?: string;
+    id?: string;
+
     name: string;
-    status: AppHealthStatus;
-    note: string;
+    status: AppHealthStatus; //
+    note?: string;
 };
 
 type StackHealthReady = {
@@ -303,30 +306,40 @@ function AppHealthSnapshotCard(props: { state: StackHealthState }) {
 
             {state.status === "ready" && (
                 <ul className="mt-2 space-y-1.5 text-[0.85rem]">
-                    {state.data.apps.map((app, index) => (
-                        <li key={app.id ?? String(index)}>
-                            <Link
-                                href={`/ceo/apps?appId=${encodeURIComponent(app.id)}`}
-                                className="flex items-start gap-2 rounded-md px-2 py-1 -mx-2 hover:bg-slate-900/80 transition-colors"
-                            >
-                                <span className="mt-[0.3rem]">
-                                    <StatusDot status={app.status} />
-                                </span>
-                                <div>
-                                    <span className="font-medium text-slate-100">
-                                        {app.name}
+                    {state.data.apps.map((app, index) => {
+                        const appKey = app.appId ?? app.id ?? String(index);
+                        const appIdParam = app.appId ?? app.id ?? "";
+
+                        const href =
+                            appIdParam.length > 0
+                                ? `/ceo/apps?appId=${encodeURIComponent(appIdParam)}`
+                                : "/ceo/apps";
+
+                        return (
+                            <li key={appKey}>
+                                <Link
+                                    href={href}
+                                    className="flex items-start gap-2 rounded-md px-2 py-1 -mx-2 hover:bg-slate-900/80 transition-colors"
+                                >
+                                    <span className="mt-[0.3rem]">
+                                        <StatusDot status={app.status} />
                                     </span>
-                                    <span className="mx-1 text-[0.75rem] text-slate-400">
-                                        ({app.id})
-                                    </span>
-                                    <span className="text-[0.8rem] text-slate-300">
-                                        {" "}
-                                        {app.note}
-                                    </span>
-                                </div>
-                            </Link>
-                        </li>
-                    ))}
+                                    <div>
+                                        <span className="font-medium text-slate-100">
+                                            {app.name}
+                                        </span>
+                                        <span className="mx-1 text-[0.75rem] text-slate-400">
+                                            ({app.appId ?? app.id ?? "unknown"})
+                                        </span>
+                                        <span className="text-[0.8rem] text-slate-300">
+                                            {" "}
+                                            {app.note}
+                                        </span>
+                                    </div>
+                                </Link>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </div>
