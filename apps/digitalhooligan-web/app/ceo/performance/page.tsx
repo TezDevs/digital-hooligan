@@ -303,21 +303,22 @@ function AppHealthSnapshotCard(props: { state: StackHealthState }) {
 
             {state.status === "ready" && (
                 <ul className="mt-2 space-y-1.5 text-[0.85rem]">
-                    {state.data.apps.map((app) => (
-                        <li key={app.id} className="flex items-start gap-2">
+                    {state.data.apps.map((app, index) => (
+                        <li
+                            key={app.id ?? String(index)}
+                            className="flex items-start gap-2"
+                        >
                             <span className="mt-[0.3rem]">
                                 <StatusDot status={app.status} />
                             </span>
                             <div>
-                                <span className="font-medium text-slate-100">
-                                    {app.name}
-                                </span>
+                                <span className="font-medium text-slate-100">{app.name}</span>
                                 <span className="mx-1 text-[0.75rem] text-slate-400">
                                     ({app.id})
                                 </span>
                                 <span className="text-[0.8rem] text-slate-300">
                                     {" "}
-                                    – {app.note}
+                                    {app.note}
                                 </span>
                             </div>
                         </li>
