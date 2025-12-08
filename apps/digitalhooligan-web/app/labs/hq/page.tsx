@@ -25,6 +25,10 @@ type AppsRegistrySummary = {
     total: number;
     byKind: Record<string, number>;
     byLifecycle: Record<string, number>;
+    internal?: number;
+    external?: number;
+    bots?: number;
+
 };
 
 type AppsRegistryResponse = {
@@ -251,26 +255,55 @@ function RegistryBrowserCard(props: {
 }
 
 function RegistrySummaryRow({ state }: { state: AppsReadyState }) {
-    const { summary } = state.data;
+    // Be defensive: if data/summary aren’t ready yet, don’t crash the page.
+    const summary = state?.data?.summary;
+
+    if (!summary) {
+        return null;
+    }
 
     return (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[0.8rem] text-slate-300">
-                <span className="font-medium text-slate-50">
-                    {summary.total}
-                </span>{" "}
-                total entries across apps, bots, and internal tools.
-            </p>
-            <div className="flex flex-wrap items-center gap-1.5 text-[0.7rem]">
-                {Object.entries(summary.byKind).map(([kind, count]) => (
-                    <span
-                        key={kind}
-                        className="inline-flex items-center gap-1 rounded-full bg-slate-900/80 px-2 py-0.5 text-[0.7rem] text-slate-200 ring-1 ring-slate-700/80"
-                    >
-                        <span>{count}</span>
-                        <span>{kind}</span>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    <span className="font-medium text-slate-50">
+                        {summary.total} apps
                     </span>
-                ))}
+                </span>
+
+                {typeof summary.internal === "number" && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-1 text-slate-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+                        <span className="font-mono text-[0.7rem]">
+                            {summary.internal} internal
+                        </span>
+                    </span>
+                )}
+
+                {typeof summary.external === "number" && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-1 text-slate-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                        <span className="font-mono text-[0.7rem]">
+                            {summary.external} external
+                        </span>
+                    </span>
+                )}
+
+                {typeof summary.bots === "number" && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2 py-1 text-slate-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-fuchsia-400" />
+                        <span className="font-mono text-[0.7rem]">
+                            {summary.bots} bots
+                        </span>
+                    </span>
+                )}
+            </div>
+
+            <div className="text-[0.7rem] text-slate-500">
+                <span className="font-mono text-slate-400">
+                    Labs registry snapshot
+                </span>
             </div>
         </div>
     );
@@ -283,9 +316,18 @@ function RegistryFilters(props: {
     const { state, onChangeFilters } = props;
     const { filters, data } = state;
 
+    // All lifecycle info lives under data.summary.byLifecycle
+    const summary = data?.summary;
+    const byLifecycle = summary?.byLifecycle;
+
+    // Guard against missing data when Labs HQ is loading or partially populated.
+    if (!summary || !byLifecycle) {
+        return null;
+    }
+
     const lifecycleOptions = [
         "all",
-        ...Object.keys(data.summary.byLifecycle).sort(),
+        ...Object.keys(byLifecycle).sort(),
     ];
 
     return (
