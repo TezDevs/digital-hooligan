@@ -304,23 +304,27 @@ function AppHealthSnapshotCard(props: { state: StackHealthState }) {
             {state.status === "ready" && (
                 <ul className="mt-2 space-y-1.5 text-[0.85rem]">
                     {state.data.apps.map((app, index) => (
-                        <li
-                            key={app.id ?? String(index)}
-                            className="flex items-start gap-2"
-                        >
-                            <span className="mt-[0.3rem]">
-                                <StatusDot status={app.status} />
-                            </span>
-                            <div>
-                                <span className="font-medium text-slate-100">{app.name}</span>
-                                <span className="mx-1 text-[0.75rem] text-slate-400">
-                                    ({app.id})
+                        <li key={app.id ?? String(index)}>
+                            <Link
+                                href={`/ceo/apps?appId=${encodeURIComponent(app.id)}`}
+                                className="flex items-start gap-2 rounded-md px-2 py-1 -mx-2 hover:bg-slate-900/80 transition-colors"
+                            >
+                                <span className="mt-[0.3rem]">
+                                    <StatusDot status={app.status} />
                                 </span>
-                                <span className="text-[0.8rem] text-slate-300">
-                                    {" "}
-                                    {app.note}
-                                </span>
-                            </div>
+                                <div>
+                                    <span className="font-medium text-slate-100">
+                                        {app.name}
+                                    </span>
+                                    <span className="mx-1 text-[0.75rem] text-slate-400">
+                                        ({app.id})
+                                    </span>
+                                    <span className="text-[0.8rem] text-slate-300">
+                                        {" "}
+                                        {app.note}
+                                    </span>
+                                </div>
+                            </Link>
                         </li>
                     ))}
                 </ul>
