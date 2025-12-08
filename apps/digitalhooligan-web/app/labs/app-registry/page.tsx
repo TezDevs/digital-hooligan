@@ -5,12 +5,11 @@ type LabsRegistryItem = {
     slug?: string;
     name: string;
     tagline?: string;
-    // Optional fields for Labs view
-    stage?: string; // <- what we display in the "stage" column
     kind?: string;
     lifecycle?: string;
     owner?: string;
     tags?: string[];
+    stage?: string; // optional lab stage
     [key: string]: unknown;
 };
 
@@ -52,10 +51,8 @@ async function getLabsRegistry(): Promise<LabsRegistryItem[]> {
     }
 
     const data = (await res.json()) as RegistryResponse;
-
     const apps = Array.isArray(data.apps) ? data.apps : [];
 
-    // For Labs view we can keep everything, or filter to “internal / bot / lab” later.
     return apps;
 }
 
@@ -65,32 +62,40 @@ export default async function LabsAppRegistryPage() {
     return (
         <main className="min-h-screen bg-slate-950 text-slate-50">
             <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
-                {/* Header */}
-                <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
+                {/* Top bar with clear navigation */}
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-col gap-1">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-400">
                             Hooligan Labs
                         </p>
-                        <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+                        <h1 className="text-2xl font-semibold tracking-tight">
                             Labs App Registry
                         </h1>
-                        <p className="mt-2 max-w-xl text-sm text-slate-400">
+                        <p className="max-w-xl text-sm text-slate-400">
                             Internal snapshot of apps, bots, and experiments that live inside
-                            Hooligan Labs. Stage is intentionally loose (idea, prototype, beta,
-                            live) so we can quickly see what&apos;s cooking.
+                            Hooligan Labs. Stage is intentionally loose (idea, prototype,
+                            beta, live) so you can quickly see what&apos;s cooking.
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs">
+                    {/* >>> This is your “back to CEO dashboard” button <<< */}
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <Link
+                            href="/ceo"
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5 text-slate-200 hover:border-emerald-400 hover:text-emerald-100"
+                        >
+                            <span aria-hidden="true">🏴‍☠️</span>
+                            <span>Back to CEO Dashboard</span>
+                        </Link>
                         <Link
                             href="/ceo/apps"
-                            className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-slate-300 hover:border-emerald-400 hover:text-emerald-200"
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-3 py-1.5 text-slate-300 hover:border-emerald-400 hover:text-emerald-100"
                         >
-                            <span aria-hidden="true">↗</span>
+                            <span aria-hidden="true">📊</span>
                             <span>CEO App Registry</span>
                         </Link>
                     </div>
-                </header>
+                </div>
 
                 {/* Table */}
                 <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60">
@@ -103,8 +108,8 @@ export default async function LabsAppRegistryPage() {
                             <span className="font-mono text-emerald-300">
                                 /api/registry/apps
                             </span>{" "}
-                            and rendered for Labs only. Stage field is optional, so new apps
-                            won&apos;t break this view.
+                            and rendered for Labs only. Stage is optional so missing fields
+                            don&apos;t break this view.
                         </p>
                     </div>
 
@@ -140,15 +145,14 @@ export default async function LabsAppRegistryPage() {
                                 {apps.map((entry) => {
                                     const stage =
                                         typeof entry.stage === "string" ? entry.stage : undefined;
+                                    const key = stage ? stage.toLowerCase() : "";
                                     const stageLabel =
-                                        (stage && STAGE_LABEL[stage.toLowerCase()]?.toString()) ||
-                                        stage ||
-                                        "-";
+                                        (key && STAGE_LABEL[key]) || stage || "-";
 
                                     return (
                                         <tr
                                             key={entry.id}
-                                            className="hover:bg-slate-900/60 transition-colors"
+                                            className="transition-colors hover:bg-slate-900/60"
                                         >
                                             <td className="px-4 py-2 align-top">
                                                 <div className="flex flex-col gap-0.5">
