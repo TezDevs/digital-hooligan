@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
 type AppPaths = {
     marketing?: string;
@@ -40,13 +39,26 @@ type AiSummaryResponse = {
     summary?: string;
 };
 
+function getBaseUrl() {
+    const publicBase = process.env.NEXT_PUBLIC_APP_BASE_URL;
+    if (publicBase) return publicBase;
+
+    const vercel = process.env.VERCEL_URL;
+    if (vercel) return `https://${vercel}`;
+
+    return "http://localhost:3000";
+}
+
 async function getRegistry(): Promise<RegistryResponse> {
-    const res = await fetch("/api/registry/apps", {
+    const baseUrl = getBaseUrl();
+
+    const res = await fetch(`${baseUrl}/api/registry/apps`, {
         cache: "no-store",
     });
 
     if (!res.ok) {
-        throw new Error("Failed to load app registry");
+        console.error("[CEO] Failed to load app registry", res.status, res.statusText);
+        return { apps: [] };
     }
 
     return res.json();
@@ -54,28 +66,37 @@ async function getRegistry(): Promise<RegistryResponse> {
 
 async function getHealth(): Promise<HealthResponse | null> {
     try {
-        const res = await fetch("/api/health/apps", {
+        const baseUrl = getBaseUrl();
+
+        const res = await fetch(`${baseUrl}/api/health/apps`, {
             cache: "no-store",
         });
 
         if (!res.ok) return null;
         return res.json();
-    } catch {
+    } catch (err) {
+        console.error("[CEO] Health API error", err);
         return null;
     }
 }
 
 async function getAiSummary(appId: string): Promise<string | null> {
     try {
-        const res = await fetch(`/api/ai/app-summary?appid=${encodeURIComponent(appId)}`, {
-            cache: "no-store",
-        });
+        const baseUrl = getBaseUrl();
+
+        const res = await fetch(
+            `${baseUrl}/api/ai/app-summary?appid=${encodeURIComponent(appId)}`,
+            {
+                cache: "no-store",
+            }
+        );
 
         if (!res.ok) return null;
 
         const data: AiSummaryResponse = await res.json();
         return data.summary ?? null;
-    } catch {
+    } catch (err) {
+        console.error("[CEO] AI summary API error", err);
         return null;
     }
 }
@@ -128,23 +149,99 @@ type PageProps = {
 };
 
 export default async function CeoAppDetailPage({ params }: PageProps) {
-    const { appId } = params;
+    // Standard Next.js pattern: params.appId from /ceo/apps/[appId]
+    const rawParam = params?.appId ?? "";
+    const normalizedParam = rawParam.toLowerCase();
 
     const [registry, healthData, aiSummary] = await Promise.all([
         getRegistry(),
         getHealth(),
-        getAiSummary(appId),
+        getAiSummary(normalizedParam || "unknown"),
     ]);
 
     const app =
-        registry.apps.find(
-            (item) =>
-                item.id === appId ||
-                (item.slug && item.slug === appId)
-        ) ?? null;
+        registry.apps.find((item) => {
+            const id = (item.id ?? "").toLowerCase();
+            const slug = (item.slug ?? "").toLowerCase();
+            return id === normalizedParam || slug === normalizedParam;
+        }) ?? null;
 
     if (!app) {
-        notFound();
+        console.error(
+            "[CEO] App not found for param",
+            rawParam,
+            "params object:",
+            params,
+            "available ids/slugs:",
+            registry.apps.map((a) => a.slug || a.id)
+        );
+
+        return (
+            <main className="min-h-screen bg-slate-950 text-slate-50">
+                <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-16">
+                    <div className="text-xs text-emerald-400 font-semibold tracking-[0.25em] uppercase">
+                        CEO / App Detail
+                    </div>
+                    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                        <h1 className="text-2xl font-semibold tracking-tight mb-2">
+                            App not found in registry
+                        </h1>
+                        <p className="text-sm text-slate-300 mb-4">
+                            The app ID{" "}
+                            <span className="font-mono text-emerald-300">
+                                {rawParam || "«empty»"}
+                            </span>{" "}
+                            is not present in the current registry response from{" "}
+                            <span className="font-mono text-emerald-300">
+                                /api/registry/apps
+                            </span>
+                            .
+                        </p>
+                        {registry.apps.length > 0 ? (
+                            <>
+                                <p className="text-xs text-slate-400 mb-2">
+                                    Available entries (id / slug):
+                                </p>
+                                <ul className="mb-4 list-disc pl-5 text-xs text-slate-300 space-y-1">
+                                    {registry.apps.map((a) => (
+                                        <li key={a.id}>
+                                            <span className="font-mono">
+                                                {a.id}
+                                                {a.slug && a.slug !== a.id ? ` / ${a.slug}` : ""}
+                                            </span>{" "}
+                                            — {a.name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        ) : (
+                            <p className="text-xs text-slate-400 mb-4">
+                                Registry is currently empty. Check the{" "}
+                                <span className="font-mono text-emerald-300">
+                                    app/api/registry/apps/route.ts
+                                </span>{" "}
+                                stub.
+                            </p>
+                        )}
+
+                        <div className="flex flex-wrap gap-3 text-xs">
+                            <Link
+                                href="/ceo/apps"
+                                className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-950 px-3 py-1 hover:border-emerald-400 hover:text-emerald-200"
+                            >
+                                ← Back to App Registry
+                            </Link>
+                            <Link
+                                href="/"
+                                className="inline-flex items-center gap-1 rounded-full border border-slate-800 bg-slate-900 px-3 py-1 hover:border-emerald-400 hover:text-emerald-200"
+                            >
+                                Home
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        );
     }
 
     const health =
@@ -198,9 +295,7 @@ export default async function CeoAppDetailPage({ params }: PageProps) {
                             <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-400">
                                 App Detail
                             </p>
-                            <h1 className="text-3xl font-semibold tracking-tight">
-                                {app.name}
-                            </h1>
+                            <h1 className="text-3xl font-semibold tracking-tight">{app.name}</h1>
                             {app.codeName && (
                                 <p className="font-mono text-xs text-emerald-300">
                                     {app.codeName}
@@ -217,9 +312,7 @@ export default async function CeoAppDetailPage({ params }: PageProps) {
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-1 text-[11px] uppercase tracking-wide">
                                     Kind:{" "}
-                                    <span className="text-emerald-300">
-                                        {app.kind || "Unknown"}
-                                    </span>
+                                    <span className="text-emerald-300">{app.kind || "Unknown"}</span>
                                 </span>
                                 <span className="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-1 text-[11px] uppercase tracking-wide">
                                     Lifecycle:{" "}
@@ -232,9 +325,7 @@ export default async function CeoAppDetailPage({ params }: PageProps) {
                             {app.owner && (
                                 <p className="text-xs text-slate-400">
                                     Owner:{" "}
-                                    <span className="font-medium text-slate-100">
-                                        {app.owner}
-                                    </span>
+                                    <span className="font-medium text-slate-100">{app.owner}</span>
                                 </p>
                             )}
 
@@ -245,9 +336,7 @@ export default async function CeoAppDetailPage({ params }: PageProps) {
                                     <>
                                         {" "}
                                         · Slug:{" "}
-                                        <span className="font-mono text-slate-300">
-                                            {app.slug}
-                                        </span>
+                                        <span className="font-mono text-slate-300">{app.slug}</span>
                                     </>
                                 )}
                             </p>
@@ -305,12 +394,10 @@ export default async function CeoAppDetailPage({ params }: PageProps) {
                             </h2>
                             <p className="text-xs text-slate-400">
                                 This panel is ready for future metrics: users, subscriptions,
-                                latency, uptime, incidents, or anything else we want to expose
-                                to the CEO for{" "}
-                                <span className="font-semibold text-slate-100">
-                                    {app.name}
-                                </span>
-                                . For now, it simply confirms that the core plumbing is wired:
+                                latency, uptime, incidents, or anything else we want to expose to
+                                the CEO for{" "}
+                                <span className="font-semibold text-slate-100">{app.name}</span>. For
+                                now, it simply confirms that the core plumbing is wired:
                             </p>
                             <ul className="mt-3 space-y-1 text-xs text-slate-300">
                                 <li>• Registry entry loaded from /api/registry/apps</li>

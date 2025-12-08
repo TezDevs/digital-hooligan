@@ -23,16 +23,43 @@ type RegistryResponse = {
     apps: AppRegistryItem[];
 };
 
+function getBaseUrl() {
+    // Prefer an explicit base URL in env for prod:
+    // e.g. NEXT_PUBLIC_APP_BASE_URL="https://digitalhooligan.io"
+    const publicBase = process.env.NEXT_PUBLIC_APP_BASE_URL;
+    if (publicBase) return publicBase;
+
+    // Fallback for Vercel preview/prod
+    const vercel = process.env.VERCEL_URL;
+    if (vercel) return `https://${vercel}`;
+
+    // Local dev default
+    return "http://localhost:3000";
+}
+
 async function getAppRegistry(): Promise<RegistryResponse> {
-    const res = await fetch("/api/registry/apps", {
-        cache: "no-store",
-    });
+    const baseUrl = getBaseUrl();
 
-    if (!res.ok) {
-        throw new Error("Failed to load app registry");
+    try {
+        const res = await fetch(`${baseUrl}/api/registry/apps`, {
+            cache: "no-store",
+        });
+
+        if (!res.ok) {
+            console.error(
+                "[CEO] Registry fetch failed",
+                res.status,
+                res.statusText
+            );
+            // Fall back to an empty list instead of crashing the whole page
+            return { apps: [] };
+        }
+
+        return res.json();
+    } catch (err) {
+        console.error("[CEO] Registry fetch error", err);
+        return { apps: [] };
     }
-
-    return res.json();
 }
 
 export default async function CeoAppsPage() {
