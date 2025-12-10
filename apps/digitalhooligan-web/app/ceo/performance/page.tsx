@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type AppStatus = "healthy" | "attention" | "down";
 
@@ -101,22 +104,17 @@ function getStatusBadge(status: AppStatus) {
     );
 }
 
-interface PerformancePageProps {
-    searchParams?: {
-        appId?: string;
-    };
-}
+export default function PerformancePage() {
+    const searchParams = useSearchParams();
+    const appIdParam = searchParams.get("appId") ?? undefined;
 
-export default function PerformancePage({ searchParams }: PerformancePageProps) {
-    const appId = searchParams?.appId;
-
-    // Try to match either by id or slug (so ?appId=pennywize OR ?appId=PennyWize works if you later change link style)
+    // Try to match either by id or slug (so ?appId=pennywize or ?appId=PennyWize is forgiving)
     const selectedApp =
-        appId &&
+        appIdParam &&
         APP_PERFORMANCE.find(
             (app) =>
-                app.id.toLowerCase() === appId.toLowerCase() ||
-                app.slug.toLowerCase() === appId.toLowerCase()
+                app.id.toLowerCase() === appIdParam.toLowerCase() ||
+                app.slug.toLowerCase() === appIdParam.toLowerCase()
         );
 
     const visibleApps = selectedApp ? [selectedApp] : APP_PERFORMANCE;
@@ -172,9 +170,30 @@ export default function PerformancePage({ searchParams }: PerformancePageProps) 
         0
     );
 
+    const avgUptime =
+        visibleApps.length === 0
+            ? 0
+            : Math.round(
+                visibleApps.reduce((sum, app) => {
+                    const numeric = parseFloat(app.uptime.replace("%", ""));
+                    return sum + numeric;
+                }, 0) / visibleApps.length
+            );
+
     return (
         <div className="min-h-screen bg-neutral-950 text-neutral-100">
             <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 md:px-6 lg:px-8">
+                {/* Back to CEO dashboard */}
+                <div className="mb-1">
+                    <Link
+                        href="/ceo"
+                        className="inline-flex items-center gap-2 text-xs font-medium text-neutral-400 hover:text-emerald-300"
+                    >
+                        <span className="text-base leading-none">←</span>
+                        <span>Back to CEO dashboard</span>
+                    </Link>
+                </div>
+
                 {/* Header */}
                 <header className="flex flex-col gap-4 border-b border-neutral-800 pb-4 md:flex-row md:items-center md:justify-between">
                     <div>
@@ -268,15 +287,7 @@ export default function PerformancePage({ searchParams }: PerformancePageProps) 
                                 </h2>
                                 <div className="mt-3 flex items-baseline gap-2">
                                     <p className="text-2xl font-semibold text-neutral-50">
-                                        {Math.round(
-                                            visibleApps.reduce((sum, app) => {
-                                                const numeric = parseFloat(
-                                                    app.uptime.replace("%", "")
-                                                );
-                                                return sum + numeric;
-                                            }, 0) / visibleApps.length
-                                        )}
-                                        %
+                                        {avgUptime}%
                                     </p>
                                     <span className="text-xs text-neutral-500">
                                         avg. 30-day uptime
