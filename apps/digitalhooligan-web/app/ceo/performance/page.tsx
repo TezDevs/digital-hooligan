@@ -1,411 +1,424 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
 
-/* ---------- Types ---------- */
+type AppStatus = "healthy" | "attention" | "down";
 
-type AppHealthStatus = "ok" | "degraded" | "down";
-
-type StackHealthApp = {
-    // Some APIs give us appId, others id – support both.
-    appId?: string;
-    id?: string;
-
+type AppPerformance = {
+    id: string;
+    slug: string;
     name: string;
-    status: AppHealthStatus; //
-    note?: string;
+    status: AppStatus;
+    uptime: string;
+    latencyMs: number;
+    activeUsers: number;
+    mrr: string;
+    errorRate: string;
+    lastIncident?: string;
+    owner: string;
 };
 
-type StackHealthReady = {
-    ok: boolean;
-    timestamp: string;
-    apps: StackHealthApp[];
-};
+const APP_PERFORMANCE: AppPerformance[] = [
+    {
+        id: "pennywize",
+        slug: "pennywize",
+        name: "PennyWize",
+        status: "healthy",
+        uptime: "99.97%",
+        latencyMs: 120,
+        activeUsers: 134,
+        mrr: "$1.2k",
+        errorRate: "0.3%",
+        lastIncident: "3 days ago",
+        owner: "Digital Hooligan Labs",
+    },
+    {
+        id: "dropsignal",
+        slug: "dropsignal",
+        name: "DropSignal",
+        status: "attention",
+        uptime: "99.3%",
+        latencyMs: 210,
+        activeUsers: 87,
+        mrr: "$640",
+        errorRate: "1.8%",
+        lastIncident: "18 hours ago",
+        owner: "Digital Hooligan Labs",
+    },
+    {
+        id: "hypewatch",
+        slug: "hypewatch",
+        name: "HypeWatch",
+        status: "healthy",
+        uptime: "99.9%",
+        latencyMs: 95,
+        activeUsers: 52,
+        mrr: "$280",
+        errorRate: "0.1%",
+        lastIncident: "7 days ago",
+        owner: "Digital Hooligan Labs",
+    },
+    {
+        id: "ops-toys",
+        slug: "ops-toys",
+        name: "Ops Toys",
+        status: "attention",
+        uptime: "98.7%",
+        latencyMs: 180,
+        activeUsers: 23,
+        mrr: "$0 (internal)",
+        errorRate: "2.4%",
+        lastIncident: "12 hours ago",
+        owner: "Internal / Dev",
+    },
+];
 
-type StackHealthState =
-    | { status: "loading" }
-    | { status: "ready"; data: StackHealthReady }
-    | { status: "error"; message: string };
+function getStatusBadge(status: AppStatus) {
+    const base =
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border";
 
-/* ---------- Page ---------- */
-
-export default function PerformancePage() {
-    const [stackState, setStackState] = React.useState<StackHealthState>({
-        status: "loading",
-    });
-
-    React.useEffect(() => {
-        let cancelled = false;
-
-        async function load() {
-            try {
-                const res = await fetch("/api/health/stack");
-                if (!res.ok) {
-                    throw new Error(`Stack health responded with ${res.status}`);
-                }
-
-                const data = (await res.json()) as StackHealthReady;
-
-                if (cancelled) return;
-                setStackState({ status: "ready", data });
-            } catch (err: unknown) {
-                if (cancelled) return;
-                const message =
-                    err instanceof Error
-                        ? err.message
-                        : "Unexpected error calling /api/health/stack.";
-                setStackState({ status: "error", message });
-            }
-        }
-
-        void load();
-        const id = setInterval(() => {
-            void load();
-        }, 60_000);
-
-        return () => {
-            cancelled = true;
-            clearInterval(id);
-        };
-    }, []);
-
-    return (
-        <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
-            <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
-                {/* Header */}
-                <header className="mb-4 flex flex-col gap-3 md:mb-6 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
-                            Performance
-                        </h1>
-                        <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
-                            High-level health and reliability view across Digital Hooligan
-                            apps. Later this can plug into real uptime, latency, and
-                            incident feeds.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
-                        <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-emerald-300 ring-1 ring-emerald-500/70">
-                            Mode: CEO / reliability
-                        </span>
-                        <Link
-                            href="/ceo"
-                            className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                        >
-                            ← Back to CEO overview
-                        </Link>
-                    </div>
-                </header>
-
-                {/* CEO tabs */}
-                <nav className="mb-6 overflow-x-auto">
-                    <div className="flex gap-2 text-sm">
-                        <CeoTab href="/ceo" label="Overview" />
-                        <CeoTab href="/ceo/tasks" label="Tasks" />
-                        <CeoTab href="/ceo/deals" label="Deals" />
-                        <CeoTab href="/ceo/finance" label="Finance" />
-                        <CeoTab href="/ceo/performance" label="Performance" active />
-                        <CeoTab href="/ceo/ai-hub" label="AI Hub" />
-                        <CeoTab href="/ceo/dev-workbench" label="Dev WB" />
-                        <CeoTab href="/ceo/settings" label="Settings" />
-                        <CeoTab href="/ceo/logout" label="Logout" />
-                    </div>
-                </nav>
-
-                {/* Main grid:
-           - First row: Reliability + App health side-by-side on desktop (lg:grid-cols-2)
-           - Second row: Incidents + Latency placeholders
-        */}
-                <section className="space-y-4">
-                    <div className="grid gap-4 lg:grid-cols-2">
-                        <ReliabilitySnapshotCard state={stackState} />
-                        <AppHealthSnapshotCard state={stackState} />
-                    </div>
-
-                    <div className="grid gap-4 lg:grid-cols-2">
-                        <IncidentsFutureCard />
-                        <LatencyFutureCard />
-                    </div>
-                </section>
-            </div>
-        </main>
-    );
-}
-
-/* ---------- Shared: CEO tab ---------- */
-
-function CeoTab(props: {
-    href: string;
-    label: string;
-    active?: boolean;
-}) {
-    const { href, label, active } = props;
-
-    if (active) {
+    if (status === "healthy") {
         return (
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-900">
-                {label}
+            <span className={`${base} border-emerald-500/40 text-emerald-400`}>
+                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Healthy
+            </span>
+        );
+    }
+
+    if (status === "attention") {
+        return (
+            <span className={`${base} border-amber-500/40 text-amber-300`}>
+                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-amber-300" />
+                Needs attention
             </span>
         );
     }
 
     return (
-        <Link
-            href={href}
-            className="inline-flex items-center rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700/80 hover:bg-slate-800 hover:text-emerald-200 hover:ring-emerald-500/70"
-        >
-            {label}
-        </Link>
+        <span className={`${base} border-rose-500/40 text-rose-300`}>
+            <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-rose-400" />
+            Down
+        </span>
     );
 }
 
-/* ---------- Card: Reliability snapshot ---------- */
+interface PerformancePageProps {
+    searchParams?: {
+        appId?: string;
+    };
+}
 
-function ReliabilitySnapshotCard(props: { state: StackHealthState }) {
-    const { state } = props;
+export default function PerformancePage({ searchParams }: PerformancePageProps) {
+    const appId = searchParams?.appId;
 
-    // For now we keep uptime numbers mocked, but color them based on stack ok.
-    const uptimeText = "99.92%";
-    const period = "Overall uptime (30d)";
+    // Try to match either by id or slug (so ?appId=pennywize OR ?appId=PennyWize works if you later change link style)
+    const selectedApp =
+        appId &&
+        APP_PERFORMANCE.find(
+            (app) =>
+                app.id.toLowerCase() === appId.toLowerCase() ||
+                app.slug.toLowerCase() === appId.toLowerCase()
+        );
 
-    const isOk = state.status === "ready" ? state.data.ok : null;
+    const visibleApps = selectedApp ? [selectedApp] : APP_PERFORMANCE;
+    const basePath = "/ceo/performance";
 
-    let uptimeTone =
-        "bg-emerald-500/10 text-emerald-200 ring-emerald-500/70";
-    if (isOk === false) {
-        uptimeTone = "bg-amber-500/10 text-amber-100 ring-amber-500/80";
-    }
-    if (isOk === null) {
-        uptimeTone =
-            "bg-slate-900/80 text-slate-200 ring-slate-700/80";
-    }
+    const contextLabel = selectedApp
+        ? `${selectedApp.name} only`
+        : "All apps (portfolio view)";
+
+    const contextSubtitle = selectedApp
+        ? `You are viewing metrics and quick actions specifically for ${selectedApp.name}.`
+        : "You are viewing rolled-up performance across all Digital Hooligan apps.";
+
+    const quickActions = selectedApp
+        ? [
+            {
+                label: `Open ${selectedApp.name} in Labs`,
+                href: `/labs/hq?appId=${selectedApp.id}`,
+                description: "Jump straight into experiments and build pipeline.",
+            },
+            {
+                label: `View ${selectedApp.name} incidents`,
+                href: `/ceo/incidents?appId=${selectedApp.id}`,
+                description: "Review recent incidents, errors, and mitigations.",
+            },
+            {
+                label: `Tune ${selectedApp.name} performance`,
+                href: `/ceo/dev-workbench?appId=${selectedApp.id}`,
+                description:
+                    "Go to Dev Workbench with this app pre-selected for tuning.",
+            },
+        ]
+        : [
+            {
+                label: "Open Labs HQ",
+                href: "/labs/hq",
+                description: "Portfolio-level view of experiments and builds.",
+            },
+            {
+                label: "Incidents across all apps",
+                href: "/ceo/incidents",
+                description: "See where things are breaking across the portfolio.",
+            },
+            {
+                label: "Dev Workbench (all apps)",
+                href: "/ceo/dev-workbench",
+                description: "Jump into dev tooling and logs for any app.",
+            },
+        ];
+
+    const totalActiveUsers = visibleApps.reduce(
+        (sum, app) => sum + app.activeUsers,
+        0
+    );
 
     return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <div className="mb-3 flex items-start justify-between gap-3">
-                <div>
-                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        Reliability snapshot
-                    </p>
-                    <p className="mt-1 text-sm text-slate-300">
-                        Quick read on uptime, stability, and incidents. Numbers are
-                        mocked for now, but structure maps cleanly to future metrics.
-                    </p>
-                </div>
-                <button
-                    type="button"
-                    className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
-                >
-                    Refresh
-                </button>
-            </div>
+        <div className="min-h-screen bg-neutral-950 text-neutral-100">
+            <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 md:px-6 lg:px-8">
+                {/* Header */}
+                <header className="flex flex-col gap-4 border-b border-neutral-800 pb-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-neutral-500">
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-emerald-300">
+                                CEO
+                            </span>
+                            Performance
+                        </div>
+                        <h1 className="mt-2 text-2xl font-semibold text-neutral-50 md:text-3xl">
+                            App performance & reliability
+                        </h1>
+                        <p className="mt-1 text-sm text-neutral-400">{contextSubtitle}</p>
+                    </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3">
-                    <p className="text-[0.7rem] text-slate-400">{period}</p>
-                    <div className="mt-1 flex items-baseline justify-between">
-                        <p className={`text-xl font-semibold ${uptimeTone.split(" ")[1]}`}>
-                            {uptimeText}
+                    {/* Context summary */}
+                    <div className="flex flex-col items-start gap-2 text-sm md:items-end">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/70 px-3 py-1 text-xs font-medium text-neutral-200">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                            Context: {contextLabel}
+                        </div>
+                        <p className="text-xs text-neutral-500">
+                            Use the app picker below to switch context.
                         </p>
-                        <span
-                            className={[
-                                "inline-flex items-center rounded-full px-2 py-0.5 text-[0.7rem] font-medium",
-                                "ring-1",
-                                uptimeTone,
-                            ].join(" ")}
+                    </div>
+                </header>
+
+                {/* App context picker */}
+                <section className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs uppercase tracking-[0.16em] text-neutral-500">
+                        App context
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                        <Link
+                            href={basePath}
+                            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${!selectedApp
+                                    ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-300"
+                                    : "border-neutral-800 bg-neutral-900/60 text-neutral-300 hover:border-neutral-600"
+                                }`}
                         >
-                            {isOk === null
-                                ? "Checking stack…"
-                                : isOk
-                                    ? "Stack healthy"
-                                    : "Attention needed"}
-                        </span>
-                    </div>
-                    <p className="mt-2 text-[0.75rem] text-slate-400">
-                        Later, this can pull from a metrics store (CloudWatch, Grafana,
-                        etc.) and incident tracker instead of static values.
-                    </p>
-                </div>
+                            All apps
+                        </Link>
+                        {APP_PERFORMANCE.map((app) => {
+                            const active =
+                                selectedApp &&
+                                (selectedApp.id === app.id || selectedApp.slug === app.slug);
 
-                <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-3">
-                    <p className="text-[0.7rem] text-slate-400">Apps in good standing</p>
-                    <div className="mt-1 flex items-baseline justify-between">
-                        <p className="text-xl font-semibold text-slate-50">
-                            {state.status === "ready"
-                                ? state.data.apps.filter((a) => a.status === "ok").length
-                                : "-"}
-                            {state.status === "ready" && (
-                                <span className="text-sm text-slate-400">
-                                    {" "}
-                                    / {state.data.apps.length}
-                                </span>
-                            )}
-                        </p>
-                    </div>
-                    <p className="mt-2 text-[0.75rem] text-slate-400">
-                        Later, this slot can call deeper health endpoints for latency,
-                        error rates, and incident counts.
-                    </p>
-                </div>
-            </div>
-
-            {state.status === "ready" && (
-                <p className="mt-3 text-[0.7rem] text-slate-500">
-                    Snapshot timestamp: {state.data.timestamp}
-                </p>
-            )}
-            {state.status === "loading" && (
-                <p className="mt-3 text-[0.7rem] text-slate-500">
-                    Loading stack health…
-                </p>
-            )}
-            {state.status === "error" && (
-                <p className="mt-3 text-[0.7rem] text-amber-300">
-                    Error loading stack health: {state.message}
-                </p>
-            )}
-        </div>
-    );
-}
-
-/* ---------- Card: App health snapshot ---------- */
-
-function AppHealthSnapshotCard(props: { state: StackHealthState }) {
-    const { state } = props;
-
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <div className="mb-2 flex items-start justify-between gap-3">
-                <div>
-                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        App health snapshot
-                    </p>
-                    <p className="mt-1 text-sm text-slate-300">
-                        Per-app view backed by{" "}
-                        <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
-                            /api/health/stack
-                        </code>
-                        . This is the same feed powering Dev Workbench later.
-                    </p>
-                </div>
-            </div>
-
-            {state.status === "loading" && (
-                <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
-                    Loading app health…
-                </p>
-            )}
-
-            {state.status === "error" && (
-                <div className="rounded-xl border border-amber-500/70 bg-amber-950/40 px-3 py-3 text-[0.85rem] text-amber-50">
-                    <p className="font-semibold">Unable to load app health snapshot.</p>
-                    <p className="mt-1 text-[0.8rem]">{state.message}</p>
-                </div>
-            )}
-
-            {state.status === "ready" && (
-                <ul className="mt-2 space-y-1.5 text-[0.85rem]">
-                    {state.data.apps.map((app, index) => {
-                        const appKey = app.appId ?? app.id ?? String(index);
-                        const appIdParam = app.appId ?? app.id ?? "";
-
-                        const href =
-                            appIdParam.length > 0
-                                ? `/ceo/apps?appId=${encodeURIComponent(appIdParam)}`
-                                : "/ceo/apps";
-
-                        return (
-                            <li key={appKey}>
+                            return (
                                 <Link
-                                    href={href}
-                                    className="flex items-start gap-2 rounded-md px-2 py-1 -mx-2 hover:bg-slate-900/80 transition-colors"
+                                    key={app.id}
+                                    href={`${basePath}?appId=${app.id}`}
+                                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${active
+                                            ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-300"
+                                            : "border-neutral-800 bg-neutral-900/60 text-neutral-300 hover:border-neutral-600"
+                                        }`}
                                 >
-                                    <span className="mt-[0.3rem]">
-                                        <StatusDot status={app.status} />
-                                    </span>
-                                    <div>
-                                        <span className="font-medium text-slate-100">
-                                            {app.name}
-                                        </span>
-                                        <span className="mx-1 text-[0.75rem] text-slate-400">
-                                            ({app.appId ?? app.id ?? "unknown"})
-                                        </span>
-                                        <span className="text-[0.8rem] text-slate-300">
-                                            {" "}
-                                            {app.note}
-                                        </span>
-                                    </div>
+                                    {app.name}
                                 </Link>
-                            </li>
-                        );
-                    })}
-                </ul>
-            )}
-        </div>
-    );
-}
+                            );
+                        })}
+                    </div>
+                </section>
 
-function StatusDot({ status }: { status: AppHealthStatus }) {
-    let tone = "bg-slate-500";
-    if (status === "ok") tone = "bg-emerald-500";
-    if (status === "degraded") tone = "bg-amber-400";
-    if (status === "down") tone = "bg-rose-500";
+                {/* Main grid */}
+                <main className="grid gap-6 lg:grid-cols-[minmax(0,2fr),minmax(0,1.2fr)]">
+                    {/* Left: metrics and tables */}
+                    <div className="flex flex-col gap-6">
+                        {/* Snapshot cards */}
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
+                                <div className="flex items-center justify-between gap-2">
+                                    <h2 className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
+                                        Active users
+                                    </h2>
+                                    <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
+                                        Live
+                                    </span>
+                                </div>
+                                <p className="mt-3 text-2xl font-semibold text-neutral-50">
+                                    {totalActiveUsers.toLocaleString()}
+                                </p>
+                                <p className="mt-1 text-xs text-neutral-500">
+                                    Across {visibleApps.length}{" "}
+                                    {visibleApps.length === 1 ? "app" : "apps"} in this view.
+                                </p>
+                            </div>
 
-    return (
-        <span
-            className={`inline-block h-2.5 w-2.5 rounded-full ${tone} shadow-[0_0_0_3px_rgba(15,23,42,0.9)]`}
-        />
-    );
-}
+                            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
+                                <h2 className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
+                                    Portfolio health
+                                </h2>
+                                <div className="mt-3 flex items-baseline gap-2">
+                                    <p className="text-2xl font-semibold text-neutral-50">
+                                        {Math.round(
+                                            visibleApps.reduce((sum, app) => {
+                                                const numeric = parseFloat(
+                                                    app.uptime.replace("%", "")
+                                                );
+                                                return sum + numeric;
+                                            }, 0) / visibleApps.length
+                                        )}
+                                        %
+                                    </p>
+                                    <span className="text-xs text-neutral-500">
+                                        avg. 30-day uptime
+                                    </span>
+                                </div>
+                                <p className="mt-1 text-xs text-neutral-500">
+                                    Goal: keep above 99.5% for client-facing apps.
+                                </p>
+                            </div>
+                        </div>
 
-/* ---------- Card: Incidents (future) ---------- */
+                        {/* App performance table */}
+                        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
+                            <div className="flex items-center justify-between gap-2">
+                                <h2 className="text-sm font-medium text-neutral-100">
+                                    App-level performance
+                                </h2>
+                                <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">
+                                    Filtered by: {contextLabel}
+                                </span>
+                            </div>
 
-function IncidentsFutureCard() {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Incidents &amp; risk (future)
-            </p>
-            <p className="mt-1 text-sm text-slate-300">
-                Slot reserved for a small incidents timeline — even if it’s just a
-                list of “stuff that went wrong” with links to Dev Workbench or
-                GitHub.
-            </p>
-            <ul className="mt-2 space-y-1.5 text-[0.85rem] text-slate-300">
-                <li>• Track incident date, blast radius, and root cause.</li>
-                <li>• Map each incident back to an app or service.</li>
-                <li>• Allow quick jump to the relevant logs or PR.</li>
-            </ul>
-            <p className="mt-3 text-[0.7rem] text-slate-500">
-                For now this is just copy, but it pins the design so you don’t lose
-                the idea.
-            </p>
-        </div>
-    );
-}
+                            <div className="mt-4 overflow-x-auto">
+                                <table className="min-w-full text-left text-sm">
+                                    <thead>
+                                        <tr className="border-b border-neutral-800 text-xs uppercase tracking-[0.12em] text-neutral-500">
+                                            <th className="py-2 pr-4">App</th>
+                                            <th className="py-2 pr-4">Status</th>
+                                            <th className="py-2 pr-4">Uptime</th>
+                                            <th className="py-2 pr-4">Latency</th>
+                                            <th className="py-2 pr-4">Active users</th>
+                                            <th className="py-2 pr-4">MRR</th>
+                                            <th className="py-2 pr-4">Errors</th>
+                                            <th className="py-2 pr-4">Owner</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {visibleApps.map((app) => (
+                                            <tr
+                                                key={app.id}
+                                                className="border-b border-neutral-900/80 last:border-b-0"
+                                            >
+                                                <td className="py-3 pr-4 align-middle">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-medium text-neutral-100">
+                                                            {app.name}
+                                                        </span>
+                                                        {app.lastIncident && (
+                                                            <span className="text-xs text-neutral-500">
+                                                                Last incident: {app.lastIncident}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 pr-4 align-middle">
+                                                    {getStatusBadge(app.status)}
+                                                </td>
+                                                <td className="py-3 pr-4 align-middle text-sm text-neutral-200">
+                                                    {app.uptime}
+                                                </td>
+                                                <td className="py-3 pr-4 align-middle text-sm text-neutral-200">
+                                                    {app.latencyMs} ms
+                                                </td>
+                                                <td className="py-3 pr-4 align-middle text-sm text-neutral-200">
+                                                    {app.activeUsers.toLocaleString()}
+                                                </td>
+                                                <td className="py-3 pr-4 align-middle text-sm text-neutral-200">
+                                                    {app.mrr}
+                                                </td>
+                                                <td className="py-3 pr-4 align-middle text-sm text-neutral-200">
+                                                    {app.errorRate}
+                                                </td>
+                                                <td className="py-3 pr-4 align-middle text-xs text-neutral-500">
+                                                    {app.owner}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
 
-/* ---------- Card: Latency & usage (future) ---------- */
+                    {/* Right: contextual quick actions */}
+                    <aside className="flex flex-col gap-4">
+                        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/70 p-4">
+                            <h2 className="text-sm font-medium text-neutral-100">
+                                Quick actions
+                            </h2>
+                            <p className="mt-1 text-xs text-neutral-500">
+                                These are automatically{" "}
+                                <span className="font-medium text-emerald-300">
+                                    scoped to{" "}
+                                    {selectedApp ? selectedApp.name : "your current app filter"}
+                                </span>
+                                . Changing the app context above will update them.
+                            </p>
 
-function LatencyFutureCard() {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Latency &amp; usage (future)
-            </p>
-            <p className="mt-1 text-sm text-slate-300">
-                Long-term home for simple charts: requests, p95 latency, or anything
-                else that matters to CEO Tez.
-            </p>
-            <ul className="mt-2 space-y-1.5 text-[0.85rem] text-slate-300">
-                <li>• One chart per app or a combined “stack health” view.</li>
-                <li>• Highlight regressions when a new deploy lands.</li>
-                <li>• Feed this data into AI Hub for smarter summaries.</li>
-            </ul>
-            <p className="mt-3 text-[0.7rem] text-slate-500">
-                No real metrics yet, but the card keeps a parking spot for when the
-                data is ready.
-            </p>
+                            <div className="mt-4 flex flex-col gap-2">
+                                {quickActions.map((action) => (
+                                    <Link
+                                        key={action.href}
+                                        href={action.href}
+                                        className="group flex flex-col rounded-xl border border-neutral-800 bg-neutral-900/80 px-3 py-2 text-sm transition hover:border-emerald-500/60 hover:bg-neutral-900"
+                                    >
+                                        <div className="flex items-center justify-between gap-2">
+                                            <span className="font-medium text-neutral-100 group-hover:text-emerald-300">
+                                                {action.label}
+                                            </span>
+                                            <span className="text-[10px] uppercase tracking-[0.16em] text-neutral-500 group-hover:text-emerald-300">
+                                                Go →
+                                            </span>
+                                        </div>
+                                        <p className="mt-0.5 text-xs text-neutral-500">
+                                            {action.description}
+                                        </p>
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="rounded-2xl border border-neutral-800 bg-neutral-900/70 p-4 text-xs text-neutral-400">
+                            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                                How to use this view
+                            </h3>
+                            <ul className="mt-2 space-y-1.5">
+                                <li>
+                                    1. Pick an app context at the top (or stay on{" "}
+                                    <span className="text-neutral-200">All apps</span>).
+                                </li>
+                                <li>
+                                    2. Scan the table for uptime, latency, and error hotspots.
+                                </li>
+                                <li>
+                                    3. Use Quick Actions to jump into Labs, incidents, or dev
+                                    workbench with the app pre-selected.
+                                </li>
+                            </ul>
+                        </section>
+                    </aside>
+                </main>
+            </div>
         </div>
     );
 }
