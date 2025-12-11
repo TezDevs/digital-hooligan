@@ -169,14 +169,14 @@ function getRiskBadge(level: LabsApp["riskLevel"]) {
 export function LabsHqClient() {
     const searchParams = useSearchParams();
     const appId = searchParams.get("appId");
-    const normalizedAppId = appId?.toLowerCase() ?? null;
+    const normalizedId = appId?.toLowerCase() ?? null;
 
     const selectedApp: LabsApp =
         LABS_APPS.find(
             (app) =>
-                normalizedAppId &&
-                (app.id.toLowerCase() === normalizedAppId ||
-                    app.slug.toLowerCase() === normalizedAppId)
+                normalizedId &&
+                (app.id.toLowerCase() === normalizedId ||
+                    app.slug.toLowerCase() === normalizedId)
         ) ?? LABS_APPS[0];
 
     const basePath = "/labs/hq";
@@ -279,7 +279,7 @@ export function LabsHqClient() {
                         </div>
                     </section>
 
-                    {/* Right: detail pane for selected app */}
+                    {/* Right: detail panel */}
                     <section className="flex flex-col gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
                         <header className="flex flex-wrap items-start justify-between gap-3">
                             <div>
@@ -342,7 +342,8 @@ export function LabsHqClient() {
 
                         <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-neutral-500">
                             <span>
-                                Tip: You can deep-link here from CEO or Dev Workbench with{" "}
+                                Tip: You can deep-link here from the CEO dashboard or Dev
+                                Workbench with{" "}
                                 <code className="rounded bg-neutral-900 px-1 py-0.5">
                                     ?appId={selectedApp.id}
                                 </code>
