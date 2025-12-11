@@ -1,16 +1,31 @@
-// apps/digitalhooligan-web/middleware.ts
+import { NextRequest, NextResponse } from "next/server";
 
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+export function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
 
-// DEV MODE: no auth, no redirects.
-// This lets you hit /ceo, /ceo/login, /ceo/performance, etc. freely.
-export function middleware(_request: NextRequest) {
-    return NextResponse.next();
+    // Only care about CEO routes
+    if (!pathname.startsWith("/ceo")) {
+        return NextResponse.next();
+    }
+
+    // Allow the login page itself
+    if (pathname === "/ceo/login") {
+        return NextResponse.next();
+    }
+
+    const accessCookie = request.cookies.get("dh_ceo_access");
+
+    if (accessCookie?.value === "granted") {
+        return NextResponse.next();
+    }
+
+    // Not authorized → redirect to /ceo/login
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/ceo/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
 }
 
-// Keep a broad matcher if you had one before, or remove config entirely.
-// If you want to be safe, you can leave this:
 export const config = {
-    matcher: ["/:path*"],
+    matcher: ["/ceo/:path*"],
 };

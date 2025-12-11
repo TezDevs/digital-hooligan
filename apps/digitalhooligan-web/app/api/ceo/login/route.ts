@@ -1,39 +1,37 @@
-// app/api/ceo/login/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
+const PASSCODE = process.env.CEO_PORTAL_PASSCODE || "hooligan";
+
 export async function POST(request: NextRequest) {
-    const formData = await request.formData();
-    const username = String(formData.get("username") ?? "").trim();
-    const password = String(formData.get("password") ?? "");
-    const from = String(formData.get("from") ?? "/ceo");
+    try {
+        const body = await request.json().catch(() => ({}));
+        const passcode = body?.passcode as string | undefined;
 
-    const configuredUsername = (process.env.CEO_DASH_USERNAME || "tez").toLowerCase();
-    const configuredPassword = process.env.CEO_DASH_PASSWORD || "change-me";
+        if (!passcode || passcode !== PASSCODE) {
+            return NextResponse.json(
+                { ok: false, message: "Invalid passcode." },
+                { status: 401 }
+            );
+        }
 
-    const isValidUser = username.toLowerCase() === configuredUsername;
-    const isValidPassword = password === configuredPassword;
+        const response = NextResponse.json({ ok: true });
 
-    if (isValidUser && isValidPassword) {
-        const redirectPath = from || "/ceo";
-        const response = NextResponse.redirect(new URL(redirectPath, request.url));
-
-        response.cookies.set("dh_ceo_auth", "1", {
+        response.cookies.set("dh_ceo_access", "granted", {
             httpOnly: true,
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
+            maxAge: 60 * 60 * 24, // 24 hours
             path: "/",
-            maxAge: 60 * 60 * 8 // 8 hours
         });
 
         return response;
-    }
+    } catch (error) {
+        // Log for debugging so the variable is actually used
+        console.error("[CEO LOGIN] Unexpected error:", error);
 
-    // Login failed – bounce back to /ceo/login with error flag
-    const loginUrl = new URL("/ceo/login", request.url);
-    loginUrl.searchParams.set("error", "1");
-    if (from && from !== "/ceo") {
-        loginUrl.searchParams.set("from", from);
+        return NextResponse.json(
+            { ok: false, message: "Unexpected error." },
+            { status: 500 }
+        );
     }
-
-    return NextResponse.redirect(loginUrl);
 }
