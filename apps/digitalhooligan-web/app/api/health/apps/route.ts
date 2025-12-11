@@ -1,70 +1,21 @@
-// apps/digitalhooligan-web/app/api/health/apps/route.ts
-
+// app/api/health/apps/route.ts
 import { NextResponse } from "next/server";
+import { getStubAppHealth } from "@/lib/health";
 
-export type AppHealthStatus = "ok" | "degraded" | "down";
-
-export type AppHealthEntry = {
-    id: string;
-    name: string;
-    status: AppHealthStatus;
-    note: string;
-};
-
-export type AppsHealthResponse = {
-    ok: true;
-    type: "apps_health";
-    entries: AppHealthEntry[];
-    timestamp: string;
-};
-
-// Tiny mock data set for now. Later this can be driven by real checks.
-const MOCK_APPS_HEALTH: AppHealthEntry[] = [
-    {
-        id: "pennywize",
-        name: "PennyWize",
-        status: "ok",
-        note: "App registry + AI summary reachable.",
-    },
-    {
-        id: "dropsignal",
-        name: "DropSignal",
-        status: "degraded",
-        note: "Feed wiring planned, UI in design.",
-    },
-    {
-        id: "hypewatch",
-        name: "HypeWatch",
-        status: "degraded",
-        note: "Concept + Labs wiring only for now.",
-    },
-    {
-        id: "ops-toys",
-        name: "Ops Toys",
-        status: "ok",
-        note: "Internal-only tooling, ready for first scripts.",
-    },
-    {
-        id: "ceo",
-        name: "CEO dashboard",
-        status: "ok",
-        note: "Core views live with registry + AI wiring.",
-    },
-    {
-        id: "labs-hq",
-        name: "Hooligan Labs HQ",
-        status: "ok",
-        note: "Experiments + registry panels wired.",
-    },
-];
+export const dynamic = "force-dynamic"; // Make sure this is never statically cached
 
 export async function GET() {
-    const payload: AppsHealthResponse = {
-        ok: true,
-        type: "apps_health",
-        entries: MOCK_APPS_HEALTH,
-        timestamp: new Date().toISOString(),
-    };
+    // In the future, this is where you'd:
+    // - Query a database / cache
+    // - Fan out to external health checks
+    // - Aggregate metrics from monitoring tools
+    // For now, we just return a typed stub.
+    const data = getStubAppHealth();
 
-    return NextResponse.json(payload, { status: 200 });
+    return NextResponse.json(data, {
+        status: 200,
+        headers: {
+            "Cache-Control": "no-store",
+        },
+    });
 }
