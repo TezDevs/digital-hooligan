@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 // Temporary hard-coded CEO passcode.
@@ -10,13 +10,10 @@ const EXPECTED_PASSCODE = "digital-chaos1@";
 
 export function CeoLoginClient() {
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     const [passcode, setPasscode] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    const nextPath = searchParams.get("next") || "/ceo";
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -29,7 +26,8 @@ export function CeoLoginClient() {
                 return;
             }
 
-            router.push(nextPath);
+            // 🔑 On success, go straight to /ceo
+            router.push("/ceo");
         } finally {
             setIsSubmitting(false);
         }
