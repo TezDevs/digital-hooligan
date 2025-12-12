@@ -1,4 +1,5 @@
 // app/ceo/incidents/page.tsx
+import Link from "next/link";
 import {
     computeIncidentsSummary,
     getStubIncidents,
@@ -8,6 +9,8 @@ import {
 } from "@/lib/incidents";
 
 export const dynamic = "force-dynamic";
+
+type IncidentLink = NonNullable<Incident["links"]>[number];
 
 function severityLabel(severity: IncidentSeverity): string {
     switch (severity) {
@@ -203,7 +206,8 @@ export default async function IncidentsPage() {
                             Active &amp; recent incidents
                         </h2>
                         <p className="text-xs text-slate-500">
-                            One row per incident. Scroll horizontally on smaller screens.
+                            Click an incident to open its detail view. Scroll horizontally on
+                            smaller screens.
                         </p>
                     </div>
 
@@ -223,7 +227,7 @@ export default async function IncidentsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {incidents.map((incident) => {
+                                {incidents.map((incident, index) => {
                                     const impact = formatCustomerImpact(incident.customerImpact);
 
                                     return (
@@ -236,9 +240,12 @@ export default async function IncidentsPage() {
                                                     <span className="font-mono text-[11px] text-slate-400">
                                                         {incident.id}
                                                     </span>
-                                                    <span className="text-sm font-medium text-slate-100">
+                                                    <Link
+                                                        href={`/ceo/incidents/${index}`}
+                                                        className="text-sm font-medium text-sky-400 hover:text-sky-300"
+                                                    >
                                                         {incident.title}
-                                                    </span>
+                                                    </Link>
                                                     <span className="text-[11px] text-slate-500">
                                                         Detected by {incident.detectedBy.replace("-", " ")}
                                                     </span>
@@ -297,7 +304,7 @@ export default async function IncidentsPage() {
                                             <td className="px-4 py-3 align-top">
                                                 {incident.links && incident.links.length > 0 ? (
                                                     <div className="flex flex-col gap-1">
-                                                        {incident.links.map((link) => (
+                                                        {incident.links.map((link: IncidentLink) => (
                                                             <span
                                                                 key={`${incident.id}-${link.label}`}
                                                                 className="inline-flex cursor-pointer text-[11px] text-sky-400 hover:text-sky-300"

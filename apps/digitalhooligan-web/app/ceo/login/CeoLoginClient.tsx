@@ -89,12 +89,11 @@ export function CeoLoginClient() {
                 {/* Footer note */}
                 <div className="text-xs text-neutral-500">
                     <p>
-                        Current CEO passcode is maintained in{" "}
-                        <span className="font-mono">EXPECTED_PASSCODE</span> inside{" "}
-                        <span className="font-mono">
-                            app/ceo/login/CeoLoginClient.tsx
-                        </span>
-                        .
+                        CEO passcode is currently{" "}
+                        <span className="font-mono text-emerald-400">
+                            digital-chaos1@
+                        </span>{" "}
+                        (set in <span className="font-mono">CeoLoginClient.tsx</span>).
                     </p>
                     <p className="mt-2">
                         <Link
