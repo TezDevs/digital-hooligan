@@ -1,31 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+// apps/digitalhooligan-web/middleware.ts
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-
-    // Only care about CEO routes
-    if (!pathname.startsWith("/ceo")) {
-        return NextResponse.next();
-    }
-
-    // Allow the login page itself
-    if (pathname === "/ceo/login") {
-        return NextResponse.next();
-    }
-
-    const accessCookie = request.cookies.get("dh_ceo_access");
-
-    if (accessCookie?.value === "granted") {
-        return NextResponse.next();
-    }
-
-    // Not authorized → redirect to /ceo/login
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/ceo/login";
-    loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+// Temporary middleware: do nothing except let requests pass through.
+// This disables any previous CEO auth redirects that were causing loops.
+export function middleware(_req: NextRequest) {
+    return NextResponse.next();
 }
 
+// Match everything (you can narrow this later if needed).
 export const config = {
-    matcher: ["/ceo/:path*"],
+    matcher: ["/:path*"],
 };
