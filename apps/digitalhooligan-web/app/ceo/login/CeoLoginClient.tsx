@@ -4,8 +4,9 @@ import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-const EXPECTED_PASSCODE =
-    process.env.NEXT_PUBLIC_CEO_PORTAL_PASSWORD || "";
+// Temporary hard-coded CEO passcode.
+// If you change it, update this constant.
+const EXPECTED_PASSCODE = "digital-chaos1@";
 
 export function CeoLoginClient() {
     const router = useRouter();
@@ -20,13 +21,6 @@ export function CeoLoginClient() {
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setError(null);
-
-        if (!EXPECTED_PASSCODE) {
-            setError(
-                "CEO portal password is not configured. Set NEXT_PUBLIC_CEO_PORTAL_PASSWORD in .env.local."
-            );
-            return;
-        }
 
         setIsSubmitting(true);
         try {
@@ -53,7 +47,7 @@ export function CeoLoginClient() {
                         CEO entrance
                     </h1>
                     <p className="text-sm text-neutral-400">
-                        Enter the current CEO passcode to access the internal dashboard.
+                        Enter the CEO passcode to access the internal dashboard.
                     </p>
                 </header>
 
@@ -97,12 +91,12 @@ export function CeoLoginClient() {
                 {/* Footer note */}
                 <div className="text-xs text-neutral-500">
                     <p>
-                        Lost the passcode? Update{" "}
+                        Current CEO passcode is maintained in{" "}
+                        <span className="font-mono">EXPECTED_PASSCODE</span> inside{" "}
                         <span className="font-mono">
-                            NEXT_PUBLIC_CEO_PORTAL_PASSWORD
-                        </span>{" "}
-                        in <span className="font-mono">.env.local</span> and restart the
-                        app.
+                            app/ceo/login/CeoLoginClient.tsx
+                        </span>
+                        .
                     </p>
                     <p className="mt-2">
                         <Link
