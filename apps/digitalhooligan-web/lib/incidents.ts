@@ -53,7 +53,6 @@ export interface IncidentsApiResponse {
 
 /**
  * Stubbed incidents across the Digital Hooligan fleet.
- * Reused by the CEO Incidents view and the /api/incidents endpoint.
  */
 export function getStubIncidents(): Incident[] {
     const now = new Date();
