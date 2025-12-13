@@ -2,6 +2,8 @@
 
 import SystemsNominalPill from './SystemsNominalPill';
 
-export default function HealthStatusChip(_props: Record<string, unknown>) {
+export function HealthStatusChip() {
     return <SystemsNominalPill />;
 }
+
+export default HealthStatusChip;
