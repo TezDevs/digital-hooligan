@@ -115,6 +115,40 @@ export default function CeoDashboardPage() {
     </span> */}
                     </div>
                 </header>
+                <section className="mt-6">
+                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+                        <div className="text-sm font-semibold">Quick Links</div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <Link
+                                href="/ceo/health"
+                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+                            >
+                                Health
+                            </Link>
+
+                            <Link
+                                href="/ceo/performance"
+                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+                            >
+                                Performance
+                            </Link>
+
+                            <Link
+                                href="/ceo/incidents"
+                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+                            >
+                                Incidents
+                            </Link>
+
+                            <Link
+                                href="/ceo/dev-workbench"
+                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+                            >
+                                Dev Workbench
+                            </Link>
+                        </div>
+                    </div>
+                </section>
 
                 {/* Nav tabs */}
                 <nav className="mb-6 overflow-x-auto">
