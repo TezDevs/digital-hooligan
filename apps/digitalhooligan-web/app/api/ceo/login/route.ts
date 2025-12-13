@@ -7,8 +7,13 @@ export async function POST(request: NextRequest) {
     const password = String(formData.get("password") ?? "");
     const from = String(formData.get("from") ?? "/ceo");
 
-    const configuredUsername = (process.env.CEO_DASH_USERNAME || "tez").toLowerCase();
-    const configuredPassword = process.env.CEO_DASH_PASSWORD || "change-me";
+    const configuredUsername =
+        process.env.CEO_DASH_USERNAME ??
+        (process.env.NODE_ENV === "development" ? "tez" : "");
+
+    const configuredPassword =
+        process.env.CEO_DASH_PASSWORD ??
+        (process.env.NODE_ENV === "development" ? "change-me" : "");
 
     const isValidUser = username.toLowerCase() === configuredUsername;
     const isValidPassword = password === configuredPassword;
