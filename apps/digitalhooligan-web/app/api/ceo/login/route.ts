@@ -1,44 +1,71 @@
-// app/api/ceo/login/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
+const PASSCODE = process.env.CEO_PORTAL_PASSCODE ?? "hooligan";
+
 export async function POST(request: NextRequest) {
-    const formData = await request.formData();
-    const username = String(formData.get("username") ?? "").trim();
-    const password = String(formData.get("password") ?? "");
-    const from = String(formData.get("from") ?? "/ceo");
+    try {
+        const body = await request.json().catch(() => ({} as any));
 
-    const configuredUsername =
-        process.env.CEO_DASH_USERNAME ??
-        (process.env.NODE_ENV === "development" ? "tez" : "");
+        const username =
+            (body?.username as string | undefined) ??
+            (body?.email as string | undefined) ??
+            (body?.user as string | undefined);
 
-    const configuredPassword =
-        process.env.CEO_DASH_PASSWORD ??
-        (process.env.NODE_ENV === "development" ? "change-me" : "");
+        const password =
+            (body?.password as string | undefined) ??
+            (body?.pass as string | undefined);
 
-    const isValidUser = username.toLowerCase() === configuredUsername;
-    const isValidPassword = password === configuredPassword;
+        // Optional passcode support (only enforce if provided)
+        const passcode = body?.passcode as string | undefined;
+        if (passcode && passcode !== PASSCODE) {
+            return NextResponse.json(
+                { ok: false, message: "Invalid passcode." },
+                { status: 401 }
+            );
+        }
 
-    if (isValidUser && isValidPassword) {
-        const redirectPath = from || "/ceo";
-        const response = NextResponse.redirect(new URL(redirectPath, request.url));
+        const configuredUsername =
+            process.env.CEO_DASH_USERNAME ??
+            (process.env.NODE_ENV === "development" ? "tez" : "");
 
-        response.cookies.set("dh_ceo_auth", "1", {
+        const configuredPassword =
+            process.env.CEO_DASH_PASSWORD ??
+            (process.env.NODE_ENV === "development" ? "change-me" : "");
+
+        if (!username || !password) {
+            return NextResponse.json(
+                { ok: false, message: "Missing credentials." },
+                { status: 400 }
+            );
+        }
+
+        const ok =
+            username.toLowerCase() === configuredUsername.toLowerCase() &&
+            password === configuredPassword;
+
+        if (!ok) {
+            return NextResponse.json(
+                { ok: false, message: "Incorrect credentials. Please try again." },
+                { status: 401 }
+            );
+        }
+
+        const response = NextResponse.json({ ok: true });
+
+        response.cookies.set("dh_ceo_access", "granted", {
             httpOnly: true,
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
+            maxAge: 60 * 60 * 24,
             path: "/",
-            maxAge: 60 * 60 * 8 // 8 hours
         });
 
         return response;
+    } catch (error) {
+        console.error("[CEO LOGIN] Unexpected error:", error);
+        return NextResponse.json(
+            { ok: false, message: "Unexpected error." },
+            { status: 500 }
+        );
     }
-
-    // Login failed – bounce back to /ceo/login with error flag
-    const loginUrl = new URL("/ceo/login", request.url);
-    loginUrl.searchParams.set("error", "1");
-    if (from && from !== "/ceo") {
-        loginUrl.searchParams.set("from", from);
-    }
-
-    return NextResponse.redirect(loginUrl);
 }

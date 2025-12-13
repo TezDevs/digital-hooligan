@@ -1,271 +1,259 @@
-// app/ceo/finance/page.tsx
-import type { Metadata } from "next";
-import {
-    mockRevenueStreams,
-    mockExpenseCategories,
-    mockDeals,
-    mockCashOnHand,
-    getRevenueLast30Days,
-    getExpensesLast30Days,
-    getMonthlyBurnRate,
-    getCashRunwayMonths,
-    calculatePipelineValue
-} from "@/lib/ceoDashboardData";
-import { CeoHeader } from "@/components/ceo/CeoHeader";
+// apps/digitalhooligan-web/app/ceo/finance/page.tsx
 
-export const metadata: Metadata = {
-    title: "CEO Finance | Digital Hooligan",
-    description: "High-level finance view for the Digital Hooligan CEO dashboard."
+"use client";
+
+import React from "react";
+import Link from "next/link";
+
+type RevenueStream = "gov" | "freelance" | "product";
+
+type FinanceStream = {
+    stream: RevenueStream;
+    label: string;
+    mrrUsd: number;
+    notes: string;
 };
 
-function formatCurrency(value: number): string {
-    return value.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0
-    });
-}
+type FinanceResponse = {
+    ok: true;
+    type: "ceo_finance_summary";
+    mrrEstimateUsd: number;
+    arrEstimateUsd: number;
+    cashOnHandUsd: number | null;
+    runwayMonthsEstimate: number | null;
+    streams: FinanceStream[];
+    timestamp: string;
+};
+
+type FinanceState =
+    | { status: "loading" }
+    | { status: "ready"; data: FinanceResponse }
+    | { status: "error"; message: string };
 
 export default function CeoFinancePage() {
-    const revenue30d = getRevenueLast30Days();
-    const expenses30d = getExpensesLast30Days();
-    const netCashFlow30d = revenue30d - expenses30d;
+    const [state, setState] = React.useState<FinanceState>({ status: "loading" });
 
-    const monthlyBurn = getMonthlyBurnRate();
-    const runwayMonths = getCashRunwayMonths(mockCashOnHand);
+    async function loadFinance() {
+        setState({ status: "loading" });
 
-    const expectedPipeline = calculatePipelineValue(mockDeals);
+        try {
+            const res = await fetch("/api/ceo/finance");
+            if (!res.ok) {
+                throw new Error(`API returned ${res.status}`);
+            }
+
+            const data = (await res.json()) as FinanceResponse;
+            setState({ status: "ready", data });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error loading /api/ceo/finance.";
+
+            setState({ status: "error", message });
+        }
+    }
+
+    React.useEffect(() => {
+        void loadFinance();
+    }, []);
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-50">
-            <CeoHeader />
-
-            <main className="mx-auto max-w-6xl px-4 py-6 space-y-4">
-                {/* Header + key numbers */}
-                <header className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
+            <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
+                {/* Header */}
+                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h1 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                            Finance
+                        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
+                            CEO finance
                         </h1>
-                        <p className="mt-1 text-[12px] text-slate-400">
-                            Quick view of revenue, burn, and runway so you always know how much
-                            breathing room you have while you build.
+                        <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
+                            Rough-but-useful view of MRR, ARR, and where money could come
+                            from across gov, freelance, and products. Backed by a typed{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.7rem] text-emerald-300">
+                                /api/ceo/finance
+                            </code>{" "}
+                            endpoint so dashboards and AI assistants stay in sync.
                         </p>
                     </div>
+                    <button
+                        type="button"
+                        onClick={loadFinance}
+                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                    >
+                        Refresh
+                    </button>
+                </div>
 
-                    <div className="flex flex-wrap gap-2 text-[11px]">
-                        <SummaryChip label="Revenue (last 30d)" value={formatCurrency(revenue30d)} />
-                        <SummaryChip label="Expenses (last 30d)" value={formatCurrency(expenses30d)} />
-                        <SummaryChip
-                            label="Net cashflow (30d)"
-                            value={formatCurrency(netCashFlow30d)}
-                            accent={netCashFlow30d >= 0 ? "positive" : "negative"}
-                        />
-                        <SummaryChip
-                            label="Runway"
-                            value={`${runwayMonths.toFixed(1)} months`}
-                            accent={runwayMonths >= 6 ? "positive" : runwayMonths >= 3 ? "neutral" : "negative"}
-                        />
+                {/* Tabs row */}
+                <nav className="mb-6 overflow-x-auto">
+                    <div className="flex gap-2 text-sm">
+                        <CeoTab href="/ceo" label="Overview" />
+                        <CeoTab href="/ceo/tasks" label="Tasks" />
+                        <CeoTab href="/ceo/deals" label="Deals" />
+                        <CeoTab href="/ceo/finance" label="Finance" active />
+                        <CeoTab href="/ceo/performance" label="Performance" />
+                        <CeoTab href="/ceo/ai-hub" label="AI Hub" />
+                        <CeoTab href="/ceo/dev-workbench" label="Dev WB" />
+                        <CeoTab href="/ceo/settings" label="Settings" />
+                        <CeoTab href="/ceo/logout" label="Logout" />
                     </div>
-                </header>
+                </nav>
 
-                {/* Streams vs expenses */}
-                <section className="grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_1fr]">
-                    {/* Revenue streams */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                Revenue streams
-                            </h2>
-                            <span className="text-[11px] text-slate-500">
-                                Apps, freelance, gov, and other
-                            </span>
-                        </div>
-                        <div className="space-y-2 text-[11px]">
-                            {mockRevenueStreams.map((stream) => (
-                                <RevenueRow key={stream.id} stream={stream} />
+                {/* States */}
+                {state.status === "loading" && (
+                    <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-300 shadow-sm shadow-black/40">
+                        Loading finance snapshot…
+                    </div>
+                )}
+
+                {state.status === "error" && (
+                    <div className="rounded-2xl border border-rose-500/60 bg-rose-950/40 p-4 text-sm text-rose-100 shadow-sm shadow-black/40">
+                        <p className="font-semibold">Couldn&apos;t load finance data.</p>
+                        <p className="mt-1 text-[0.85rem]">{state.message}</p>
+                        <p className="mt-2 text-[0.75rem] text-rose-100/90">
+                            Hit{" "}
+                            <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
+                                /api/ceo/finance
+                            </code>{" "}
+                            directly in browser or Insomnia to debug the payload.
+                        </p>
+                    </div>
+                )}
+
+                {state.status === "ready" && (
+                    <>
+                        {/* Top summary grid */}
+                        <section className="mb-6 grid gap-4 md:grid-cols-3">
+                            <SummaryCard
+                                label="Est. MRR"
+                                value={`$${state.data.mrrEstimateUsd.toLocaleString()}`}
+                                note="Once gov + freelance + products are all humming."
+                            />
+                            <SummaryCard
+                                label="Est. ARR"
+                                value={`$${state.data.arrEstimateUsd.toLocaleString()}`}
+                                note="Purely a projection. Useful for direction, not taxes."
+                            />
+                            <SummaryCard
+                                label="Runway"
+                                value={
+                                    state.data.runwayMonthsEstimate != null
+                                        ? `${state.data.runwayMonthsEstimate} months`
+                                        : "Not wired yet"
+                                }
+                                note={
+                                    state.data.runwayMonthsEstimate != null
+                                        ? "Based on cash-on-hand and estimated monthly burn."
+                                        : "Later, wire this to real cash + burn numbers."
+                                }
+                            />
+                        </section>
+
+                        {/* Streams breakdown */}
+                        <section className="mb-6 grid gap-4 md:grid-cols-3">
+                            {state.data.streams.map((stream) => (
+                                <StreamCard key={stream.stream} stream={stream} />
                             ))}
-                        </div>
-                        <p className="text-[10px] text-slate-500">
-                            Future: wired to Stripe, bank feeds, and contract payouts; AI can highlight
-                            which streams to lean on next.
-                        </p>
-                    </div>
+                        </section>
 
-                    {/* Expenses + burn */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                Burn & expenses
-                            </h2>
-                            <span className="text-[11px] text-slate-500">
-                                Monthly burn: {formatCurrency(monthlyBurn)}
+                        {/* Footer notes */}
+                        <p className="text-[0.7rem] text-slate-400">
+                            All of this is intentionally rough. The point is to keep a simple
+                            picture of where money could come from, not to replace a real
+                            accountant.
+                        </p>
+                        <p className="mt-1 text-[0.7rem] text-slate-400">
+                            Source of truth:{" "}
+                            <code className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.65rem] text-emerald-300">
+                                /api/ceo/finance
+                            </code>
+                            . Last updated:{" "}
+                            <span className="text-slate-300">
+                                {new Date(state.data.timestamp).toLocaleString()}
                             </span>
-                        </div>
-                        <div className="space-y-2 text-[11px]">
-                            {mockExpenseCategories.map((cat) => (
-                                <ExpenseRow key={cat.id} category={cat} />
-                            ))}
-                        </div>
-                        <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-[11px]">
-                            <div className="flex items-center justify-between">
-                                <span className="text-slate-300">Cash on hand</span>
-                                <span className="font-semibold text-slate-50">
-                                    {formatCurrency(mockCashOnHand)}
-                                </span>
-                            </div>
-                            <p className="mt-1 text-[10px] text-slate-500">
-                                This is a simple mock number for now. Later, we can sync to your business
-                                account and auto-calc runway daily.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Pipeline vs current finance */}
-                <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 pb-6">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-2 text-[11px]">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                Pipeline vs current
-                            </h2>
-                            <span className="text-[11px] text-slate-500">
-                                Expected pipeline: {formatCurrency(expectedPipeline)}
-                            </span>
-                        </div>
-                        <p className="text-[11px] text-slate-400">
-                            Expected pipeline is weighted by win chance across gov, freelance, and
-                            direct deals. Use this to see how aggressive you can be with spend while
-                            you build out apps.
+                            .
                         </p>
-                        <ul className="mt-2 space-y-1 text-[11px] text-slate-300">
-                            <li className="flex justify-between">
-                                <span>Net 30d vs burn</span>
-                                <span>
-                                    {formatCurrency(netCashFlow30d)} vs {formatCurrency(monthlyBurn)}
-                                </span>
-                            </li>
-                            <li className="flex justify-between">
-                                <span>Runway guardrail</span>
-                                <span>
-                                    Aim to keep &gt;= 6 months ({runwayMonths.toFixed(1)} now)
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-[11px] space-y-2">
-                        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 mb-1">
-                            Notes for Strategy AI
-                        </h2>
-                        <p className="text-[11px] text-slate-400">
-                            When we wire up Strategy AI, this panel becomes the context it sees: last
-                            30 days, burn, runway, and pipeline. That lets it answer questions like
-                            &ldquo;Can I afford to take a smaller gov contract while I build PennyWize?&rdquo;
-                        </p>
-                        <p className="text-[10px] text-slate-500">
-                            For now this is just a static info block so you remember what the AI will
-                            have access to later.
-                        </p>
-                    </div>
-                </section>
-            </main>
-        </div>
+                    </>
+                )}
+            </div>
+        </main>
     );
 }
 
-// --- Presentational components ---
-
-function SummaryChip({
+function CeoTab({
+    href,
     label,
-    value,
-    accent
+    active,
 }: {
+    href: string;
     label: string;
-    value: string;
-    accent?: "positive" | "negative" | "neutral";
+    active?: boolean;
 }) {
-    let classes =
-        "rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-[11px] text-slate-200";
-
-    if (accent === "positive") {
-        classes =
-            "rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-100";
-    } else if (accent === "negative") {
-        classes =
-            "rounded-full border border-rose-500/60 bg-rose-500/10 px-3 py-1 text-[11px] text-rose-100";
-    } else if (accent === "neutral") {
-        classes =
-            "rounded-full border border-amber-500/60 bg-amber-500/10 px-3 py-1 text-[11px] text-amber-100";
+    if (active) {
+        return (
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-900">
+                {label}
+            </span>
+        );
     }
 
     return (
-        <span className={classes}>
-            <span className="font-medium">{value}</span>
-            <span className="ml-1 text-[10px] text-slate-400">· {label}</span>
-        </span>
+        <Link
+            href={href}
+            className="inline-flex items-center rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700/80 hover:bg-slate-800 hover:text-emerald-200 hover:ring-emerald-500/70"
+        >
+            {label}
+        </Link>
     );
 }
 
-function RevenueRow({ stream }: { stream: (typeof mockRevenueStreams)[number] }) {
-    const label =
-        stream.type === "APPS"
-            ? "Apps & bots"
-            : stream.type === "FREELANCE"
-                ? "Freelance"
-                : stream.type === "GOV"
-                    ? "Gov"
-                    : "Other";
-
+function SummaryCard(props: { label: string; value: string; note: string }) {
+    const { label, value, note } = props;
     return (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2">
-            <div className="flex items-center justify-between">
-                <div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {stream.label}
-                    </div>
-                    <div className="mt-1 text-[10px] text-slate-500">
-                        Type: {label.toLowerCase()}
-                    </div>
-                </div>
-                <div className="text-right text-[11px]">
-                    <div className="font-semibold text-slate-50">
-                        {formatCurrency(stream.last30d)}
-                    </div>
-                    {stream.mrr !== undefined && (
-                        <div className="text-[10px] text-slate-500">
-                            MRR: {formatCurrency(stream.mrr)}
-                        </div>
-                    )}
-                </div>
-            </div>
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                {label}
+            </p>
+            <p className="mt-2 text-xl font-semibold text-slate-50 md:text-2xl">
+                {value}
+            </p>
+            <p className="mt-2 text-[0.75rem] text-slate-400">{note}</p>
         </div>
     );
 }
 
-function ExpenseRow({
-    category
-}: {
-    category: (typeof mockExpenseCategories)[number];
-}) {
+function StreamCard({ stream }: { stream: FinanceStream }) {
+    const labelColor =
+        stream.stream === "gov"
+            ? "text-sky-200"
+            : stream.stream === "freelance"
+                ? "text-amber-200"
+                : "text-emerald-200";
+
+    const pillLabel =
+        stream.stream === "gov"
+            ? "Gov / contracts"
+            : stream.stream === "freelance"
+                ? "Freelance"
+                : "Products & apps";
+
     return (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2">
-            <div className="flex items-center justify-between">
-                <div>
-                    <div className="text-[11px] font-semibold text-slate-100">
-                        {category.label}
-                    </div>
-                    <div className="mt-1 text-[10px] text-slate-500">
-                        Monthly burn: {formatCurrency(category.recurringMonthly)}
-                    </div>
-                </div>
-                <div className="text-right text-[11px]">
-                    <div className="font-semibold text-slate-50">
-                        {formatCurrency(category.last30d)}
-                    </div>
-                    <div className="text-[10px] text-slate-500">Last 30d</div>
-                </div>
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Revenue stream
+                </p>
+                <span className="inline-flex items-center rounded-full bg-slate-900/80 px-2.5 py-0.5 text-[0.65rem] text-slate-300">
+                    <span className={labelColor}>{pillLabel}</span>
+                </span>
             </div>
+
+            <p className="mt-2 text-xl font-semibold text-slate-50">
+                ${stream.mrrUsd.toLocaleString()}{" "}
+                <span className="text-sm font-normal text-slate-400">/ month</span>
+            </p>
+            <p className="mt-2 text-[0.75rem] text-slate-400">{stream.notes}</p>
         </div>
     );
 }

@@ -3,7 +3,7 @@ export type HealthStatus =
     | "degraded"
     | "down"
     | "maintenance"
-    // legacy synonyms (safe to keep)
+    // legacy synonyms (safe to keep so older pages/routes don’t break)
     | "ok"
     | "slow";
 
@@ -45,7 +45,6 @@ export function getStubAppHealth(): StubAppHealthSnapshot {
     };
 }
 
-// If any routes use a simple health payload, keep this here too.
 export type HealthPayload = {
     ok: boolean;
     service: string;

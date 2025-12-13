@@ -5,20 +5,13 @@ export const dynamic = "force-dynamic";
 
 function getStatusLabel(status: HealthStatus): string {
     switch (status) {
-        case "healthy":
-            return "Healthy";
-        case "degraded":
-            return "Degraded";
-        case "down":
-            return "Down";
-        case "maintenance":
-            return "Maintenance";
-        case "ok":
-            return "OK";
-        case "slow":
-            return "Slow";
-        default:
-            return status;
+        case "healthy": return "Healthy";
+        case "degraded": return "Degraded";
+        case "down": return "Down";
+        case "maintenance": return "Maintenance";
+        case "ok": return "OK";
+        case "slow": return "Slow";
+        default: return status;
     }
 }
 
@@ -40,8 +33,7 @@ function getStatusClasses(status: HealthStatus): string {
 }
 
 function formatMs(value: number | null | undefined): string {
-    if (value == null) return "—";
-    if (value <= 0) return "—";
+    if (value == null || value <= 0) return "—";
     return `${value} ms`;
 }
 
@@ -64,12 +56,10 @@ function computeSummary(apps: AppHealthStatus[] = []): SummaryMetrics {
     return (apps ?? []).reduce<SummaryMetrics>(
         (acc, app) => {
             acc.total += 1;
-
             if (app.status === "healthy" || app.status === "ok") acc.healthy += 1;
             if (app.status === "degraded" || app.status === "slow") acc.degraded += 1;
             if (app.status === "down") acc.down += 1;
             if (app.status === "maintenance") acc.maintenance += 1;
-
             return acc;
         },
         { total: 0, healthy: 0, degraded: 0, down: 0, maintenance: 0 }
@@ -77,20 +67,14 @@ function computeSummary(apps: AppHealthStatus[] = []): SummaryMetrics {
 }
 
 function statusPriority(status: HealthStatus): number {
-    // lower = more urgent (sort to the top)
     switch (status) {
-        case "down":
-            return 0;
+        case "down": return 0;
         case "degraded":
-        case "slow":
-            return 1;
-        case "maintenance":
-            return 2;
+        case "slow": return 1;
+        case "maintenance": return 2;
         case "healthy":
-        case "ok":
-            return 3;
-        default:
-            return 9;
+        case "ok": return 3;
+        default: return 9;
     }
 }
 
@@ -100,7 +84,6 @@ function sortApps(apps: AppHealthStatus[]): AppHealthStatus[] {
         const pb = statusPriority(b.status);
         if (pa !== pb) return pa - pb;
 
-        // tie-breaker: higher latency first (unknown/0 last)
         const la = a.latencyMs > 0 ? a.latencyMs : -1;
         const lb = b.latencyMs > 0 ? b.latencyMs : -1;
         return lb - la;
@@ -108,7 +91,6 @@ function sortApps(apps: AppHealthStatus[]): AppHealthStatus[] {
 }
 
 export default async function PerformancePage() {
-    // Later: swap this stub for a real API fetch.
     const { apps, meta } = getStubAppHealth();
     const sortedApps = sortApps(apps);
     const summary = computeSummary(sortedApps);
@@ -147,26 +129,18 @@ export default async function PerformancePage() {
                 </header>
 
                 <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-5">
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Total</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.total}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Healthy</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.healthy}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Degraded</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.degraded}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Down</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.down}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Maintenance</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.maintenance}</div>
-                    </div>
+                    {[
+                        ["Total", summary.total],
+                        ["Healthy", summary.healthy],
+                        ["Degraded", summary.degraded],
+                        ["Down", summary.down],
+                        ["Maintenance", summary.maintenance],
+                    ].map(([label, value]) => (
+                        <div key={label} className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+                            <div className="text-xs text-slate-400">{label}</div>
+                            <div className="mt-1 text-2xl font-semibold">{value}</div>
+                        </div>
+                    ))}
                 </section>
 
                 <section className="mt-8 overflow-hidden rounded-xl ring-1 ring-white/10">
