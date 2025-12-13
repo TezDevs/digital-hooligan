@@ -1,7 +1,13 @@
 // lib/health.ts
-// Shared health helpers used by multiple pages/routes.
 
-export type HealthStatus = "ok" | "slow" | "down";
+export type HealthStatus =
+    | "healthy"
+    | "degraded"
+    | "down"
+    | "maintenance"
+    // legacy synonyms (keep so older pages/routes don’t break)
+    | "ok"
+    | "slow";
 
 export type AppHealthStatus = {
     appId: string;
@@ -11,24 +17,36 @@ export type AppHealthStatus = {
     message?: string;
 };
 
-/**
- * Legacy stub used by existing routes/pages (ex: /api/health/apps, /ceo/performance).
- * Keep this export stable to avoid build breaks.
- */
-export function getStubAppHealth(): AppHealthStatus[] {
+export type AppHealthMeta = {
+    source: "stub" | "live";
+    generatedAt: string;
+};
+
+export type StubAppHealthSnapshot = {
+    apps: AppHealthStatus[];
+    meta: AppHealthMeta;
+};
+
+export function getStubAppHealth(): StubAppHealthSnapshot {
     const now = new Date().toISOString();
 
-    return [
-        { appId: "pennywize", status: "ok", latencyMs: 120, checkedAt: now },
-        { appId: "dropsignal", status: "slow", latencyMs: 420, checkedAt: now },
-        { appId: "hypewatch", status: "ok", latencyMs: 180, checkedAt: now },
-        { appId: "ceo-dashboard", status: "ok", latencyMs: 90, checkedAt: now },
-    ];
+    return {
+        apps: [
+            { appId: "pennywize", status: "healthy", latencyMs: 120, checkedAt: now },
+            { appId: "dropsignal", status: "degraded", latencyMs: 420, checkedAt: now },
+            {
+                appId: "hypewatch",
+                status: "maintenance",
+                latencyMs: 0,
+                checkedAt: now,
+                message: "Planned maintenance window",
+            },
+            { appId: "ceo-dashboard", status: "healthy", latencyMs: 90, checkedAt: now },
+        ],
+        meta: { source: "stub", generatedAt: now },
+    };
 }
 
-/**
- * New payload for simple uptime/health endpoints (/api/health, /api/ceo/health).
- */
 export type HealthPayload = {
     ok: boolean;
     service: string;
