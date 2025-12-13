@@ -62,10 +62,12 @@ function computeSummary(apps: AppHealthStatus[] = []): SummaryMetrics {
     return (apps ?? []).reduce<SummaryMetrics>(
         (acc, app) => {
             acc.total += 1;
-            if (app.status === "healthy" || app.status === "ok") acc.healthy += 1;
-            if (app.status === "degraded" || app.status === "slow") acc.degraded += 1;
+
+            if (app.status === "healthy") acc.healthy += 1;
+            if (app.status === "degraded") acc.degraded += 1;
             if (app.status === "down") acc.down += 1;
             if (app.status === "maintenance") acc.maintenance += 1;
+
             return acc;
         },
         { total: 0, healthy: 0, degraded: 0, down: 0, maintenance: 0 }
