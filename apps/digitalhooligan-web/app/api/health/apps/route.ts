@@ -5,9 +5,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-    const { apps } = getStubAppHealth();
-
-    return NextResponse.json(apps, {
+    return NextResponse.json(getStubAppHealth(), {
         status: 200,
         headers: { "Cache-Control": "no-store" },
     });
