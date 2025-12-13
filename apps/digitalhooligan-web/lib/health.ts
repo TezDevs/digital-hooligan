@@ -1,11 +1,9 @@
-// lib/health.ts
-
 export type HealthStatus =
     | "healthy"
     | "degraded"
     | "down"
     | "maintenance"
-    // legacy synonyms (keep so older pages/routes don’t break)
+    // legacy synonyms (safe to keep so older pages/routes don’t break)
     | "ok"
     | "slow";
 

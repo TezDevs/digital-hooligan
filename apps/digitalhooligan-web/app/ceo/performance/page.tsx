@@ -1,23 +1,17 @@
-import { AppHealthStatus, HealthStatus, getStubAppHealth } from "@/lib/health";
+import RefreshButton from "../../../components/ceo/RefreshButton";
+import { AppHealthStatus, HealthStatus, getStubAppHealth } from "../../../lib/health";
 
 export const dynamic = "force-dynamic";
 
 function getStatusLabel(status: HealthStatus): string {
     switch (status) {
-        case "healthy":
-            return "Healthy";
-        case "degraded":
-            return "Degraded";
-        case "down":
-            return "Down";
-        case "maintenance":
-            return "Maintenance";
-        case "ok":
-            return "OK";
-        case "slow":
-            return "Slow";
-        default:
-            return status;
+        case "healthy": return "Healthy";
+        case "degraded": return "Degraded";
+        case "down": return "Down";
+        case "maintenance": return "Maintenance";
+        case "ok": return "OK";
+        case "slow": return "Slow";
+        default: return status;
     }
 }
 
@@ -39,7 +33,7 @@ function getStatusClasses(status: HealthStatus): string {
 }
 
 function formatMs(value: number | null | undefined): string {
-    if (value == null) return "—";
+    if (value == null || value <= 0) return "—";
     return `${value} ms`;
 }
 
@@ -72,10 +66,34 @@ function computeSummary(apps: AppHealthStatus[] = []): SummaryMetrics {
     );
 }
 
+function statusPriority(status: HealthStatus): number {
+    switch (status) {
+        case "down": return 0;
+        case "degraded":
+        case "slow": return 1;
+        case "maintenance": return 2;
+        case "healthy":
+        case "ok": return 3;
+        default: return 9;
+    }
+}
+
+function sortApps(apps: AppHealthStatus[]): AppHealthStatus[] {
+    return [...(apps ?? [])].sort((a, b) => {
+        const pa = statusPriority(a.status);
+        const pb = statusPriority(b.status);
+        if (pa !== pb) return pa - pb;
+
+        const la = a.latencyMs > 0 ? a.latencyMs : -1;
+        const lb = b.latencyMs > 0 ? b.latencyMs : -1;
+        return lb - la;
+    });
+}
+
 export default async function PerformancePage() {
-    // Later: swap this stub for a real API fetch.
     const { apps, meta } = getStubAppHealth();
-    const summary = computeSummary(apps);
+    const sortedApps = sortApps(apps);
+    const summary = computeSummary(sortedApps);
 
     return (
         <div className="min-h-screen bg-black text-slate-100">
@@ -86,16 +104,19 @@ export default async function PerformancePage() {
                             App Performance
                         </h1>
                         <p className="mt-2 max-w-2xl text-sm text-slate-400">
-                            Health snapshot for the Digital Hooligan fleet. This view is fed
-                            from a shared health layer so it can evolve into live monitoring later.
+                            Health snapshot for the Digital Hooligan fleet. This view is fed from a
+                            shared health layer so it can evolve into live monitoring later.
                         </p>
                     </div>
 
-                    <div className="flex flex-col items-start gap-1 text-xs text-slate-400 md:items-end">
-                        <div>
-                            Source:{" "}
-                            <span className="font-mono uppercase text-slate-300">
-                                {meta.source}
+                    <div className="flex flex-col items-start gap-2 text-xs text-slate-400 md:items-end">
+                        <div className="flex items-center gap-2">
+                            <RefreshButton />
+                            <span>
+                                Source:{" "}
+                                <span className="font-mono uppercase text-slate-300">
+                                    {meta.source}
+                                </span>
                             </span>
                         </div>
                         <div>
@@ -108,77 +129,66 @@ export default async function PerformancePage() {
                 </header>
 
                 <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-5">
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Total</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.total}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Healthy</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.healthy}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Degraded</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.degraded}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Down</div>
-                        <div className="mt-1 text-2xl font-semibold">{summary.down}</div>
-                    </div>
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-xs text-slate-400">Maintenance</div>
-                        <div className="mt-1 text-2xl font-semibold">
-                            {summary.maintenance}
+                    {[
+                        ["Total", summary.total],
+                        ["Healthy", summary.healthy],
+                        ["Degraded", summary.degraded],
+                        ["Down", summary.down],
+                        ["Maintenance", summary.maintenance],
+                    ].map(([label, value]) => (
+                        <div key={label} className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+                            <div className="text-xs text-slate-400">{label}</div>
+                            <div className="mt-1 text-2xl font-semibold">{value}</div>
                         </div>
-                    </div>
+                    ))}
                 </section>
 
                 <section className="mt-8 overflow-hidden rounded-xl ring-1 ring-white/10">
-                    <div className="bg-white/5 px-4 py-3 text-sm font-semibold">
-                        Apps
-                    </div>
+                    <div className="bg-white/5 px-4 py-3 text-sm font-semibold">Apps</div>
 
                     <div className="divide-y divide-white/10">
-                        {(apps ?? []).map((app) => (
-                            <div
-                                key={app.appId}
-                                className="flex flex-col gap-2 px-4 py-4 md:flex-row md:items-center md:justify-between"
-                            >
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-3">
-                                        <div className="truncate font-mono text-sm text-slate-200">
-                                            {app.appId}
-                                        </div>
-                                        <span
-                                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${getStatusClasses(
-                                                app.status
-                                            )}`}
-                                        >
-                                            {getStatusLabel(app.status)}
-                                        </span>
-                                    </div>
-                                    {app.message ? (
-                                        <div className="mt-1 text-xs text-slate-400">
-                                            {app.message}
-                                        </div>
-                                    ) : null}
-                                </div>
+                        {sortedApps.map((app) => {
+                            const latencyLabel =
+                                app.status === "maintenance" ? "—" : formatMs(app.latencyMs);
 
-                                <div className="flex flex-wrap gap-4 text-xs text-slate-400 md:justify-end">
-                                    <div>
-                                        Latency:{" "}
-                                        <span className="font-mono text-slate-300">
-                                            {formatMs(app.latencyMs)}
-                                        </span>
+                            return (
+                                <div
+                                    key={app.appId}
+                                    className="flex flex-col gap-2 px-4 py-4 md:flex-row md:items-center md:justify-between"
+                                >
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-3">
+                                            <div className="truncate font-mono text-sm text-slate-200">
+                                                {app.appId}
+                                            </div>
+                                            <span
+                                                className={`inline-flex items-center rounded-full px-2 py-1 text-xs ${getStatusClasses(
+                                                    app.status
+                                                )}`}
+                                            >
+                                                {getStatusLabel(app.status)}
+                                            </span>
+                                        </div>
+                                        {app.message ? (
+                                            <div className="mt-1 text-xs text-slate-400">{app.message}</div>
+                                        ) : null}
                                     </div>
-                                    <div>
-                                        Checked:{" "}
-                                        <span className="font-mono text-slate-300">
-                                            {formatDate(app.checkedAt)}
-                                        </span>
+
+                                    <div className="flex flex-wrap gap-4 text-xs text-slate-400 md:justify-end">
+                                        <div>
+                                            Latency:{" "}
+                                            <span className="font-mono text-slate-300">{latencyLabel}</span>
+                                        </div>
+                                        <div>
+                                            Checked:{" "}
+                                            <span className="font-mono text-slate-300">
+                                                {formatDate(app.checkedAt)}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
             </div>
