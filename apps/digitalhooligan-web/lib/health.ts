@@ -3,7 +3,6 @@ export type HealthStatus =
     | "degraded"
     | "down"
     | "maintenance"
-    // legacy synonyms (safe to keep so older pages/routes don’t break)
     | "ok"
     | "slow";
 
