@@ -1,18 +1,31 @@
 import Link from "next/link";
+
 import RefreshButton from "../../../components/ceo/RefreshButton";
-import { AppHealthStatus, HealthStatus, getStubAppHealth } from "../../../lib/health";
+import {
+    AppHealthStatus,
+    HealthStatus,
+    StubAppHealthSnapshot,
+    getStubAppHealth,
+} from "../../../lib/health";
 
 export const dynamic = "force-dynamic";
 
 function getStatusLabel(status: HealthStatus): string {
     switch (status) {
-        case "healthy": return "Healthy";
-        case "degraded": return "Degraded";
-        case "down": return "Down";
-        case "maintenance": return "Maintenance";
-        case "ok": return "OK";
-        case "slow": return "Slow";
-        default: return status;
+        case "healthy":
+            return "Healthy";
+        case "degraded":
+            return "Degraded";
+        case "down":
+            return "Down";
+        case "maintenance":
+            return "Maintenance";
+        case "ok":
+            return "OK";
+        case "slow":
+            return "Slow";
+        default:
+            return status;
     }
 }
 
@@ -69,13 +82,18 @@ function computeSummary(apps: AppHealthStatus[] = []): SummaryMetrics {
 
 function statusPriority(status: HealthStatus): number {
     switch (status) {
-        case "down": return 0;
+        case "down":
+            return 0;
         case "degraded":
-        case "slow": return 1;
-        case "maintenance": return 2;
+        case "slow":
+            return 1;
+        case "maintenance":
+            return 2;
         case "healthy":
-        case "ok": return 3;
-        default: return 9;
+        case "ok":
+            return 3;
+        default:
+            return 9;
     }
 }
 
@@ -91,8 +109,22 @@ function sortApps(apps: AppHealthStatus[]): AppHealthStatus[] {
     });
 }
 
+
+
+async function fetchAppHealthSnapshot(): Promise<StubAppHealthSnapshot> {
+    try {
+        const res = await fetch("/api/health/apps", { cache: "no-store" });
+        if (!res.ok) throw new Error(`health apps fetch failed: ${res.status}`);
+        return (await res.json()) as StubAppHealthSnapshot;
+    } catch {
+        // Fallback so /ceo/performance never bricks if the API is down
+        return getStubAppHealth();
+    }
+}
+
+
 export default async function PerformancePage() {
-    const { apps, meta } = getStubAppHealth();
+    const { apps, meta } = await fetchAppHealthSnapshot();
     const sortedApps = sortApps(apps);
     const summary = computeSummary(sortedApps);
 
@@ -108,31 +140,34 @@ export default async function PerformancePage() {
                             ← Back to Dashboard
                         </Link>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                            App Performance
-                        </h1>
-                        <p className="mt-2 max-w-2xl text-sm text-slate-400">
-                            Health snapshot for the Digital Hooligan fleet. This view is fed from a
-                            shared health layer so it can evolve into live monitoring later.
-                        </p>
-                    </div>
 
-                    <div className="flex flex-col items-start gap-2 text-xs text-slate-400 md:items-end">
-                        <div className="flex items-center gap-2">
-                            <RefreshButton />
-                            <span>
-                                Source:{" "}
-                                <span className="font-mono uppercase text-slate-300">
-                                    {meta.source}
-                                </span>
-                            </span>
-                        </div>
+                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                         <div>
-                            Generated:{" "}
-                            <span className="font-mono text-slate-300">
-                                {formatDate(meta.generatedAt)}
-                            </span>
+                            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                                App Performance
+                            </h1>
+                            <p className="mt-2 max-w-2xl text-sm text-slate-400">
+                                Health snapshot for the Digital Hooligan fleet. This view is API-driven
+                                (stub for now) so it can evolve into live monitoring later.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col items-start gap-2 text-xs text-slate-400 md:items-end">
+                            <div className="flex items-center gap-2">
+                                <RefreshButton />
+                                <span>
+                                    Source:{" "}
+                                    <span className="font-mono uppercase text-slate-300">
+                                        {meta.source}
+                                    </span>
+                                </span>
+                            </div>
+                            <div>
+                                Generated:{" "}
+                                <span className="font-mono text-slate-300">
+                                    {formatDate(meta.generatedAt)}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -145,7 +180,10 @@ export default async function PerformancePage() {
                         ["Down", summary.down],
                         ["Maintenance", summary.maintenance],
                     ].map(([label, value]) => (
-                        <div key={label} className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+                        <div
+                            key={label}
+                            className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10"
+                        >
                             <div className="text-xs text-slate-400">{label}</div>
                             <div className="mt-1 text-2xl font-semibold">{value}</div>
                         </div>
@@ -179,14 +217,18 @@ export default async function PerformancePage() {
                                             </span>
                                         </div>
                                         {app.message ? (
-                                            <div className="mt-1 text-xs text-slate-400">{app.message}</div>
+                                            <div className="mt-1 text-xs text-slate-400">
+                                                {app.message}
+                                            </div>
                                         ) : null}
                                     </div>
 
                                     <div className="flex flex-wrap gap-4 text-xs text-slate-400 md:justify-end">
                                         <div>
                                             Latency:{" "}
-                                            <span className="font-mono text-slate-300">{latencyLabel}</span>
+                                            <span className="font-mono text-slate-300">
+                                                {latencyLabel}
+                                            </span>
                                         </div>
                                         <div>
                                             Checked:{" "}
