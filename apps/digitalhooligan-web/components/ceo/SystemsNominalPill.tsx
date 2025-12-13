@@ -175,11 +175,28 @@ export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?:
 
     const href = `/ceo/health?why=${encodeWhy(why)}`;
 
+    function countsTitle(why: {
+        degradedApps: string[];
+        downApps: string[];
+        openIncidents: string[];
+        criticalIncidents: string[];
+    }) {
+        const parts: string[] = [];
+
+        if (why.downApps.length) parts.push(`${why.downApps.length} down`);
+        if (why.degradedApps.length) parts.push(`${why.degradedApps.length} degraded`);
+
+        if (why.criticalIncidents.length) parts.push(`${why.criticalIncidents.length} critical incident${why.criticalIncidents.length === 1 ? '' : 's'}`);
+        else if (why.openIncidents.length) parts.push(`${why.openIncidents.length} open incident${why.openIncidents.length === 1 ? '' : 's'}`);
+
+        return parts.length ? parts.join(' · ') : 'All healthy · no open incidents';
+    }
+
     return (
         <Link
             href={href}
             className={pillClasses(state)}
-            title="Click for details (computed from /api/health/apps + /api/incidents)"
+            title={`Click for details (computed from /api/health/apps + /api/incidents) — ${countsTitle(why)}`}
         >
             <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
             {label(state)}
