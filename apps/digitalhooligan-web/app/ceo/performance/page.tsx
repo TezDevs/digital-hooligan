@@ -1,5 +1,5 @@
-import RefreshButton from "@/components/ceo/RefreshButton";
-import { AppHealthStatus, HealthStatus, getStubAppHealth } from "@/lib/health";
+import RefreshButton from "../../../components/ceo/RefreshButton";
+import { AppHealthStatus, HealthStatus, getStubAppHealth } from "../../../lib/health";
 
 export const dynamic = "force-dynamic";
 
