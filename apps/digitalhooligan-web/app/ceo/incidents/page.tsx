@@ -123,7 +123,22 @@ export default async function IncidentsPage() {
         <div className="min-h-screen bg-black text-slate-100">
             <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 md:px-6 lg:px-8">
                 {/* Header */}
-                <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <header className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                    <div className="flex items-center justify-between gap-3">
+                        <Link
+                            href="/ceo"
+                            className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+                        >
+                            ← Back to Dashboard
+                        </Link>
+
+                        <Link
+                            href="/ceo/incidents"
+                            className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+                        >
+                            Refresh
+                        </Link>
+                    </div>
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                             Incidents
