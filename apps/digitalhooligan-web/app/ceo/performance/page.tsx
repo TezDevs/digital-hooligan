@@ -1,3 +1,4 @@
+import Link from "next/link";
 import RefreshButton from "../../../components/ceo/RefreshButton";
 import { AppHealthStatus, HealthStatus, getStubAppHealth } from "../../../lib/health";
 
@@ -98,7 +99,15 @@ export default async function PerformancePage() {
     return (
         <div className="min-h-screen bg-black text-slate-100">
             <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6 lg:px-8">
-                <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <header className="flex flex-col gap-4">
+                    <div className="w-full">
+                        <Link
+                            href="/ceo"
+                            className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+                        >
+                            ← Back to Dashboard
+                        </Link>
+                    </div>
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
                             App Performance
