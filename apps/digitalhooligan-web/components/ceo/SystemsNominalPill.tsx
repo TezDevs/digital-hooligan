@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { cadenceToMs, readCadence, type RefreshCadence } from '@/lib/refreshCadence';
 
 type PillState = 'green' | 'yellow' | 'red' | 'loading' | 'error';
 
@@ -11,6 +12,16 @@ type WhySummary = {
     downApps: string[];
     openIncidents: string[];
     criticalIncidents: string[];
+};
+
+type SystemsApiResponse = {
+    state?: 'green' | 'yellow' | 'red' | 'error';
+    reasons?: {
+        degradedApps?: string[];
+        downApps?: string[];
+        openIncidents?: string[];
+        criticalIncidents?: string[];
+    };
 };
 
 function pillClasses(state: PillState): string {
@@ -32,7 +43,6 @@ function label(state: PillState): string {
 }
 
 function encodeWhy(why: WhySummary): string {
-    // compact keys for URL
     const payload = {
         s: why.state,
         d: why.degradedApps,
@@ -60,17 +70,7 @@ function countsTitle(why: Pick<WhySummary, 'degradedApps' | 'downApps' | 'openIn
     return parts.length ? parts.join(' · ') : 'All healthy · no open incidents';
 }
 
-type SystemsApiResponse = {
-    state?: 'green' | 'yellow' | 'red' | 'error';
-    reasons?: {
-        degradedApps?: string[];
-        downApps?: string[];
-        openIncidents?: string[];
-        criticalIncidents?: string[];
-    };
-};
-
-export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?: number }) {
+export default function SystemsNominalPill() {
     const [state, setState] = React.useState<PillState>('loading');
     const [why, setWhy] = React.useState<WhySummary>({
         state: 'loading',
@@ -79,6 +79,30 @@ export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?:
         openIncidents: [],
         criticalIncidents: [],
     });
+
+    // ✅ cadence hooks MUST be inside the component
+    const [cadence, setCadence] = React.useState<RefreshCadence>('30s');
+
+    React.useEffect(() => {
+        setCadence(readCadence());
+
+        const onStorage = (e: StorageEvent) => {
+            if (e.key === 'dh_refresh_cadence') setCadence(readCadence());
+        };
+
+        const onCustom = (e: Event) => {
+            const next = (e as CustomEvent).detail as RefreshCadence;
+            setCadence(next);
+        };
+
+        window.addEventListener('storage', onStorage);
+        window.addEventListener('dh:cadence', onCustom);
+
+        return () => {
+            window.removeEventListener('storage', onStorage);
+            window.removeEventListener('dh:cadence', onCustom);
+        };
+    }, []);
 
     const run = React.useCallback(async () => {
         try {
@@ -119,11 +143,16 @@ export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?:
         }
     }, []);
 
+    // ✅ polling now follows cadence
     React.useEffect(() => {
         run();
-        const t = window.setInterval(run, refreshMs);
+
+        const ms = cadenceToMs(cadence);
+        if (!ms) return;
+
+        const t = window.setInterval(run, ms);
         return () => window.clearInterval(t);
-    }, [run, refreshMs]);
+    }, [run, cadence]);
 
     const href = `/ceo/health?why=${encodeWhy(why)}`;
 

@@ -3,6 +3,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 
+import { cadenceToMs, readCadence, type RefreshCadence } from '@/lib/refreshCadence';
+
 type PillState = 'green' | 'yellow' | 'red' | 'error' | 'loading';
 
 type SystemsApiResponse = {
@@ -54,6 +56,28 @@ export default function SystemsSummaryCard() {
     const [lastRefreshed, setLastRefreshed] = React.useState<number | undefined>(undefined);
     const [isRefreshing, setIsRefreshing] = React.useState(false);
 
+    const [cadence, setCadence] = React.useState<RefreshCadence>('30s');
+
+    React.useEffect(() => {
+        setCadence(readCadence());
+
+        const onStorage = (e: StorageEvent) => {
+            if (e.key === 'dh_refresh_cadence') setCadence(readCadence());
+        };
+
+        const onCustom = (e: Event) => {
+            const c = (e as CustomEvent).detail as RefreshCadence;
+            setCadence(c);
+        };
+
+        window.addEventListener('storage', onStorage);
+        window.addEventListener('dh:cadence', onCustom);
+        return () => {
+            window.removeEventListener('storage', onStorage);
+            window.removeEventListener('dh:cadence', onCustom);
+        };
+    }, []);
+
     const fetchSummary = React.useCallback(async () => {
         setIsRefreshing(true);
         try {
@@ -88,7 +112,13 @@ export default function SystemsSummaryCard() {
 
     React.useEffect(() => {
         fetchSummary();
-    }, [fetchSummary]);
+
+        const ms = cadenceToMs(cadence);
+        if (!ms) return;
+
+        const t = window.setInterval(fetchSummary, ms);
+        return () => window.clearInterval(t);
+    }, [fetchSummary, cadence]);
 
     const subtitle = `${counts.down} down · ${counts.degraded} degraded · ${counts.critical} critical · ${counts.open} open`;
 
