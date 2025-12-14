@@ -26,8 +26,10 @@ function asArray(payload: unknown): unknown[] {
     if (isObject(payload)) {
         const apps = payload.apps;
         if (Array.isArray(apps)) return apps;
+
         const data = payload.data;
         if (Array.isArray(data)) return data;
+
         const items = payload.items;
         if (Array.isArray(items)) return items;
     }
@@ -135,13 +137,18 @@ export default function HealthClient({ whyRaw }: { whyRaw: string | null }) {
     const fetchAll = React.useCallback(async () => {
         setIsRefreshing(true);
         setError(null);
+
         try {
-            const [appsRes, incRes] = await Promise.all([
+            // ✅ Added third call here so the aggregator stays in sync with manual refresh
+            const [appsRes, incRes, systemsRes] = await Promise.all([
                 fetch('/api/health/apps', { cache: 'no-store' }),
                 fetch('/api/incidents', { cache: 'no-store' }),
+                fetch('/api/health/systems', { cache: 'no-store' }),
             ]);
 
-            if (!appsRes.ok || !incRes.ok) throw new Error('Bad response from APIs');
+            if (!appsRes.ok || !incRes.ok || !systemsRes.ok) {
+                throw new Error('Bad response from APIs');
+            }
 
             const appsJson: unknown = await appsRes.json();
             const incJson: unknown = await incRes.json();
@@ -168,7 +175,12 @@ export default function HealthClient({ whyRaw }: { whyRaw: string | null }) {
 
     const showWhy =
         Boolean(why) &&
-        Boolean((why?.d?.length ?? 0) + (why?.x?.length ?? 0) + (why?.o?.length ?? 0) + (why?.c?.length ?? 0));
+        Boolean(
+            (why?.d?.length ?? 0) +
+            (why?.x?.length ?? 0) +
+            (why?.o?.length ?? 0) +
+            (why?.c?.length ?? 0)
+        );
 
     return (
         <div className="p-6">
@@ -362,6 +374,15 @@ export default function HealthClient({ whyRaw }: { whyRaw: string | null }) {
                         })}
                     </div>
                 </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+                <Link
+                    href="/ceo"
+                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+                >
+                    Back to CEO
+                </Link>
             </div>
         </div>
     );

@@ -4,69 +4,14 @@ import * as React from 'react';
 import Link from 'next/link';
 
 type PillState = 'green' | 'yellow' | 'red' | 'loading' | 'error';
-type JsonObject = Record<string, unknown>;
 
-function isObject(v: unknown): v is JsonObject {
-    return typeof v === 'object' && v !== null;
-}
-
-function readFirstString(obj: JsonObject, keys: string[]): string | undefined {
-    for (const k of keys) {
-        const val = obj[k];
-        if (typeof val === 'string') return val;
-    }
-    return undefined;
-}
-
-function asArray(payload: unknown): unknown[] {
-    if (Array.isArray(payload)) return payload;
-    if (isObject(payload)) {
-        const apps = payload.apps;
-        if (Array.isArray(apps)) return apps;
-        const data = payload.data;
-        if (Array.isArray(data)) return data;
-        const items = payload.items;
-        if (Array.isArray(items)) return items;
-    }
-    return [];
-}
-
-function norm(v: unknown): string {
-    return String(v ?? '').trim().toLowerCase();
-}
-
-function incidentIsOpen(inc: unknown): boolean {
-    if (!isObject(inc)) return false;
-    const status = norm(readFirstString(inc, ['status', 'state']) ?? '');
-    return !['closed', 'resolved', 'done'].includes(status);
-}
-
-function incidentIsCritical(inc: unknown): boolean {
-    if (!isObject(inc)) return false;
-    const sev = norm(readFirstString(inc, ['severity', 'sev', 'priority']) ?? '');
-    return ['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(sev);
-}
-
-function incidentTitle(inc: unknown): string {
-    if (!isObject(inc)) return 'Incident';
-    return (
-        readFirstString(inc, ['title', 'name', 'summary']) ??
-        (typeof inc.id === 'string' ? inc.id : 'Incident')
-    );
-}
-
-function appHealthBucket(app: unknown): 'healthy' | 'degraded' | 'down' {
-    if (!isObject(app)) return 'healthy';
-    const s = norm(readFirstString(app, ['status', 'health', 'state']) ?? '');
-    if (['down', 'offline', 'fail', 'failed', 'error', 'unhealthy'].includes(s)) return 'down';
-    if (['degraded', 'warn', 'warning', 'slow', 'partial'].includes(s)) return 'degraded';
-    return 'healthy';
-}
-
-function appName(app: unknown): string {
-    if (!isObject(app)) return 'App';
-    return readFirstString(app, ['name', 'app', 'slug', 'id']) ?? 'App';
-}
+type WhySummary = {
+    state: PillState;
+    degradedApps: string[];
+    downApps: string[];
+    openIncidents: string[];
+    criticalIncidents: string[];
+};
 
 function pillClasses(state: PillState): string {
     const base =
@@ -86,37 +31,8 @@ function label(state: PillState): string {
     return 'Systems: CHECKING…';
 }
 
-type WhySummary = {
-    state: PillState;
-    degradedApps: string[];
-    downApps: string[];
-    openIncidents: string[];
-    criticalIncidents: string[];
-};
-
-function computeWhy(apps: unknown[], incidents: unknown[]): WhySummary {
-    const degradedApps: string[] = [];
-    const downApps: string[] = [];
-
-    for (const a of apps) {
-        const b = appHealthBucket(a);
-        if (b === 'degraded') degradedApps.push(appName(a));
-        if (b === 'down') downApps.push(appName(a));
-    }
-
-    const open = incidents.filter(incidentIsOpen);
-    const openIncidents = open.map(incidentTitle);
-    const criticalIncidents = open.filter(incidentIsCritical).map(incidentTitle);
-
-    let state: PillState = 'green';
-    if (criticalIncidents.length > 0 || downApps.length > 0) state = 'red';
-    else if (openIncidents.length > 0 || degradedApps.length > 0) state = 'yellow';
-
-    return { state, degradedApps, downApps, openIncidents, criticalIncidents };
-}
-
 function encodeWhy(why: WhySummary): string {
-    // keep it compact for URLs
+    // compact keys for URL
     const payload = {
         s: why.state,
         d: why.degradedApps,
@@ -126,6 +42,33 @@ function encodeWhy(why: WhySummary): string {
     };
     return encodeURIComponent(JSON.stringify(payload));
 }
+
+function countsTitle(why: Pick<WhySummary, 'degradedApps' | 'downApps' | 'openIncidents' | 'criticalIncidents'>) {
+    const parts: string[] = [];
+
+    if (why.downApps.length) parts.push(`${why.downApps.length} down`);
+    if (why.degradedApps.length) parts.push(`${why.degradedApps.length} degraded`);
+
+    if (why.criticalIncidents.length) {
+        parts.push(
+            `${why.criticalIncidents.length} critical incident${why.criticalIncidents.length === 1 ? '' : 's'}`
+        );
+    } else if (why.openIncidents.length) {
+        parts.push(`${why.openIncidents.length} open incident${why.openIncidents.length === 1 ? '' : 's'}`);
+    }
+
+    return parts.length ? parts.join(' · ') : 'All healthy · no open incidents';
+}
+
+type SystemsApiResponse = {
+    state?: 'green' | 'yellow' | 'red' | 'error';
+    reasons?: {
+        degradedApps?: string[];
+        downApps?: string[];
+        openIncidents?: string[];
+        criticalIncidents?: string[];
+    };
+};
 
 export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?: number }) {
     const [state, setState] = React.useState<PillState>('loading');
@@ -139,24 +82,32 @@ export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?:
 
     const run = React.useCallback(async () => {
         try {
-            const [appsRes, incRes] = await Promise.all([
-                fetch('/api/health/apps', { cache: 'no-store' }),
-                fetch('/api/incidents', { cache: 'no-store' }),
-            ]);
+            const res = await fetch('/api/health/systems', { cache: 'no-store' });
+            if (!res.ok) throw new Error('Bad response');
 
-            if (!appsRes.ok || !incRes.ok) throw new Error('Bad response');
+            const json = (await res.json()) as SystemsApiResponse;
 
-            const appsJson: unknown = await appsRes.json();
-            const incJson: unknown = await incRes.json();
+            const nextState: PillState =
+                json.state === 'green' || json.state === 'yellow' || json.state === 'red'
+                    ? json.state
+                    : json.state === 'error'
+                        ? 'error'
+                        : 'error';
 
-            const apps = asArray(appsJson);
-            const incidents = asArray(incJson);
+            const degradedApps = json.reasons?.degradedApps ?? [];
+            const downApps = json.reasons?.downApps ?? [];
+            const openIncidents = json.reasons?.openIncidents ?? [];
+            const criticalIncidents = json.reasons?.criticalIncidents ?? [];
 
-            const computed = computeWhy(apps, incidents);
-            setWhy(computed);
-            setState(computed.state);
+            setWhy({
+                state: nextState,
+                degradedApps,
+                downApps,
+                openIncidents,
+                criticalIncidents,
+            });
+            setState(nextState);
         } catch {
-            setState('error');
             setWhy({
                 state: 'error',
                 degradedApps: [],
@@ -164,6 +115,7 @@ export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?:
                 openIncidents: [],
                 criticalIncidents: [],
             });
+            setState('error');
         }
     }, []);
 
@@ -175,28 +127,11 @@ export default function SystemsNominalPill({ refreshMs = 30_000 }: { refreshMs?:
 
     const href = `/ceo/health?why=${encodeWhy(why)}`;
 
-    function countsTitle(why: {
-        degradedApps: string[];
-        downApps: string[];
-        openIncidents: string[];
-        criticalIncidents: string[];
-    }) {
-        const parts: string[] = [];
-
-        if (why.downApps.length) parts.push(`${why.downApps.length} down`);
-        if (why.degradedApps.length) parts.push(`${why.degradedApps.length} degraded`);
-
-        if (why.criticalIncidents.length) parts.push(`${why.criticalIncidents.length} critical incident${why.criticalIncidents.length === 1 ? '' : 's'}`);
-        else if (why.openIncidents.length) parts.push(`${why.openIncidents.length} open incident${why.openIncidents.length === 1 ? '' : 's'}`);
-
-        return parts.length ? parts.join(' · ') : 'All healthy · no open incidents';
-    }
-
     return (
         <Link
             href={href}
             className={pillClasses(state)}
-            title={`Click for details (computed from /api/health/apps + /api/incidents) — ${countsTitle(why)}`}
+            title={`Click for details (computed from /api/health/systems) — ${countsTitle(why)}`}
         >
             <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
             {label(state)}
