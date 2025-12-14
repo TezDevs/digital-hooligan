@@ -6,6 +6,7 @@ import React from "react";
 import Link from "next/link";
 import { HealthStatusChip } from "@/components/ceo/HealthStatusChip";
 import SystemsSummaryCard from '@/components/ceo/SystemsSummaryCard';
+import RefreshCadenceControl from '@/components/ceo/RefreshCadenceControl';
 /**
  * Local mirror of /api/apps/registry response shape.
  * We only care about a subset of fields on the client.
@@ -114,6 +115,9 @@ export default function CeoDashboardPage() {
                         {/* <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 ring-1 ring-slate-700/80">
       Mode: CEO / overview
     </span> */}
+                    </div>
+                    <div className="mt-3 flex justify-end">
+                        <RefreshCadenceControl />
                     </div>
                 </header>
                 <div className="mt-4">
