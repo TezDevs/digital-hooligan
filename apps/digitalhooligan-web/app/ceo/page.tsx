@@ -5,6 +5,7 @@
 import React from "react";
 import Link from "next/link";
 import { HealthStatusChip } from "@/components/ceo/HealthStatusChip";
+import SystemsSummaryCard from '@/components/ceo/SystemsSummaryCard';
 /**
  * Local mirror of /api/apps/registry response shape.
  * We only care about a subset of fields on the client.
@@ -115,6 +116,9 @@ export default function CeoDashboardPage() {
     </span> */}
                     </div>
                 </header>
+                <div className="mt-4">
+                    <SystemsSummaryCard />
+                </div>
                 <section className="mt-6">
                     <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
                         <div className="text-sm font-semibold">Quick Links</div>
