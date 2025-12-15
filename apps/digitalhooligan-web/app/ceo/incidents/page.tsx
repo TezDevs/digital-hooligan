@@ -255,10 +255,7 @@ export default async function IncidentsPage() {
                                                     <span className="font-mono text-[11px] text-slate-400">
                                                         {incident.id}
                                                     </span>
-                                                    <Link
-                                                        href={`/ceo/incidents/${index}`}
-                                                        className="text-sm font-medium text-sky-400 hover:text-sky-300"
-                                                    >
+                                                    <Link href={`/ceo/incidents/${incident.id}`} className="hover:underline">
                                                         {incident.title}
                                                     </Link>
                                                     <span className="text-[11px] text-slate-500">
