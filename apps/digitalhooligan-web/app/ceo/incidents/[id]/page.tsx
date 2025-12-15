@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import IncidentNotesClient from './IncidentNotesClient';
+import IncidentActionsClient from './IncidentActionsClient';
 
 type JsonObject = Record<string, unknown>;
 
@@ -137,7 +138,10 @@ export default async function Page({
                     )}
                 </div>
 
-                <IncidentNotesClient incidentId={id} />
+                <div className="space-y-6">
+                    <IncidentActionsClient incidentId={id} />
+                    <IncidentNotesClient incidentId={id} />
+                </div>
             </div>
         </div>
     );
