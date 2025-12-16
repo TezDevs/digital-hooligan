@@ -3,25 +3,12 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { asArray, computeSystemsWhy, titleFromWhy, type SystemsWhy } from '@/lib/systemsHealth';
+import { cadenceMs, readCadence, REFRESH_CADENCE_EVENT, REFRESH_CADENCE_KEY, type RefreshCadence } from '@/lib/refreshCadence';
 
-type Cadence = '15s' | '30s' | '60s' | 'off';
 
-function readCadence(): Cadence {
-    try {
-        const v = window.localStorage.getItem('dh_refresh_cadence');
-        if (v === '15s' || v === '30s' || v === '60s' || v === 'off') return v;
-    } catch {
-        // ignore
-    }
-    return '30s';
-}
 
-function cadenceMs(c: Cadence): number | null {
-    if (c === 'off') return null;
-    if (c === '15s') return 15_000;
-    if (c === '60s') return 60_000;
-    return 30_000;
-}
+
+
 
 function formatTs(ts?: number) {
     if (!ts) return '—';
@@ -50,25 +37,24 @@ export default function SystemsSummaryCard() {
     const [lastRefreshed, setLastRefreshed] = React.useState<number | undefined>(undefined);
     const [isRefreshing, setIsRefreshing] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
+    const [cadence, setCadence] = React.useState<RefreshCadence>('30s');
 
-    const [cadence, setCadence] = React.useState<Cadence>('30s');
 
     // keep cadence synced with RefreshCadenceControl (localStorage + storage event)
     React.useEffect(() => {
-        setCadence(readCadence());
+        setCadence(readCadence('30s'));
 
         const onStorage = (e: StorageEvent) => {
-            if (e.key === 'dh_refresh_cadence') setCadence(readCadence());
+            if (e.key === REFRESH_CADENCE_KEY) setCadence(readCadence('30s'));
         };
         window.addEventListener('storage', onStorage);
 
-        // optional: if your cadence control dispatches a custom event
-        const onCustom = () => setCadence(readCadence());
-        window.addEventListener('dh_refresh_cadence_changed', onCustom as EventListener);
+        const onCustom = () => setCadence(readCadence('30s'));
+        window.addEventListener(REFRESH_CADENCE_EVENT, onCustom as EventListener);
 
         return () => {
             window.removeEventListener('storage', onStorage);
-            window.removeEventListener('dh_refresh_cadence_changed', onCustom as EventListener);
+            window.removeEventListener(REFRESH_CADENCE_EVENT, onCustom as EventListener);
         };
     }, []);
 
