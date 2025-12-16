@@ -24,26 +24,26 @@ type Incident = {
     impactSummary?: string;
 };
 
-type IncidentsApi = {
-    incidents: Incident[];
-    summary?: Record<string, unknown>;
-};
+type IncidentsApi = { incidents: Incident[] };
 
 function norm(v: unknown) {
     return String(v ?? '').trim().toLowerCase();
 }
 
-function sevBadge(sev?: string) {
-    const s = norm(sev);
-    if (['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(s)) return 'border-rose-500/30 bg-rose-500/10 text-rose-100';
-    if (['high', 'sev2', 'p2'].includes(s)) return 'border-amber-500/30 bg-amber-500/10 text-amber-100';
-    if (['medium', 'sev3', 'p3'].includes(s)) return 'border-sky-500/30 bg-sky-500/10 text-sky-100';
-    return 'border-white/10 bg-white/5 text-white/70';
-}
-
 function statusIsOpen(status?: string) {
     const s = norm(status);
     return !['closed', 'resolved', 'done'].includes(s);
+}
+
+function sevTone(sev?: string) {
+    const s = norm(sev);
+    if (['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(s))
+        return 'border-rose-500/30 bg-rose-500/10 text-rose-100';
+    if (['high', 'sev2', 'p2'].includes(s))
+        return 'border-amber-500/30 bg-amber-500/10 text-amber-100';
+    if (['medium', 'sev3', 'p3'].includes(s))
+        return 'border-sky-500/30 bg-sky-500/10 text-sky-100';
+    return 'border-white/10 bg-white/5 text-white/70';
 }
 
 function fmtTime(iso?: string) {
@@ -61,12 +61,37 @@ function Chip({ children, tone }: { children: React.ReactNode; tone: string }) {
     );
 }
 
+function Toggle({
+    checked,
+    onChange,
+    label,
+}: {
+    checked: boolean;
+    onChange: (v: boolean) => void;
+    label: string;
+}) {
+    return (
+        <button
+            type="button"
+            onClick={() => onChange(!checked)}
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85 hover:bg-white/10"
+            aria-pressed={checked}
+        >
+            <span
+                className={`h-2.5 w-2.5 rounded-full ${checked ? 'bg-emerald-400' : 'bg-white/20'}`}
+            />
+            {label}
+        </button>
+    );
+}
+
 export default function CeoIncidentsPage() {
     const [items, setItems] = React.useState<Incident[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [err, setErr] = React.useState<string | null>(null);
 
     const [actionsById, setActionsById] = React.useState<Record<string, IncidentActionState>>({});
+    const [showHandled, setShowHandled] = React.useState(false);
 
     const load = React.useCallback(async () => {
         setLoading(true);
@@ -85,19 +110,32 @@ export default function CeoIncidentsPage() {
     }, []);
 
     React.useEffect(() => {
-        // initial
         setActionsById(readIncidentActions());
-
-        // keep in sync (same tab + cross tab)
-        const unsub = subscribeIncidentActions(() => {
-            setActionsById(readIncidentActions());
-        });
-
+        const unsub = subscribeIncidentActions(() => setActionsById(readIncidentActions()));
         load();
         return unsub;
     }, [load]);
 
-    const openCount = React.useMemo(() => items.filter((i) => statusIsOpen(i.status)).length, [items]);
+    const derived = React.useMemo(() => {
+        const open = items.filter((i) => statusIsOpen(i.status));
+        const handled = open.filter((i) => {
+            const a = actionsById[i.id];
+            return Boolean(a?.acked) || Boolean(a?.resolved);
+        });
+        const unhandled = open.filter((i) => {
+            const a = actionsById[i.id];
+            return !Boolean(a?.acked) && !Boolean(a?.resolved);
+        });
+
+        const visibleOpen = showHandled ? open : unhandled;
+
+        return {
+            openCount: open.length,
+            handledCount: handled.length,
+            unhandledCount: unhandled.length,
+            visible: visibleOpen,
+        };
+    }, [items, actionsById, showHandled]);
 
     return (
         <div className="mx-auto max-w-6xl px-4 py-8">
@@ -105,12 +143,19 @@ export default function CeoIncidentsPage() {
                 <div>
                     <h1 className="text-2xl font-semibold text-white/90">Incidents</h1>
                     <p className="mt-1 text-sm text-white/60">
-                        {loading ? 'Loading…' : `${items.length} total · ${openCount} open`}
+                        {loading
+                            ? 'Loading…'
+                            : `${items.length} total · ${derived.openCount} open · ${derived.unhandledCount} unhandled · ${derived.handledCount} handled`}
                     </p>
                     {err && <p className="mt-2 text-sm text-rose-200/90">{err}</p>}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <Toggle
+                        checked={showHandled}
+                        onChange={setShowHandled}
+                        label={showHandled ? 'Showing handled' : 'Hiding handled'}
+                    />
                     <button
                         type="button"
                         onClick={load}
@@ -135,7 +180,7 @@ export default function CeoIncidentsPage() {
                     </thead>
 
                     <tbody>
-                        {items.map((incident) => {
+                        {derived.visible.map((incident) => {
                             const a = actionsById[incident.id] ?? {};
                             const acked = Boolean(a.acked);
                             const resolved = Boolean(a.resolved);
@@ -149,7 +194,9 @@ export default function CeoIncidentsPage() {
                                                 {incident.title}
                                             </Link>
                                             {incident.detectedBy && (
-                                                <span className="text-[11px] text-white/50">Detected by {incident.detectedBy.replace('-', ' ')}</span>
+                                                <span className="text-[11px] text-white/50">
+                                                    Detected by {incident.detectedBy.replace('-', ' ')}
+                                                </span>
                                             )}
                                         </div>
                                     </td>
@@ -159,7 +206,7 @@ export default function CeoIncidentsPage() {
                                     </td>
 
                                     <td className="px-4 py-3 align-top">
-                                        <Chip tone={sevBadge(incident.severity)}>{(incident.severity ?? 'unknown').toUpperCase()}</Chip>
+                                        <Chip tone={sevTone(incident.severity)}>{(incident.severity ?? 'unknown').toUpperCase()}</Chip>
                                     </td>
 
                                     <td className="px-4 py-3 align-top text-white/70">
@@ -184,7 +231,6 @@ export default function CeoIncidentsPage() {
                                                 type="button"
                                                 onClick={() => setIncidentAction(incident.id, { acked: !acked })}
                                                 className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/80 hover:bg-white/10"
-                                                title="Toggle acked"
                                             >
                                                 {acked ? 'Unack' : 'Ack'}
                                             </button>
@@ -193,7 +239,6 @@ export default function CeoIncidentsPage() {
                                                 type="button"
                                                 onClick={() => setIncidentAction(incident.id, { resolved: !resolved })}
                                                 className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/80 hover:bg-white/10"
-                                                title="Toggle resolved"
                                             >
                                                 {resolved ? 'Unresolve' : 'Resolve'}
                                             </button>
@@ -203,7 +248,6 @@ export default function CeoIncidentsPage() {
                                                     type="button"
                                                     onClick={() => clearIncidentAction(incident.id)}
                                                     className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/60 hover:bg-white/10"
-                                                    title="Clear triage state"
                                                 >
                                                     Clear
                                                 </button>
@@ -220,10 +264,10 @@ export default function CeoIncidentsPage() {
                             );
                         })}
 
-                        {!loading && items.length === 0 && (
+                        {!loading && derived.visible.length === 0 && (
                             <tr>
                                 <td colSpan={6} className="px-4 py-10 text-center text-sm text-white/60">
-                                    No incidents found.
+                                    {showHandled ? 'No open incidents.' : 'No unhandled open incidents.'}
                                 </td>
                             </tr>
                         )}
