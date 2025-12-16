@@ -4,7 +4,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { HealthStatusChip } from "@/components/ceo/HealthStatusChip";
+import HealthStatusChip from '@/components/ceo/HealthStatusChip';
 import SystemsSummaryCard from '@/components/ceo/SystemsSummaryCard';
 import RefreshCadenceControl from '@/components/ceo/RefreshCadenceControl';
 /**
