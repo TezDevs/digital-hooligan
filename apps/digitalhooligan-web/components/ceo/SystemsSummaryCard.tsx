@@ -2,18 +2,28 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { asArray, computeSystemsWhy, titleFromWhy, type SystemsWhy } from '@/lib/systemsHealth';
 
-import { cadenceToMs, readCadence, type RefreshCadence } from '@/lib/refreshCadence';
+type Cadence = '15s' | '30s' | '60s' | 'off';
 
-type PillState = 'green' | 'yellow' | 'red' | 'error' | 'loading';
+function readCadence(): Cadence {
+    try {
+        const v = window.localStorage.getItem('dh_refresh_cadence');
+        if (v === '15s' || v === '30s' || v === '60s' || v === 'off') return v;
+    } catch {
+        // ignore
+    }
+    return '30s';
+}
 
-type SystemsApiResponse = {
-    state?: 'green' | 'yellow' | 'red' | 'error';
-    counts?: { degraded?: number; down?: number; open?: number; critical?: number };
-    ts?: number;
-};
+function cadenceMs(c: Cadence): number | null {
+    if (c === 'off') return null;
+    if (c === '15s') return 15_000;
+    if (c === '60s') return 60_000;
+    return 30_000;
+}
 
-function format(ts?: number) {
+function formatTs(ts?: number) {
     if (!ts) return '—';
     try {
         return new Date(ts).toLocaleString();
@@ -22,141 +32,143 @@ function format(ts?: number) {
     }
 }
 
-function cardBorder(state: PillState) {
-    if (state === 'green') return 'border-emerald-500/20';
-    if (state === 'yellow') return 'border-amber-500/20';
-    if (state === 'red') return 'border-rose-500/20';
-    if (state === 'error') return 'border-white/10';
-    return 'border-white/10';
-}
-
-function pillDot(state: PillState) {
-    if (state === 'green') return 'bg-emerald-400';
-    if (state === 'yellow') return 'bg-amber-400';
-    if (state === 'red') return 'bg-rose-400';
-    if (state === 'error') return 'bg-white/40';
-    return 'bg-white/40';
-}
-
-function titleFor(state: PillState) {
-    if (state === 'green') return 'Systems nominal';
-    if (state === 'yellow') return 'Systems degraded';
-    if (state === 'red') return 'Systems critical';
-    if (state === 'error') return 'Systems unknown';
-    return 'Systems checking…';
-}
-
-function safeNum(n: unknown): number {
-    return typeof n === 'number' && Number.isFinite(n) ? n : 0;
+function headline(why: SystemsWhy): { text: string; dotClass: string } {
+    if (why.state === 'red') return { text: 'Systems critical', dotClass: 'bg-rose-400' };
+    if (why.state === 'yellow') return { text: 'Systems degraded', dotClass: 'bg-amber-400' };
+    return { text: 'Systems nominal', dotClass: 'bg-emerald-400' };
 }
 
 export default function SystemsSummaryCard() {
-    const [state, setState] = React.useState<PillState>('loading');
-    const [counts, setCounts] = React.useState({ degraded: 0, down: 0, open: 0, critical: 0 });
+    const [why, setWhy] = React.useState<SystemsWhy>({
+        state: 'green',
+        degradedApps: [],
+        downApps: [],
+        openCriticalIncidents: [],
+        openNonCriticalIncidents: [],
+    });
+
     const [lastRefreshed, setLastRefreshed] = React.useState<number | undefined>(undefined);
     const [isRefreshing, setIsRefreshing] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
 
-    const [cadence, setCadence] = React.useState<RefreshCadence>('30s');
+    const [cadence, setCadence] = React.useState<Cadence>('30s');
 
+    // keep cadence synced with RefreshCadenceControl (localStorage + storage event)
     React.useEffect(() => {
         setCadence(readCadence());
 
         const onStorage = (e: StorageEvent) => {
             if (e.key === 'dh_refresh_cadence') setCadence(readCadence());
         };
-
-        const onCustom = (e: Event) => {
-            const c = (e as CustomEvent).detail as RefreshCadence;
-            setCadence(c);
-        };
-
         window.addEventListener('storage', onStorage);
-        window.addEventListener('dh:cadence', onCustom);
+
+        // optional: if your cadence control dispatches a custom event
+        const onCustom = () => setCadence(readCadence());
+        window.addEventListener('dh_refresh_cadence_changed', onCustom as EventListener);
+
         return () => {
             window.removeEventListener('storage', onStorage);
-            window.removeEventListener('dh:cadence', onCustom);
+            window.removeEventListener('dh_refresh_cadence_changed', onCustom as EventListener);
         };
     }, []);
 
-    const fetchSummary = React.useCallback(async () => {
+    const fetchAll = React.useCallback(async () => {
         setIsRefreshing(true);
+        setError(null);
+
         try {
-            const res = await fetch('/api/health/systems', { cache: 'no-store' });
-            if (!res.ok) throw new Error('Bad response');
-            const json = (await res.json()) as SystemsApiResponse;
+            const [appsRes, incRes] = await Promise.all([
+                fetch('/api/health/apps', { cache: 'no-store' }),
+                fetch('/api/incidents', { cache: 'no-store' }),
+            ]);
 
-            const nextState: PillState =
-                json.state === 'green' || json.state === 'yellow' || json.state === 'red'
-                    ? json.state
-                    : json.state === 'error'
-                        ? 'error'
-                        : 'error';
+            if (!appsRes.ok || !incRes.ok) throw new Error('Bad response from health/incidents');
 
-            const c = json.counts ?? {};
-            setCounts({
-                degraded: safeNum(c.degraded),
-                down: safeNum(c.down),
-                open: safeNum(c.open),
-                critical: safeNum(c.critical),
-            });
-            setState(nextState);
-            setLastRefreshed(typeof json.ts === 'number' ? json.ts : Date.now());
-        } catch {
-            setState('error');
-            setCounts({ degraded: 0, down: 0, open: 0, critical: 0 });
+            const appsJson: unknown = await appsRes.json();
+            const incJson: unknown = await incRes.json();
+
+            const computed = computeSystemsWhy(asArray(appsJson), asArray(incJson));
+            setWhy(computed);
+            setLastRefreshed(Date.now());
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Unknown error');
             setLastRefreshed(Date.now());
         } finally {
             setIsRefreshing(false);
         }
     }, []);
 
+    // initial fetch + cadence interval
     React.useEffect(() => {
-        fetchSummary();
+        fetchAll();
+    }, [fetchAll]);
 
-        const ms = cadenceToMs(cadence);
+    React.useEffect(() => {
+        const ms = cadenceMs(cadence);
         if (!ms) return;
 
-        const t = window.setInterval(fetchSummary, ms);
-        return () => window.clearInterval(t);
-    }, [fetchSummary, cadence]);
+        const t = window.setInterval(() => {
+            fetchAll();
+        }, ms);
 
-    const subtitle = `${counts.down} down · ${counts.degraded} degraded · ${counts.critical} critical · ${counts.open} open`;
+        return () => window.clearInterval(t);
+    }, [cadence, fetchAll]);
+
+    const { text, dotClass } = headline(why);
+
+    const down = why.downApps.length;
+    const degraded = why.degradedApps.length;
+    const critical = why.openCriticalIncidents.length;
+    const open = why.openNonCriticalIncidents.length;
 
     return (
-        <div className={`rounded-2xl border ${cardBorder(state)} bg-white/5 p-4`}>
-            <div className="flex items-start justify-between gap-4">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="flex items-start justify-between gap-3">
                 <div>
                     <div className="flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${pillDot(state)}`} />
-                        <div className="text-sm font-semibold text-white">{titleFor(state)}</div>
+                        <span className={`h-2 w-2 rounded-full ${dotClass}`} />
+                        <div className="text-sm font-semibold text-white/90">{text}</div>
                     </div>
-                    <div className="mt-1 text-xs text-white/60">{subtitle}</div>
-                    <div className="mt-2 text-xs text-white/50">Last refreshed: {format(lastRefreshed)}</div>
+
+                    <div className="mt-1 text-xs text-white/60" title={titleFromWhy(why)}>
+                        {down} down · {degraded} degraded · {critical} critical · {open} open
+                    </div>
+
+                    <div className="mt-1 text-[11px] text-white/45">
+                        Last refreshed: {formatTs(lastRefreshed)}
+                    </div>
+
+                    {error && (
+                        <div className="mt-2 text-[11px] text-rose-200/90">
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <Link
+                            href="/ceo/health"
+                            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+                        >
+                            View health
+                        </Link>
+
+                        <Link
+                            href="/ceo/incidents"
+                            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+                        >
+                            View incidents
+                        </Link>
+                    </div>
                 </div>
 
                 <button
                     type="button"
-                    onClick={fetchSummary}
+                    onClick={fetchAll}
                     disabled={isRefreshing}
                     className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85 hover:bg-white/10 disabled:opacity-60"
                 >
                     {isRefreshing ? 'Refreshing…' : 'Refresh'}
                 </button>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                    href="/ceo/health"
-                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
-                >
-                    View health
-                </Link>
-                <Link
-                    href="/ceo/incidents"
-                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
-                >
-                    View incidents
-                </Link>
             </div>
         </div>
     );
