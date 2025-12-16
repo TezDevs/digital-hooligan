@@ -6,6 +6,12 @@ import Link from 'next/link';
 type JsonObject = Record<string, unknown>;
 type Filter = 'all' | 'open' | 'critical' | 'closed';
 
+type ActionState = {
+    id: string;
+    acked?: boolean;
+    resolved?: boolean;
+};
+
 function isObject(v: unknown): v is JsonObject {
     return typeof v === 'object' && v !== null;
 }
@@ -67,31 +73,14 @@ function isCriticalIncident(inc: unknown): boolean {
     return ['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(sev);
 }
 
-function formatCustomerImpact(v: unknown): string {
-    if (typeof v === 'string') return v;
-    if (typeof v === 'number') {
-        if (v >= 80) return 'High';
-        if (v >= 40) return 'Medium';
-        if (v > 0) return 'Low';
-        return 'None';
-    }
-    return '—';
-}
-
 function readStarted(inc: unknown): string {
     if (!isObject(inc)) return '—';
-    return (
-        readFirstString(inc, ['startedAt', 'startTime', 'createdAt', 'created']) ??
-        '—'
-    );
+    return readFirstString(inc, ['startedAt', 'startTime', 'createdAt', 'created']) ?? '—';
 }
 
 function readLastUpdate(inc: unknown): string {
     if (!isObject(inc)) return '—';
-    return (
-        readFirstString(inc, ['updatedAt', 'lastUpdate', 'lastUpdated', 'modifiedAt']) ??
-        '—'
-    );
+    return readFirstString(inc, ['updatedAt', 'lastUpdate', 'lastUpdated', 'modifiedAt']) ?? '—';
 }
 
 function readSummary(inc: unknown): string {
@@ -101,22 +90,14 @@ function readSummary(inc: unknown): string {
 
 function matchesQuery(inc: unknown, q: string): boolean {
     if (!q) return true;
-    const hay = [
-        readId(inc),
-        readTitle(inc),
-        readDetectedBy(inc),
-        readStatus(inc),
-        readSeverity(inc),
-        readSummary(inc),
-    ]
+    const hay = [readId(inc), readTitle(inc), readDetectedBy(inc), readStatus(inc), readSeverity(inc), readSummary(inc)]
         .join(' ')
         .toLowerCase();
     return hay.includes(q);
 }
 
 function pillBase(active: boolean) {
-    const base =
-        'rounded-full border px-3 py-1 text-xs font-semibold tracking-wide';
+    const base = 'rounded-full border px-3 py-1 text-xs font-semibold tracking-wide';
     return active
         ? `${base} border-white/20 bg-white/10 text-white`
         : `${base} border-white/10 bg-white/5 text-white/70 hover:bg-white/10`;
@@ -138,6 +119,8 @@ export default function Page() {
     const [isRefreshing, setIsRefreshing] = React.useState(false);
     const [lastRefreshed, setLastRefreshed] = React.useState<number | undefined>(undefined);
     const [error, setError] = React.useState<string | null>(null);
+
+    const [actionStates, setActionStates] = React.useState<Record<string, ActionState>>({});
 
     const fetchIncidents = React.useCallback(async () => {
         setIsRefreshing(true);
@@ -162,28 +145,36 @@ export default function Page() {
     }, [fetchIncidents]);
 
     const open = React.useMemo(() => items.filter(isOpenIncident), [items]);
-    const criticalOpen = React.useMemo(
-        () => open.filter(isCriticalIncident),
-        [open]
-    );
-    const closed = React.useMemo(
-        () => items.filter((x) => !isOpenIncident(x)),
-        [items]
-    );
+    const criticalOpen = React.useMemo(() => open.filter(isCriticalIncident), [open]);
+    const closed = React.useMemo(() => items.filter((x) => !isOpenIncident(x)), [items]);
 
     const filtered = React.useMemo(() => {
         const qq = norm(q);
         const base =
-            filter === 'all'
-                ? items
-                : filter === 'open'
-                    ? open
-                    : filter === 'critical'
-                        ? criticalOpen
-                        : closed;
-
+            filter === 'all' ? items : filter === 'open' ? open : filter === 'critical' ? criticalOpen : closed;
         return base.filter((inc) => matchesQuery(inc, qq));
     }, [items, open, criticalOpen, closed, filter, q]);
+
+    // Bulk ids string (stable dependency)
+    const bulkIds = React.useMemo(() => {
+        const ids = filtered.map(readId).filter(Boolean);
+        return ids.join(',');
+    }, [filtered]);
+
+    // Bulk fetch action state for visible rows
+    React.useEffect(() => {
+        if (!bulkIds) return;
+
+        fetch(`/api/incidents/actions?ids=${encodeURIComponent(bulkIds)}`, { cache: 'no-store' })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((json) => {
+                const states = (json?.states ?? {}) as Record<string, ActionState>;
+                setActionStates(states);
+            })
+            .catch(() => {
+                // ignore; chips just won't show
+            });
+    }, [bulkIds]);
 
     return (
         <div className="p-6">
@@ -196,13 +187,13 @@ export default function Page() {
                         <span className="mx-1">/</span>
                         <span className="text-white/80">Incidents</span>
                     </div>
+
                     <h1 className="mt-2 text-2xl font-semibold text-white">Incidents</h1>
                     <p className="mt-1 text-sm text-white/60">
                         Triage view from <code className="text-white/80">/api/incidents</code>.
                     </p>
-                    <div className="mt-2 text-xs text-white/50">
-                        Last refreshed: {formatTs(lastRefreshed)}
-                    </div>
+
+                    <div className="mt-2 text-xs text-white/50">Last refreshed: {formatTs(lastRefreshed)}</div>
                 </div>
 
                 <div className="flex gap-2">
@@ -212,6 +203,7 @@ export default function Page() {
                     >
                         View health
                     </Link>
+
                     <button
                         type="button"
                         onClick={fetchIncidents}
@@ -270,7 +262,6 @@ export default function Page() {
                         <thead className="border-b border-white/10 bg-black/20 text-xs text-white/60">
                             <tr>
                                 <th className="px-4 py-3 font-medium">Incident</th>
-                                <th className="px-4 py-3 font-medium">Impact</th>
                                 <th className="px-4 py-3 font-medium">Started</th>
                                 <th className="px-4 py-3 font-medium">Last update</th>
                                 <th className="px-4 py-3 font-medium">Summary</th>
@@ -281,7 +272,7 @@ export default function Page() {
                         <tbody>
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td className="px-4 py-6 text-sm text-white/60" colSpan={6}>
+                                    <td className="px-4 py-6 text-sm text-white/60" colSpan={5}>
                                         No results.
                                     </td>
                                 </tr>
@@ -299,14 +290,10 @@ export default function Page() {
                                     const openNow = isOpenIncident(incident);
                                     const criticalNow = openNow && isCriticalIncident(incident);
 
-                                    // best-effort customerImpact field if your payload has it
-                                    const impactVal = isObject(incident) ? incident.customerImpact : undefined;
+                                    const a = actionStates[id];
 
                                     return (
-                                        <tr
-                                            key={id}
-                                            className="border-t border-slate-900/60 hover:bg-slate-900/40"
-                                        >
+                                        <tr key={id} className="border-t border-slate-900/60 hover:bg-slate-900/40">
                                             <td className="px-4 py-3 align-top">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="font-mono text-[11px] text-slate-400">{id}</span>
@@ -324,24 +311,34 @@ export default function Page() {
                                                         <span className="text-white/80">{sev}</span>
                                                     </span>
 
-                                                    {criticalNow ? (
-                                                        <span className="w-fit rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] font-semibold text-rose-100">
-                                                            critical
-                                                        </span>
-                                                    ) : openNow ? (
-                                                        <span className="w-fit rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-100">
-                                                            open
-                                                        </span>
-                                                    ) : (
-                                                        <span className="w-fit rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-white/60">
-                                                            closed
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </td>
+                                                    <div className="mt-1 flex flex-wrap gap-2">
+                                                        {criticalNow ? (
+                                                            <span className="w-fit rounded-full border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[11px] font-semibold text-rose-100">
+                                                                critical
+                                                            </span>
+                                                        ) : openNow ? (
+                                                            <span className="w-fit rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-100">
+                                                                open
+                                                            </span>
+                                                        ) : (
+                                                            <span className="w-fit rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-white/60">
+                                                                closed
+                                                            </span>
+                                                        )}
 
-                                            <td className="px-4 py-3 align-top text-white/70">
-                                                {formatCustomerImpact(impactVal)}
+                                                        {a?.acked && (
+                                                            <span className="w-fit rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-white/70">
+                                                                acked
+                                                            </span>
+                                                        )}
+
+                                                        {a?.resolved && (
+                                                            <span className="w-fit rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-100">
+                                                                resolved
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </td>
 
                                             <td className="px-4 py-3 align-top text-white/70">{started}</td>
@@ -353,17 +350,8 @@ export default function Page() {
 
                                             <td className="px-4 py-3 align-top">
                                                 <div className="flex flex-col gap-2">
-                                                    <Link
-                                                        href={`/ceo/incidents/${id}`}
-                                                        className="text-sm text-white/80 hover:underline"
-                                                    >
+                                                    <Link href={`/ceo/incidents/${id}`} className="text-sm text-white/80 hover:underline">
                                                         View
-                                                    </Link>
-                                                    <Link
-                                                        href="/ceo/health"
-                                                        className="text-sm text-white/60 hover:underline"
-                                                    >
-                                                        Health
                                                     </Link>
                                                 </div>
                                             </td>
