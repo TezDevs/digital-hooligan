@@ -88,6 +88,10 @@ export default function CeoIncidentsPage() {
     const [actionsById, setActionsById] = React.useState<Record<string, IncidentActionState>>({});
     const [showHandled, setShowHandled] = React.useState(false);
 
+    const refreshActions = React.useCallback(() => {
+        setActionsById(readIncidentActions());
+    }, []);
+
     const load = React.useCallback(async () => {
         setLoading(true);
         setErr(null);
@@ -105,30 +109,49 @@ export default function CeoIncidentsPage() {
     }, []);
 
     React.useEffect(() => {
-        setActionsById(readIncidentActions());
-        const unsub = subscribeIncidentActions(() => setActionsById(readIncidentActions()));
+        refreshActions();
+        const unsub = subscribeIncidentActions(() => refreshActions());
         load();
         return unsub;
-    }, [load]);
+    }, [load, refreshActions]);
+
+    const isHandled = React.useCallback(
+        (id: string) => {
+            const a = actionsById[id];
+            return Boolean(a?.acked) || Boolean(a?.resolved);
+        },
+        [actionsById]
+    );
 
     const derived = React.useMemo(() => {
-        const open = items.filter((i) => statusIsOpen(i.status));
-        const handled = open.filter((i) => {
-            const a = actionsById[i.id];
-            return Boolean(a?.acked) || Boolean(a?.resolved);
-        });
-        const unhandled = open.filter((i) => {
-            const a = actionsById[i.id];
-            return !Boolean(a?.acked) && !Boolean(a?.resolved);
-        });
+        const openCount = items.filter((i) => statusIsOpen(i.status)).length;
 
-        return {
-            openCount: open.length,
-            handledCount: handled.length,
-            unhandledCount: unhandled.length,
-            visible: showHandled ? open : unhandled,
-        };
-    }, [items, actionsById, showHandled]);
+        const handledCount = items.filter((i) => isHandled(i.id)).length;
+        const unhandledCount = items.length - handledCount;
+
+        const visible = showHandled ? items : items.filter((i) => !isHandled(i.id));
+
+        return { openCount, handledCount, unhandledCount, visible };
+    }, [items, isHandled, showHandled]);
+
+    function onToggleAck(id: string) {
+        const current = actionsById[id];
+        const acked = Boolean(current?.acked);
+        setIncidentAction(id, { acked: !acked });
+        refreshActions(); // <- make the list re-filter immediately
+    }
+
+    function onToggleResolve(id: string) {
+        const current = actionsById[id];
+        const resolved = Boolean(current?.resolved);
+        setIncidentAction(id, { resolved: !resolved });
+        refreshActions(); // <- make the list re-filter immediately
+    }
+
+    function onClear(id: string) {
+        clearIncidentAction(id);
+        refreshActions(); // <- make the list re-filter immediately
+    }
 
     return (
         <div className="mx-auto max-w-6xl px-4 py-8">
@@ -222,7 +245,7 @@ export default function CeoIncidentsPage() {
 
                                             <button
                                                 type="button"
-                                                onClick={() => setIncidentAction(incident.id, { acked: !acked })}
+                                                onClick={() => onToggleAck(incident.id)}
                                                 className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/80 hover:bg-white/10"
                                             >
                                                 {acked ? 'Unack' : 'Ack'}
@@ -230,7 +253,7 @@ export default function CeoIncidentsPage() {
 
                                             <button
                                                 type="button"
-                                                onClick={() => setIncidentAction(incident.id, { resolved: !resolved })}
+                                                onClick={() => onToggleResolve(incident.id)}
                                                 className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/80 hover:bg-white/10"
                                             >
                                                 {resolved ? 'Unresolve' : 'Resolve'}
@@ -239,7 +262,7 @@ export default function CeoIncidentsPage() {
                                             {(acked || resolved) && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => clearIncidentAction(incident.id)}
+                                                    onClick={() => onClear(incident.id)}
                                                     className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/60 hover:bg-white/10"
                                                 >
                                                     Clear
@@ -260,7 +283,7 @@ export default function CeoIncidentsPage() {
                         {!loading && derived.visible.length === 0 && (
                             <tr>
                                 <td colSpan={6} className="px-4 py-10 text-center text-sm text-white/60">
-                                    {showHandled ? 'No open incidents.' : 'No unhandled open incidents.'}
+                                    {showHandled ? 'No incidents.' : 'No unhandled incidents.'}
                                 </td>
                             </tr>
                         )}
