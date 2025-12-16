@@ -1,16 +1,5 @@
 import { NextResponse } from 'next/server';
-
-type IncidentState = {
-    id: string;
-    acked?: boolean;
-    ackedAt?: number;
-    ackedBy?: string;
-    resolved?: boolean;
-    resolvedAt?: number;
-    resolvedBy?: string;
-};
-
-const stateStore: Map<string, IncidentState> = new Map();
+import { getActionState, setActionState, type IncidentActionState } from '@/lib/incidentsActionStore';
 
 function safeString(v: unknown): string {
     return typeof v === 'string' ? v : '';
@@ -25,8 +14,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const { id } = await params;
-    const s = stateStore.get(id) ?? { id };
-    return NextResponse.json({ incidentId: id, state: s }, { status: 200 });
+    return NextResponse.json({ incidentId: id, state: getActionState(id) }, { status: 200 });
 }
 
 export async function POST(
@@ -50,32 +38,30 @@ export async function POST(
         return NextResponse.json({ error: 'action must be "ack" or "resolve"' }, { status: 400 });
     }
 
-    const existing = stateStore.get(id) ?? { id };
+    const existing = getActionState(id);
+
+    let next: IncidentActionState = { ...existing, id };
 
     if (action === 'ack') {
-        const next: IncidentState = {
-            ...existing,
-            id,
+        next = {
+            ...next,
             acked: true,
-            ackedAt: existing.ackedAt ?? now(),
-            ackedBy: existing.ackedBy ?? by,
+            ackedAt: next.ackedAt ?? now(),
+            ackedBy: next.ackedBy ?? by,
         };
-        stateStore.set(id, next);
-        return NextResponse.json({ incidentId: id, state: next }, { status: 200 });
+    } else {
+        // resolve implies ack
+        next = {
+            ...next,
+            resolved: true,
+            resolvedAt: next.resolvedAt ?? now(),
+            resolvedBy: next.resolvedBy ?? by,
+            acked: true,
+            ackedAt: next.ackedAt ?? now(),
+            ackedBy: next.ackedBy ?? by,
+        };
     }
 
-    // resolve
-    const next: IncidentState = {
-        ...existing,
-        id,
-        resolved: true,
-        resolvedAt: existing.resolvedAt ?? now(),
-        resolvedBy: existing.resolvedBy ?? by,
-        // resolving implies acked
-        acked: true,
-        ackedAt: existing.ackedAt ?? now(),
-        ackedBy: existing.ackedBy ?? by,
-    };
-    stateStore.set(id, next);
+    setActionState(id, next);
     return NextResponse.json({ incidentId: id, state: next }, { status: 200 });
 }
