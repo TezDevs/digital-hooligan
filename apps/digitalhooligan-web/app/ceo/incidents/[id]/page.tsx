@@ -1,147 +1,187 @@
+'use client';
+
+import * as React from 'react';
 import Link from 'next/link';
-import { headers } from 'next/headers';
-import IncidentNotesClient from './IncidentNotesClient';
-import IncidentActionsClient from './IncidentActionsClient';
+import { useParams } from 'next/navigation';
+import {
+    readIncidentActions,
+    setIncidentAction,
+    clearIncidentAction,
+    subscribeIncidentActions,
+    type IncidentActionState,
+} from '@/lib/incidentActions';
 
-type JsonObject = Record<string, unknown>;
+type Incident = {
+    id: string;
+    appId?: string;
+    appName?: string;
+    title: string;
+    description?: string;
+    severity?: string;
+    status?: string;
+    startedAt?: string;
+    updatedAt?: string;
+    detectedBy?: string;
+    impactSummary?: string;
+};
 
-function isObject(v: unknown): v is JsonObject {
-    return typeof v === 'object' && v !== null;
+type IncidentsApi = { incidents: Incident[] };
+
+function fmtTime(iso?: string) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString();
 }
 
-function asArray(payload: unknown): unknown[] {
-    if (Array.isArray(payload)) return payload;
-    if (isObject(payload)) {
-        const items = payload.items;
-        if (Array.isArray(items)) return items;
-        const data = payload.data;
-        if (Array.isArray(data)) return data;
-        const incidents = payload.incidents;
-        if (Array.isArray(incidents)) return incidents;
+function Chip({ children, tone }: { children: React.ReactNode; tone: string }) {
+    return (
+        <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone}`}>
+            {children}
+        </span>
+    );
+}
+
+export default function IncidentDetailPage() {
+    const params = useParams();
+    const raw = params?.id;
+    const id = Array.isArray(raw) ? raw[0] : raw;
+
+    const [incident, setIncident] = React.useState<Incident | null>(null);
+    const [loading, setLoading] = React.useState(true);
+    const [err, setErr] = React.useState<string | null>(null);
+
+    const [actionsById, setActionsById] = React.useState<Record<string, IncidentActionState>>({});
+
+    const load = React.useCallback(async () => {
+        if (!id) return;
+        setLoading(true);
+        setErr(null);
+        try {
+            const res = await fetch('/api/incidents', { cache: 'no-store' });
+            if (!res.ok) throw new Error(`Bad response: ${res.status}`);
+            const json = (await res.json()) as IncidentsApi;
+            const found = (Array.isArray(json.incidents) ? json.incidents : []).find((x) => x.id === id) ?? null;
+            setIncident(found);
+        } catch (e) {
+            setErr(e instanceof Error ? e.message : 'Unknown error');
+            setIncident(null);
+        } finally {
+            setLoading(false);
+        }
+    }, [id]);
+
+    React.useEffect(() => {
+        setActionsById(readIncidentActions());
+        const unsub = subscribeIncidentActions(() => setActionsById(readIncidentActions()));
+        load();
+        return unsub;
+    }, [load]);
+
+    const action = id ? actionsById[id] ?? {} : {};
+    const acked = Boolean(action.acked);
+    const resolved = Boolean(action.resolved);
+
+    if (!id) {
+        return <div className="mx-auto max-w-4xl px-4 py-8 text-white/80">Missing incident id.</div>;
     }
-    return [];
-}
-
-function readFirstString(obj: JsonObject, keys: string[]): string | undefined {
-    for (const k of keys) {
-        const val = obj[k];
-        if (typeof val === 'string') return val;
-    }
-    return undefined;
-}
-
-function norm(v: unknown): string {
-    return String(v ?? '').trim();
-}
-
-async function getOrigin(): Promise<string> {
-    const h = await headers();
-    const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000';
-    const proto =
-        h.get('x-forwarded-proto') ??
-        (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https');
-    return `${proto}://${host}`;
-}
-
-export default async function Page({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    // ✅ Next 16: params is a Promise
-    const { id } = await params;
-
-    const origin = await getOrigin();
-
-    const res = await fetch(`${origin}/api/incidents`, { cache: 'no-store' }).catch(() => null);
-    const json: unknown = res && 'ok' in res && res.ok ? await res.json() : null;
-    const incidents = asArray(json);
-
-    const incident = incidents.find((x) => {
-        if (!isObject(x)) return false;
-        const cand = readFirstString(x, ['id', 'key', 'code', 'slug']);
-        return cand === id;
-    });
-
-    const title = incident && isObject(incident) ? readFirstString(incident, ['title', 'name', 'summary']) : undefined;
-    const status = incident && isObject(incident) ? readFirstString(incident, ['status', 'state']) : undefined;
-    const severity = incident && isObject(incident) ? readFirstString(incident, ['severity', 'sev', 'priority']) : undefined;
-    const created = incident && isObject(incident) ? readFirstString(incident, ['startedAt', 'startTime', 'createdAt', 'created']) : undefined;
-    const description = incident && isObject(incident) ? readFirstString(incident, ['description', 'details', 'body', 'summary']) : undefined;
 
     return (
-        <div className="p-6">
-            <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="mx-auto max-w-4xl px-4 py-8">
+            <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
-                    <div className="text-xs text-white/60">
-                        <Link href="/ceo" className="hover:underline">
-                            CEO
-                        </Link>{' '}
-                        <span className="mx-1">/</span>
-                        <Link href="/ceo/incidents" className="hover:underline">
-                            Incidents
-                        </Link>{' '}
-                        <span className="mx-1">/</span>
-                        <span className="text-white/80">{id}</span>
-                    </div>
-
-                    <h1 className="mt-2 text-2xl font-semibold text-white">{title ?? 'Incident'}</h1>
-                    <p className="mt-1 text-sm text-white/60">Drilldown view + timeline notes.</p>
+                    <Link href="/ceo/incidents" className="text-sm text-white/70 hover:underline">
+                        ← Back to incidents
+                    </Link>
+                    <h1 className="mt-2 text-2xl font-semibold text-white/90">Incident detail</h1>
+                    <p className="mt-1 font-mono text-xs text-white/50">{id}</p>
                 </div>
 
-                <div className="flex gap-2">
-                    <Link
-                        href="/ceo/incidents"
-                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+                <div className="flex flex-wrap items-center gap-2">
+                    {acked && <Chip tone="border-sky-500/30 bg-sky-500/10 text-sky-100">ACKED</Chip>}
+                    {resolved && <Chip tone="border-emerald-500/30 bg-emerald-500/10 text-emerald-100">RESOLVED</Chip>}
+
+                    <button
+                        type="button"
+                        onClick={() => setIncidentAction(id, { acked: !acked })}
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85 hover:bg-white/10"
                     >
-                        Back to incidents
-                    </Link>
-                    <Link
-                        href="/ceo/health"
-                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+                        {acked ? 'Unack' : 'Ack'}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setIncidentAction(id, { resolved: !resolved })}
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85 hover:bg-white/10"
                     >
-                        View health
-                    </Link>
+                        {resolved ? 'Unresolve' : 'Resolve'}
+                    </button>
+
+                    {(acked || resolved) && (
+                        <button
+                            type="button"
+                            onClick={() => clearIncidentAction(id)}
+                            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/60 hover:bg-white/10"
+                        >
+                            Clear
+                        </button>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={load}
+                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85 hover:bg-white/10"
+                    >
+                        Refresh
+                    </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    {!incident ? (
-                        <div className="text-sm text-white/70">
-                            Incident not found in <code className="text-white/85">/api/incidents</code>.
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                                    <div className="text-xs text-white/60">Status</div>
-                                    <div className="mt-1 text-sm text-white/85">{norm(status) || '—'}</div>
-                                </div>
-
-                                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                                    <div className="text-xs text-white/60">Severity</div>
-                                    <div className="mt-1 text-sm text-white/85">{norm(severity) || '—'}</div>
-                                </div>
-
-                                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                                    <div className="text-xs text-white/60">Started</div>
-                                    <div className="mt-1 text-sm text-white/85">{norm(created) || '—'}</div>
-                                </div>
-                            </div>
-
-                            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                                <div className="text-xs text-white/60">Summary</div>
-                                <div className="mt-2 text-sm text-white/80">{norm(description) || '—'}</div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                {loading ? (
+                    <div className="text-sm text-white/70">Loading…</div>
+                ) : err ? (
+                    <div className="text-sm text-rose-200/90">{err}</div>
+                ) : !incident ? (
+                    <div className="text-sm text-white/70">Incident not found in feed.</div>
+                ) : (
+                    <div className="space-y-3">
+                        <div>
+                            <div className="text-lg font-semibold text-white/90">{incident.title}</div>
+                            <div className="mt-1 text-sm text-white/60">
+                                {incident.appName ?? incident.appId ?? '—'} · {incident.status ?? '—'} · {incident.severity ?? '—'}
                             </div>
                         </div>
-                    )}
-                </div>
 
-                <div className="space-y-6">
-                    <IncidentActionsClient incidentId={id} />
-                    <IncidentNotesClient incidentId={id} />
-                </div>
+                        {incident.description && <div className="text-sm text-white/75">{incident.description}</div>}
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                                <div className="text-xs text-white/50">Detected by</div>
+                                <div className="mt-1 text-sm text-white/80">{incident.detectedBy ?? '—'}</div>
+                            </div>
+
+                            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                                <div className="text-xs text-white/50">Customer impact</div>
+                                <div className="mt-1 text-sm text-white/80">{incident.impactSummary ?? '—'}</div>
+                            </div>
+
+                            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                                <div className="text-xs text-white/50">Started</div>
+                                <div className="mt-1 text-sm text-white/80">{fmtTime(incident.startedAt)}</div>
+                            </div>
+
+                            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                                <div className="text-xs text-white/50">Last updated</div>
+                                <div className="mt-1 text-sm text-white/80">{fmtTime(incident.updatedAt)}</div>
+                            </div>
+                        </div>
+
+                        {action.updatedAt && (
+                            <div className="text-[11px] text-white/45">Triage updated: {fmtTime(action.updatedAt)}</div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
