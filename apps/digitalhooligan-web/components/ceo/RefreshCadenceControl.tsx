@@ -1,37 +1,48 @@
 'use client';
 
 import * as React from 'react';
-import { readCadence, writeCadence, type RefreshCadence } from '@/lib/refreshCadence';
-
-function emitCadenceChanged(c: RefreshCadence) {
-    window.dispatchEvent(new CustomEvent('dh:cadence', { detail: c }));
-}
+import { cadenceMs, readCadence, writeCadence, type RefreshCadence } from '@/lib/refreshCadence';
 
 export default function RefreshCadenceControl() {
     const [cadence, setCadence] = React.useState<RefreshCadence>('30s');
 
     React.useEffect(() => {
-        setCadence(readCadence());
+        setCadence(readCadence('30s'));
+
+        const onStorage = (e: StorageEvent) => {
+            if (e.key === 'dh_refresh_cadence') setCadence(readCadence('30s'));
+        };
+        window.addEventListener('storage', onStorage);
+
+        const onCustom = () => setCadence(readCadence('30s'));
+        window.addEventListener('dh_refresh_cadence_changed', onCustom as EventListener);
+
+        return () => {
+            window.removeEventListener('storage', onStorage);
+            window.removeEventListener('dh_refresh_cadence_changed', onCustom as EventListener);
+        };
     }, []);
 
-    const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const next = e.target.value as RefreshCadence;
-        setCadence(next);
-        writeCadence(next);
-        emitCadenceChanged(next);
-    };
+    const label = cadence === 'off' ? 'Off' : cadence;
 
     return (
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
-            <div className="text-xs font-semibold text-white/70">Refresh</div>
+        <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-1">
+            <span className="text-xs text-white/70">Refresh</span>
+
             <select
                 value={cadence}
-                onChange={onChange}
-                className="rounded-lg border border-white/10 bg-black/30 px-2 py-1 text-xs text-white/85"
+                onChange={(e) => {
+                    const next = e.target.value as RefreshCadence;
+                    setCadence(next);
+                    writeCadence(next);
+                }}
+                className="rounded-lg border border-white/10 bg-black/20 px-2 py-1 text-xs text-white/85"
+                title={cadenceMs(cadence) ? `Auto-refresh every ${label}` : 'Auto-refresh off'}
             >
-                <option value="off">Off</option>
+                <option value="15s">15s</option>
                 <option value="30s">30s</option>
                 <option value="60s">60s</option>
+                <option value="off">Off</option>
             </select>
         </div>
     );
