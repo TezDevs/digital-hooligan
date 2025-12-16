@@ -32,6 +32,7 @@ export function writeIncidentActions(next: IncidentActionsById) {
     } catch {
         // ignore
     }
+    // same-tab notification (storage only fires cross-tab)
     try {
         window.dispatchEvent(new Event(EVENT));
     } catch {
@@ -54,16 +55,17 @@ export function setIncidentAction(id: string, patch: IncidentActionState) {
 export function clearIncidentAction(id: string) {
     if (typeof window === 'undefined') return;
     const current = readIncidentActions();
-    const { [id]: _removed, ...rest } = current; // eslint-friendly discard
-    writeIncidentActions(rest);
+    const next = { ...current };
+    delete next[id]; // avoids unused var lint
+    writeIncidentActions(next);
 }
 
 export function subscribeIncidentActions(cb: () => void) {
     if (typeof window === 'undefined') return () => { };
+
     const onCustom = () => cb();
     window.addEventListener(EVENT, onCustom as EventListener);
 
-    // cross-tab updates
     const onStorage = (e: StorageEvent) => {
         if (e.key === KEY) cb();
     };

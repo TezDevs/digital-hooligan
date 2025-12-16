@@ -37,12 +37,9 @@ function statusIsOpen(status?: string) {
 
 function sevTone(sev?: string) {
     const s = norm(sev);
-    if (['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(s))
-        return 'border-rose-500/30 bg-rose-500/10 text-rose-100';
-    if (['high', 'sev2', 'p2'].includes(s))
-        return 'border-amber-500/30 bg-amber-500/10 text-amber-100';
-    if (['medium', 'sev3', 'p3'].includes(s))
-        return 'border-sky-500/30 bg-sky-500/10 text-sky-100';
+    if (['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(s)) return 'border-rose-500/30 bg-rose-500/10 text-rose-100';
+    if (['high', 'sev2', 'p2'].includes(s)) return 'border-amber-500/30 bg-amber-500/10 text-amber-100';
+    if (['medium', 'sev3', 'p3'].includes(s)) return 'border-sky-500/30 bg-sky-500/10 text-sky-100';
     return 'border-white/10 bg-white/5 text-white/70';
 }
 
@@ -77,9 +74,7 @@ function Toggle({
             className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85 hover:bg-white/10"
             aria-pressed={checked}
         >
-            <span
-                className={`h-2.5 w-2.5 rounded-full ${checked ? 'bg-emerald-400' : 'bg-white/20'}`}
-            />
+            <span className={`h-2.5 w-2.5 rounded-full ${checked ? 'bg-emerald-400' : 'bg-white/20'}`} />
             {label}
         </button>
     );
@@ -127,13 +122,11 @@ export default function CeoIncidentsPage() {
             return !Boolean(a?.acked) && !Boolean(a?.resolved);
         });
 
-        const visibleOpen = showHandled ? open : unhandled;
-
         return {
             openCount: open.length,
             handledCount: handled.length,
             unhandledCount: unhandled.length,
-            visible: visibleOpen,
+            visible: showHandled ? open : unhandled,
         };
     }, [items, actionsById, showHandled]);
 
