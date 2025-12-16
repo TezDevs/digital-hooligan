@@ -1,9 +1,6 @@
 'use client';
-
 import SystemsNominalPill from './SystemsNominalPill';
 
-export function HealthStatusChip() {
+export default function HealthStatusChip() {
     return <SystemsNominalPill />;
 }
-
-export default HealthStatusChip;
