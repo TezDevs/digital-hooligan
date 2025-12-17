@@ -24,6 +24,20 @@ type Incident = {
     updatedAt?: string;
 };
 
+type SystemsState = 'green' | 'yellow' | 'red';
+type SystemsPayload = {
+    ok: true;
+    state: SystemsState;
+    counts: { down: number; degraded: number; open: number; critical: number };
+    reasons: {
+        downApps: string[];
+        degradedApps: string[];
+        openIncidents: string[];
+        criticalIncidents: string[];
+    };
+    meta?: { generatedAt?: string };
+};
+
 type JsonObject = Record<string, unknown>;
 
 function isObject(v: unknown): v is JsonObject {
@@ -33,7 +47,6 @@ function isObject(v: unknown): v is JsonObject {
 function asArray(payload: unknown): unknown[] {
     if (Array.isArray(payload)) return payload;
     if (!isObject(payload)) return [];
-    // support multiple common wrapper keys
     if (Array.isArray(payload.apps)) return payload.apps;
     if (Array.isArray(payload.incidents)) return payload.incidents;
     if (Array.isArray(payload.items)) return payload.items;
@@ -88,9 +101,18 @@ function Badge({ children, tone }: { children: React.ReactNode; tone: string }) 
     );
 }
 
+function systemsLabel(state: SystemsState | 'unknown') {
+    if (state === 'red') return 'Systems critical';
+    if (state === 'yellow') return 'Systems degraded';
+    if (state === 'green') return 'Systems nominal';
+    return 'Systems';
+}
+
 export default function CeoHealthClient() {
     const [apps, setApps] = React.useState<AppHealth[]>([]);
     const [incidents, setIncidents] = React.useState<Incident[]>([]);
+    const [systems, setSystems] = React.useState<SystemsPayload | null>(null);
+
     const [lastRefreshed, setLastRefreshed] = React.useState<number | null>(null);
     const [isRefreshing, setIsRefreshing] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
@@ -100,25 +122,32 @@ export default function CeoHealthClient() {
         setError(null);
 
         try {
-            const [appsRes, incRes] = await Promise.all([
+            const [systemsRes, appsRes, incRes] = await Promise.all([
+                fetch('/api/health/systems', { cache: 'no-store' }),
                 fetch('/api/health/apps', { cache: 'no-store' }),
                 fetch('/api/incidents', { cache: 'no-store' }),
             ]);
 
+            if (!systemsRes.ok) throw new Error(`Bad response from /api/health/systems: ${systemsRes.status}`);
             if (!appsRes.ok) throw new Error(`Bad response from /api/health/apps: ${appsRes.status}`);
             if (!incRes.ok) throw new Error(`Bad response from /api/incidents: ${incRes.status}`);
 
+            const systemsJson = (await systemsRes.json()) as SystemsPayload;
             const appsJson: unknown = await appsRes.json();
             const incJson: unknown = await incRes.json();
+
+            setSystems(systemsJson);
 
             const appsArr = asArray(appsJson) as AppHealth[];
             const incArr = asArray(incJson) as Incident[];
 
             setApps(Array.isArray(appsArr) ? appsArr : []);
             setIncidents(Array.isArray(incArr) ? incArr : []);
+
             setLastRefreshed(Date.now());
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Unknown error');
+            setSystems(null);
             setApps([]);
             setIncidents([]);
         } finally {
@@ -138,6 +167,15 @@ export default function CeoHealthClient() {
         [apps]
     );
 
+    const headerCounts = systems?.counts ?? {
+        down: 0,
+        degraded: degradedApps.length,
+        open: openIncidents.length,
+        critical: criticalOpen.length,
+    };
+
+    const headerState: SystemsState | 'unknown' = systems?.state ?? 'unknown';
+
     return (
         <div className="mx-auto max-w-6xl px-4 py-8">
             <div className="mb-6">
@@ -147,12 +185,19 @@ export default function CeoHealthClient() {
                 {error && <p className="mt-3 text-sm text-rose-200/90">{error}</p>}
             </div>
 
+            {/* Unified counts header */}
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-sm text-white/70">
-                    Last refreshed:{' '}
-                    <span className="text-white/85">
-                        {lastRefreshed ? new Date(lastRefreshed).toLocaleString() : '—'}
-                    </span>
+                <div className="min-w-0">
+                    <div className="text-sm font-semibold text-white/85">{systemsLabel(headerState)}</div>
+                    <div className="mt-1 text-xs text-white/55">
+                        {headerCounts.down} down · {headerCounts.degraded} degraded · {headerCounts.critical} critical · {headerCounts.open} open
+                    </div>
+                    <div className="mt-1 text-sm text-white/70">
+                        Last refreshed:{' '}
+                        <span className="text-white/85">
+                            {lastRefreshed ? new Date(lastRefreshed).toLocaleString() : '—'}
+                        </span>
+                    </div>
                 </div>
 
                 <button
