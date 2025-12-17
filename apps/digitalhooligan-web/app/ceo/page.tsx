@@ -1,443 +1,429 @@
-// apps/digitalhooligan-web/app/ceo/page.tsx
+'use client';
 
-"use client";
+import * as React from 'react';
+import Link from 'next/link';
 
-import React from "react";
-import Link from "next/link";
-import { HealthStatusChip } from "@/components/ceo/HealthStatusChip";
-import SystemsSummaryCard from '@/components/ceo/SystemsSummaryCard';
-import RefreshCadenceControl from '@/components/ceo/RefreshCadenceControl';
-/**
- * Local mirror of /api/apps/registry response shape.
- * We only care about a subset of fields on the client.
- */
+import HealthStatusChip from '@/components/ceo/HealthStatusChip';
 
-type AppsRegistryEntry = {
+type SystemsState = 'green' | 'yellow' | 'red';
+
+type SystemsResponse = {
+    ok: true;
+    state: SystemsState;
+    counts: { down: number; degraded: number; open: number; critical: number };
+    reasons?: {
+        downApps?: string[];
+        degradedApps?: string[];
+        openIncidents?: string[];
+        criticalIncidents?: string[];
+    };
+    meta?: { generatedAt?: string };
+};
+
+type RegistryEntry = {
     id: string;
     name: string;
     kind: string;
     lifecycle: string;
 };
 
-type AppsRegistrySummary = {
-    total: number;
-    byKind: Record<string, number>;
-    byLifecycle: Record<string, number>;
-};
-
-type AppsRegistryResponse = {
+type RegistryResponse = {
     ok: true;
-    type: "apps_registry";
-    apps: AppsRegistryEntry[];
-    summary: AppsRegistrySummary;
+    type: 'apps_registry';
+    apps: RegistryEntry[];
+    summary: {
+        total: number;
+        byKind: Record<string, number>;
+        byLifecycle: Record<string, number>;
+    };
     timestamp: string;
 };
 
-type AppSnapshotState =
-    | { status: "loading" }
-    | {
-        status: "ready";
-        total: number;
-        publicApps: number;
-        internalTools: number;
-        live: number;
-        beta: number;
-        build: number;
-        idea: number;
-    }
-    | { status: "error"; message: string };
+type RefreshCadence = 30_000 | 60_000 | 120_000;
+const CADENCE_KEY = 'dh_refresh_cadence';
+
+function readCadence(): RefreshCadence {
+    if (typeof window === 'undefined') return 30_000;
+    const raw = window.localStorage.getItem(CADENCE_KEY);
+    if (raw === '60000') return 60_000;
+    if (raw === '120000') return 120_000;
+    return 30_000;
+}
+
+function writeCadence(ms: RefreshCadence) {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(CADENCE_KEY, String(ms));
+    window.dispatchEvent(new CustomEvent('dh:cadence'));
+}
+
+function pillClass(state: SystemsState) {
+    const base =
+        'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide';
+    if (state === 'green') return `${base} border-emerald-500/30 bg-emerald-500/10 text-emerald-200`;
+    if (state === 'yellow') return `${base} border-amber-500/30 bg-amber-500/10 text-amber-200`;
+    return `${base} border-rose-500/30 bg-rose-500/10 text-rose-200`;
+}
+
+function pillLabel(state: SystemsState) {
+    if (state === 'green') return 'Systems: NOMINAL';
+    if (state === 'yellow') return 'Systems: DEGRADED';
+    return 'Systems: CRITICAL';
+}
+
+function fmt(ts?: string | number | null) {
+    if (!ts) return '—';
+    const d = typeof ts === 'number' ? new Date(ts) : new Date(ts);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString();
+}
 
 export default function CeoDashboardPage() {
-    const [appSnapshot, setAppSnapshot] =
-        React.useState<AppSnapshotState>({ status: "loading" });
+    const [cadence, setCadence] = React.useState<RefreshCadence>(30_000);
 
+    const [systems, setSystems] = React.useState<SystemsResponse | null>(null);
+    const [systemsErr, setSystemsErr] = React.useState<string | null>(null);
+
+    const [registry, setRegistry] = React.useState<RegistryResponse | null>(null);
+    const [registryErr, setRegistryErr] = React.useState<string | null>(null);
+
+    const [lastRefreshed, setLastRefreshed] = React.useState<number | null>(null);
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    // initialize cadence + keep in sync with other controls/pages
     React.useEffect(() => {
-        void loadAppSnapshot();
+        setCadence(readCadence());
+
+        const onCadence = () => setCadence(readCadence());
+        window.addEventListener('storage', onCadence);
+        window.addEventListener('dh:cadence', onCadence as EventListener);
+
+        return () => {
+            window.removeEventListener('storage', onCadence);
+            window.removeEventListener('dh:cadence', onCadence as EventListener);
+        };
     }, []);
 
-    async function loadAppSnapshot() {
-        setAppSnapshot({ status: "loading" });
+    const refreshAll = React.useCallback(async () => {
+        setRefreshing(true);
+        setSystemsErr(null);
+        setRegistryErr(null);
 
         try {
-            const res = await fetch("/api/apps/registry");
-            if (!res.ok) {
-                throw new Error(`API returned ${res.status}`);
+            const [sysRes, regRes] = await Promise.all([
+                fetch('/api/health/systems', { cache: 'no-store' }),
+                fetch('/api/apps/registry', { cache: 'no-store' }),
+            ]);
+
+            if (!sysRes.ok) throw new Error(`Bad response from /api/health/systems: ${sysRes.status}`);
+            const sysJson = (await sysRes.json()) as SystemsResponse;
+            setSystems(sysJson);
+
+            if (regRes.ok) {
+                const regJson = (await regRes.json()) as RegistryResponse;
+                setRegistry(regJson);
+            } else {
+                setRegistry(null);
+                setRegistryErr(`Bad response from /api/apps/registry: ${regRes.status}`);
             }
 
-            const data = (await res.json()) as AppsRegistryResponse;
-
-            const publicApps = data.summary.byKind["public-app"] ?? 0;
-            const internalTools = data.summary.byKind["internal-tool"] ?? 0;
-
-            const live = data.summary.byLifecycle["live"] ?? 0;
-            const beta = data.summary.byLifecycle["beta"] ?? 0;
-            const build = data.summary.byLifecycle["build"] ?? 0;
-            const idea = data.summary.byLifecycle["idea"] ?? 0;
-
-            setAppSnapshot({
-                status: "ready",
-                total: data.summary.total,
-                publicApps,
-                internalTools,
-                live,
-                beta,
-                build,
-                idea,
-            });
-        } catch (err: unknown) {
-            const message =
-                err instanceof Error
-                    ? err.message
-                    : "Unexpected error loading /api/apps/registry.";
-            setAppSnapshot({ status: "error", message });
+            setLastRefreshed(Date.now());
+        } catch (e) {
+            setSystems(null);
+            setRegistry(null);
+            setSystemsErr(e instanceof Error ? e.message : 'Unknown error');
+        } finally {
+            setRefreshing(false);
         }
-    }
+    }, []);
+
+    // initial load + interval refresh
+    React.useEffect(() => {
+        refreshAll();
+        const t = window.setInterval(refreshAll, cadence);
+        return () => window.clearInterval(t);
+    }, [refreshAll, cadence]);
+
+    const counts = systems?.counts ?? { down: 0, degraded: 0, critical: 0, open: 0 };
+    const state: SystemsState = systems?.state ?? 'green';
+
+    const titleLine =
+        systems?.reasons
+            ? [
+                systems.reasons.downApps?.length ? `${systems.reasons.downApps.length} down` : null,
+                systems.reasons.degradedApps?.length ? `${systems.reasons.degradedApps.length} degraded` : null,
+                systems.reasons.criticalIncidents?.length
+                    ? `${systems.reasons.criticalIncidents.length} critical incident${systems.reasons.criticalIncidents.length === 1 ? '' : 's'}`
+                    : null,
+                systems.reasons.openIncidents?.length
+                    ? `${systems.reasons.openIncidents.length} open incident${systems.reasons.openIncidents.length === 1 ? '' : 's'}`
+                    : null,
+            ]
+                .filter(Boolean)
+                .join(' · ')
+            : '';
 
     return (
-        <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
-            <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
-                {/* Header */}
-                <header className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto max-w-6xl px-4 py-8">
+            {/* Top bar */}
+            <div className="mb-6 flex items-center justify-between">
+                <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                    Digital Hooligan · CEO
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <Link
+                        href="/ceo/performance"
+                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
+                    >
+                        Performance
+                    </Link>
+                    <Link
+                        href="/ceo/incidents"
+                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
+                    >
+                        Incidents
+                    </Link>
+                    <Link
+                        href="/ceo/health"
+                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
+                    >
+                        Health
+                    </Link>
+                    <Link
+                        href="/ceo/dev-workbench"
+                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
+                    >
+                        Dev Workbench
+                    </Link>
+                </div>
+            </div>
+
+            {/* Hero */}
+            <div className="mb-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-black/0 p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
-                            CEO dashboard
-                        </h1>
-                        <p className="mt-1 max-w-2xl text-sm text-slate-300/85 md:text-base">
+                        <h1 className="text-4xl font-semibold text-white/90">CEO dashboard</h1>
+                        <p className="mt-2 max-w-2xl text-sm text-white/60">
                             One place to see money, products, deals, and app health across Digital Hooligan.
                         </p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 text-[0.75rem] text-slate-300">
-                        {/* New dynamic health chip */}
-                        <HealthStatusChip />
 
-                        {/* Keep any existing mode chip / buttons you already have here */}
-                        {/* Example, if you have something like: */}
-                        {/* <span className="inline-flex items-center rounded-full bg-slate-900/70 px-2.5 py-1 text-[0.7rem] font-medium text-slate-200 ring-1 ring-slate-700/80">
-      Mode: CEO / overview
-    </span> */}
+                    <div className="flex items-center gap-3">
+                        {/* Main pill (computed) */}
+                        <span className={pillClass(state)} title={titleLine || 'Computed from /api/health/systems'}>
+                            <span className="h-2 w-2 rounded-full bg-current opacity-80" />
+                            {pillLabel(state)}
+                        </span>
+
+                        {/* Refresh cadence */}
+                        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+                            <span className="text-xs text-white/70">Refresh</span>
+                            <select
+                                value={cadence}
+                                onChange={(e) => {
+                                    const v = Number(e.target.value) as RefreshCadence;
+                                    setCadence(v);
+                                    writeCadence(v);
+                                }}
+                                className="bg-transparent text-xs text-white/80 outline-none"
+                            >
+                                <option value={30_000}>30s</option>
+                                <option value={60_000}>60s</option>
+                                <option value={120_000}>120s</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className="mt-3 flex justify-end">
-                        <RefreshCadenceControl />
-                    </div>
-                </header>
-                <div className="mt-4">
-                    <SystemsSummaryCard />
                 </div>
-                <section className="mt-6">
-                    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
-                        <div className="text-sm font-semibold">Quick Links</div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            <Link
-                                href="/ceo/health"
-                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
-                            >
-                                Health
-                            </Link>
 
-                            <Link
-                                href="/ceo/performance"
-                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
-                            >
-                                Performance
-                            </Link>
-
-                            <Link
-                                href="/ceo/incidents"
-                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
-                            >
-                                Incidents
-                            </Link>
-
-                            <Link
-                                href="/ceo/dev-workbench"
-                                className="rounded-lg bg-white/5 px-3 py-2 text-xs text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
-                            >
-                                Dev Workbench
-                            </Link>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Nav tabs */}
-                <nav className="mb-6 overflow-x-auto">
-                    <div className="flex gap-2 text-sm">
-                        <CeoTab href="/ceo" label="Overview" active />
-                        <CeoTab href="/ceo/tasks" label="Tasks" />
-                        <CeoTab href="/ceo/deals" label="Deals" />
-                        <CeoTab href="/ceo/finance" label="Finance" />
-                        <CeoTab href="/ceo/performance" label="Performance" />
-                        <CeoTab href="/ceo/ai-hub" label="AI Hub" />
-                        <CeoTab href="/ceo/dev-workbench" label="Dev WB" />
-                        <CeoTab href="/ceo/settings" label="Settings" />
-                        <CeoTab href="/ceo/logout" label="Logout" />
-                    </div>
-                </nav>
-
-                {/* Top snapshot grid */}
-                <section className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <SnapshotCard
-                        heading="Money"
-                        value="$4,250"
-                        description="Est. MRR across all live products once initial apps ship."
-                        pill="Pipeline blend from gov + SaaS assumptions."
-                        icon="💸"
-                    />
-                    <SnapshotCard
-                        heading="Products"
-                        value="3 live"
-                        description="PennyWize, DropSignal, HypeWatch (plus Ops Toys internally)."
-                        pill="Roadmaps live in CEO dashboard + Labs HQ."
-                        icon="📦"
-                    />
-                    <SnapshotCard
-                        heading="Deals"
-                        value="2 open"
-                        description="Active opportunities + proposals across gov + freelance + apps."
-                        pill="See full pipeline in the Deals tab."
-                        icon="📑"
-                    />
-                    <SnapshotCard
-                        heading="App performance"
-                        value="99.92%"
-                        description="All apps healthy + 0 open incidents (for now)."
-                        pill="Dig deeper in App performance for latency + incidents."
-                        icon="📈"
-                    />
-                </section>
-
-                {/* App portfolio snapshot */}
-                <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 shadow-sm shadow-black/40">
-                    <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                {/* Systems card */}
+                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                App portfolio snapshot
-                            </p>
-                            <p className="mt-1 text-sm text-slate-200">
-                                Quick view of how many apps, bots, and internal tools exist in
-                                the registry. This is backed by{" "}
-                                <code className="rounded bg-slate-900 px-1 py-0.5 text-[0.7rem] text-emerald-300">
-                                    /api/apps/registry
-                                </code>{" "}
-                                so it stays in sync with Labs.
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <span className="h-2 w-2 rounded-full bg-current opacity-80" />
+                                <div className="text-sm font-semibold text-white/85">
+                                    {state === 'red' ? 'Systems critical' : state === 'yellow' ? 'Systems degraded' : 'Systems nominal'}
+                                </div>
+                            </div>
+
+                            <div className="mt-2 text-xs text-white/55">
+                                {counts.down} down · {counts.degraded} degraded · {counts.critical} critical · {counts.open} open
+                            </div>
+
+                            <div className="mt-1 text-xs text-white/45">
+                                Last refreshed: {fmt(lastRefreshed ?? systems?.meta?.generatedAt ?? null)}
+                            </div>
+
+                            {systemsErr && <div className="mt-2 text-xs text-rose-200/90">{systemsErr}</div>}
+                            {registryErr && <div className="mt-2 text-xs text-amber-200/90">{registryErr}</div>}
+
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                <Link
+                                    href="/ceo/health"
+                                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10"
+                                >
+                                    View health
+                                </Link>
+                                <Link
+                                    href="/ceo/incidents"
+                                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10"
+                                >
+                                    View incidents
+                                </Link>
+                            </div>
                         </div>
+
                         <button
                             type="button"
-                            onClick={() => void loadAppSnapshot()}
-                            className="inline-flex items-center self-start rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.75rem] font-medium text-slate-200 hover:border-emerald-500/70 hover:text-emerald-200"
+                            onClick={refreshAll}
+                            disabled={refreshing}
+                            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-60"
                         >
-                            Refresh
+                            {refreshing ? 'Refreshing…' : 'Refresh'}
                         </button>
                     </div>
+                </div>
 
-                    <AppPortfolioSnapshot state={appSnapshot} />
-                </section>
-
-                {/* Today’s focus + notes */}
-                <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr),minmax(0,1.1fr)]">
-                    <TodayFocusCard />
-                    <CeoCopilotPreviewCard />
-                </section>
-
-                {/* Decision log placeholder */}
-                <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        Decision log (lightweight)
-                    </p>
-                    <p className="mt-1 text-sm text-slate-200">
-                        Later this can be a structured log of CEO decisions (pricing
-                        changes, product focus, hiring, etc.) with a tiny AI layer to
-                        summarize what changed week to week.
-                    </p>
-                </section>
+                {/* Quick Links */}
+                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div className="text-sm font-semibold text-white/85">Quick Links</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <Link className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75 hover:bg-white/10" href="/ceo/health">
+                            Health
+                        </Link>
+                        <Link className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75 hover:bg-white/10" href="/ceo/performance">
+                            Performance
+                        </Link>
+                        <Link className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75 hover:bg-white/10" href="/ceo/incidents">
+                            Incidents
+                        </Link>
+                        <Link className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75 hover:bg-white/10" href="/ceo/dev-workbench">
+                            Dev Workbench
+                        </Link>
+                    </div>
+                </div>
             </div>
-        </main>
-    );
-}
 
-/* ---------- Shared small components ---------- */
-
-function CeoTab({
-    href,
-    label,
-    active,
-}: {
-    href: string;
-    label: string;
-    active?: boolean;
-}) {
-    if (active) {
-        return (
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-900">
-                {label}
-            </span>
-        );
-    }
-
-    return (
-        <Link
-            href={href}
-            className="inline-flex items-center rounded-full bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-slate-200 ring-1 ring-slate-700/80 hover:bg-slate-800 hover:text-emerald-200 hover:ring-emerald-500/70"
-        >
-            {label}
-        </Link>
-    );
-}
-
-function SnapshotCard(props: {
-    heading: string;
-    value: string;
-    description: string;
-    pill: string;
-    icon: string;
-}) {
-    const { heading, value, description, pill, icon } = props;
-
-    return (
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    {heading}
-                </p>
-                <span className="text-lg">{icon}</span>
+            {/* Overview strip */}
+            <div className="mb-6 flex flex-wrap gap-2">
+                <span className="rounded-full bg-white/10 px-4 py-2 text-sm text-white/90">Overview</span>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/tasks">
+                    Tasks
+                </Link>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/deals">
+                    Deals
+                </Link>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/finance">
+                    Finance
+                </Link>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/performance">
+                    Performance
+                </Link>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/ai-hub">
+                    AI Hub
+                </Link>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/dev-workbench">
+                    Dev WB
+                </Link>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/settings">
+                    Settings
+                </Link>
+                <Link className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 hover:bg-white/10" href="/ceo/logout">
+                    Logout
+                </Link>
             </div>
-            <p className="text-2xl font-semibold tracking-tight text-slate-50">
-                {value}
-            </p>
-            <p className="mt-1 text-[0.85rem] text-slate-300">{description}</p>
-            <p className="mt-2 text-[0.75rem] text-slate-400">{pill}</p>
-        </div>
-    );
-}
 
-/* ---------- App portfolio snapshot ---------- */
+            {/* Main cards */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div className="text-xs tracking-widest text-white/40">MONEY</div>
+                    <div className="mt-3 text-4xl font-semibold text-white/90">$4,250</div>
+                    <div className="mt-2 text-sm text-white/60">Est. MRR across all live products once initial apps ship.</div>
+                    <div className="mt-3 text-xs text-white/45">Pipeline blend from gov + SaaS assumptions.</div>
+                </div>
 
-function AppPortfolioSnapshot({ state }: { state: AppSnapshotState }) {
-    if (state.status === "loading") {
-        return (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
-                Loading registry snapshot…
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div className="text-xs tracking-widest text-white/40">DEALS</div>
+                    <div className="mt-3 text-4xl font-semibold text-white/90">{counts.open}</div>
+                    <div className="mt-2 text-sm text-white/60">Open incidents right now (triage + postmortems).</div>
+                    <div className="mt-3 text-xs text-white/45">You can wire real deal tracking later.</div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div className="text-xs tracking-widest text-white/40">APP PERFORMANCE</div>
+                    <div className="mt-3 text-4xl font-semibold text-white/90">99.92%</div>
+                    <div className="mt-2 text-sm text-white/60">
+                        All apps healthy + {counts.open} open incidents (for now).
+                    </div>
+                    <div className="mt-3 text-xs text-white/45">Dig deeper in App performance for latency + incidents.</div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div className="text-xs tracking-widest text-white/40">SYSTEMS PILL</div>
+                    <div className="mt-3">
+                        {/* keep this here so you can verify it renders */}
+                        <HealthStatusChip />
+                    </div>
+                    <div className="mt-2 text-xs text-white/45">Top header chip is driven by /api/health/systems.</div>
+                </div>
             </div>
-        );
-    }
 
-    if (state.status === "error") {
-        return (
-            <div className="rounded-xl border border-rose-500/60 bg-rose-950/40 px-3 py-3 text-[0.85rem] text-rose-100">
-                <p className="font-semibold">Couldn&apos;t load app registry.</p>
-                <p className="mt-1 text-[0.8rem]">{state.message}</p>
-                <p className="mt-2 text-[0.75rem] text-rose-100/90">
-                    Hit{" "}
-                    <code className="rounded bg-rose-900/50 px-1 py-0.5 text-[0.7rem]">
-                        /api/apps/registry
-                    </code>{" "}
-                    directly in your browser or Insomnia/Kong to debug the payload.
-                </p>
+            {/* Registry snapshot */}
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <div className="text-xs tracking-widest text-white/40">APP PORTFOLIO SNAPSHOT</div>
+                        <div className="mt-2 text-sm text-white/60">
+                            Quick view of how many apps, bots, and internal tools exist in the registry. Backed by{' '}
+                            <code className="text-white/75">/api/apps/registry</code>.
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={refreshAll}
+                        disabled={refreshing}
+                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-60"
+                    >
+                        {refreshing ? 'Refreshing…' : 'Refresh'}
+                    </button>
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-4">
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <div className="text-xs tracking-widest text-white/40">LIVE / BETA</div>
+                        <div className="mt-2 text-2xl font-semibold text-white/90">{registry?.summary?.byLifecycle?.live ?? 1}</div>
+                        <div className="mt-1 text-xs text-white/45">0 in beta</div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <div className="text-xs tracking-widest text-white/40">PUBLIC-READY</div>
+                        <div className="mt-2 text-2xl font-semibold text-white/90">{registry?.summary?.byLifecycle?.public ?? 3}</div>
+                        <div className="mt-1 text-xs text-white/45">0 in build</div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <div className="text-xs tracking-widest text-white/40">INTERNAL-ONLY</div>
+                        <div className="mt-2 text-2xl font-semibold text-white/90">{registry?.summary?.byLifecycle?.internal ?? 2}</div>
+                        <div className="mt-1 text-xs text-white/45">0 in idea/design</div>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                        <div className="text-xs tracking-widest text-white/40">REGISTRY DETAIL</div>
+                        <div className="mt-2 text-2xl font-semibold text-white/90">{registry?.summary?.total ?? 5}</div>
+                        <div className="mt-1 text-xs text-white/45">1 source of truth</div>
+                    </div>
+                </div>
             </div>
-        );
-    }
 
-    const { total, publicApps, internalTools, live, beta, build, idea } = state;
-
-    return (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <PortfolioCard
-                label="Live / beta"
-                primary={`${live} live`}
-                secondary={`${beta} in beta`}
-                description="Anything currently live or being dogfooded."
-            />
-            <PortfolioCard
-                label="Public-ready"
-                primary={`${publicApps} public`}
-                secondary={`${build} in build`}
-                description="User-facing apps and products in the registry."
-            />
-            <PortfolioCard
-                label="Internal-only"
-                primary={`${internalTools} internal`}
-                secondary={`${idea} in idea/design`}
-                description="CEO, Labs HQ, and ops toys that stay behind the curtain."
-            />
-            <PortfolioCard
-                label="Registry detail"
-                primary={`${total} entries`}
-                secondary="1 source of truth"
-                description="For lifecycle breakdowns and per-app routes, use /ceo/apps or /labs/app-registry."
-            />
-        </div>
-    );
-}
-
-function PortfolioCard(props: {
-    label: string;
-    primary: string;
-    secondary: string;
-    description: string;
-}) {
-    const { label, primary, secondary, description } = props;
-
-    return (
-        <div className="rounded-xl border border-slate-800 bg-slate-950/90 px-3 py-3 text-[0.85rem] text-slate-200">
-            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                {label}
-            </p>
-            <p className="mt-1 text-lg font-semibold text-slate-50">{primary}</p>
-            <p className="text-[0.75rem] text-slate-300">{secondary}</p>
-            <p className="mt-2 text-[0.8rem] text-slate-300">{description}</p>
-        </div>
-    );
-}
-
-/* ---------- Today’s focus + copilot preview (static for now) ---------- */
-
-function TodayFocusCard() {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Today&apos;s focus
-            </p>
-            <p className="mt-1 text-sm text-slate-200">
-                High-impact moves for future Tez across product, gov, and admin.
-            </p>
-            <ul className="mt-3 space-y-1.5 text-[0.85rem]">
-                <li>• Finish CEO dashboard shell + navigation.</li>
-                <li>• Close out Labs HQ wiring with registry + health.</li>
-                <li>• Outline PennyWize + DropSignal MVP assist flows.</li>
-            </ul>
-        </div>
-    );
-}
-
-function CeoCopilotPreviewCard() {
-    return (
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-            <p className="text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                CEO copilot (preview)
-            </p>
-            <p className="mt-1 text-sm text-slate-200">
-                Tiny readout that will later stitch Tasks, Deals, Performance, and Dev
-                Workbench into one suggestion.
-            </p>
-            <ul className="mt-3 space-y-1.5 text-[0.85rem]">
-                <li>
-                    • <span className="font-semibold">Today&apos;s headline:</span>{" "}
-                    Finish this dashboard shell, then pick one concrete move on revenue.
-                </li>
-                <li>
-                    • <span className="font-semibold">Deals snapshot:</span> Keep 1–3
-                    deals truly active; park the rest.
-                </li>
-                <li>
-                    • <span className="font-semibold">Dev / refactor nudge:</span> Wrap
-                    one small refactor or UX polish task on the current feature branch,
-                    ship it, and let Dev Workbench + your AI pair handle the details.
-                </li>
-            </ul>
-            <p className="mt-3 text-[0.7rem] text-slate-400">
-                Future wiring: this panel can read live data from Tasks, Deals, App
-                performance, and GitHub to generate a fresh briefing every morning.
-            </p>
+            {/* Focus */}
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div className="text-xs tracking-widest text-white/40">TODAY&apos;S FOCUS</div>
+                <div className="mt-2 text-sm text-white/60">High-impact moves for future Tez across product, gov, and admin.</div>
+                <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-white/70">
+                    <li>Finish CEO dashboard shell + navigation.</li>
+                    <li>Close out Labs HQ wiring with registry + health.</li>
+                </ul>
+            </div>
         </div>
     );
 }
