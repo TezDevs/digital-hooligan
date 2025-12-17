@@ -89,7 +89,6 @@ export default function CeoDashboardPage() {
     const [lastRefreshed, setLastRefreshed] = React.useState<number | null>(null);
     const [refreshing, setRefreshing] = React.useState(false);
 
-    // initialize cadence + keep in sync with other controls/pages
     React.useEffect(() => {
         setCadence(readCadence());
 
@@ -136,7 +135,6 @@ export default function CeoDashboardPage() {
         }
     }, []);
 
-    // initial load + interval refresh
     React.useEffect(() => {
         refreshAll();
         const t = window.setInterval(refreshAll, cadence);
@@ -163,41 +161,7 @@ export default function CeoDashboardPage() {
             : '';
 
     return (
-        <div className="mx-auto max-w-6xl px-4 py-8">
-            {/* Top bar */}
-            <div className="mb-6 flex items-center justify-between">
-                <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-                    Digital Hooligan · CEO
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <Link
-                        href="/ceo/performance"
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
-                    >
-                        Performance
-                    </Link>
-                    <Link
-                        href="/ceo/incidents"
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
-                    >
-                        Incidents
-                    </Link>
-                    <Link
-                        href="/ceo/health"
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
-                    >
-                        Health
-                    </Link>
-                    <Link
-                        href="/ceo/dev-workbench"
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/75 hover:bg-white/10"
-                    >
-                        Dev Workbench
-                    </Link>
-                </div>
-            </div>
-
+        <div className="mx-auto max-w-6xl px-4 pb-10">
             {/* Hero */}
             <div className="mb-6 rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-black/0 p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -209,13 +173,11 @@ export default function CeoDashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Main pill (computed) */}
                         <span className={pillClass(state)} title={titleLine || 'Computed from /api/health/systems'}>
                             <span className="h-2 w-2 rounded-full bg-current opacity-80" />
                             {pillLabel(state)}
                         </span>
 
-                        {/* Refresh cadence */}
                         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
                             <span className="text-xs text-white/70">Refresh</span>
                             <select
@@ -361,7 +323,6 @@ export default function CeoDashboardPage() {
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
                     <div className="text-xs tracking-widest text-white/40">SYSTEMS PILL</div>
                     <div className="mt-3">
-                        {/* keep this here so you can verify it renders */}
                         <HealthStatusChip />
                     </div>
                     <div className="mt-2 text-xs text-white/45">Top header chip is driven by /api/health/systems.</div>
