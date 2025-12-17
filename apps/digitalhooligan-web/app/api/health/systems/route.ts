@@ -1,6 +1,27 @@
 import { NextResponse } from 'next/server';
 
-type PillState = 'green' | 'yellow' | 'red' | 'error';
+type SystemsState = 'green' | 'yellow' | 'red';
+
+type SystemsResponse = {
+    ok: true;
+    state: SystemsState;
+    counts: {
+        down: number;
+        degraded: number;
+        open: number;
+        critical: number;
+    };
+    reasons: {
+        downApps: string[];
+        degradedApps: string[];
+        openIncidents: string[]; // titles
+        criticalIncidents: string[]; // titles
+    };
+    meta: {
+        generatedAt: string;
+        source: 'computed';
+    };
+};
 
 type JsonObject = Record<string, unknown>;
 
@@ -8,25 +29,23 @@ function isObject(v: unknown): v is JsonObject {
     return typeof v === 'object' && v !== null;
 }
 
-function readFirstString(obj: JsonObject, keys: string[]): string | undefined {
-    for (const k of keys) {
-        const val = obj[k];
-        if (typeof val === 'string') return val;
-    }
-    return undefined;
-}
-
 function asArray(payload: unknown): unknown[] {
     if (Array.isArray(payload)) return payload;
     if (isObject(payload)) {
-        const apps = payload.apps;
-        if (Array.isArray(apps)) return apps;
-        const data = payload.data;
-        if (Array.isArray(data)) return data;
-        const items = payload.items;
-        if (Array.isArray(items)) return items;
+        if (Array.isArray(payload.apps)) return payload.apps;
+        if (Array.isArray(payload.incidents)) return payload.incidents;
+        if (Array.isArray(payload.items)) return payload.items;
+        if (Array.isArray(payload.data)) return payload.data;
     }
     return [];
+}
+
+function readString(obj: JsonObject, keys: string[]): string | undefined {
+    for (const k of keys) {
+        const v = obj[k];
+        if (typeof v === 'string' && v.trim()) return v;
+    }
+    return undefined;
 }
 
 function norm(v: unknown): string {
@@ -35,114 +54,102 @@ function norm(v: unknown): string {
 
 function appName(app: unknown): string {
     if (!isObject(app)) return 'App';
-    return readFirstString(app, ['name', 'app', 'slug', 'id', 'code']) ?? 'App';
+    return (
+        readString(app, ['appId', 'name', 'app', 'slug', 'id', 'code']) ??
+        'App'
+    );
 }
 
-function appHealthBucket(app: unknown): 'healthy' | 'degraded' | 'down' {
+function appBucket(app: unknown): 'healthy' | 'degraded' | 'down' {
     if (!isObject(app)) return 'healthy';
-    const s = norm(readFirstString(app, ['status', 'health', 'state']) ?? '');
+    const s = norm(readString(app, ['status', 'health', 'state']) ?? '');
     if (['down', 'offline', 'fail', 'failed', 'error', 'unhealthy'].includes(s)) return 'down';
-    if (['degraded', 'warn', 'warning', 'slow', 'partial'].includes(s)) return 'degraded';
+    if (['degraded', 'warn', 'warning', 'slow', 'partial', 'maintenance'].includes(s)) return 'degraded';
     return 'healthy';
+}
+
+function incidentIsOpen(inc: unknown): boolean {
+    if (!isObject(inc)) return false;
+    const s = norm(readString(inc, ['status', 'state']) ?? '');
+    return !['closed', 'resolved', 'done'].includes(s);
+}
+
+function incidentIsCritical(inc: unknown): boolean {
+    if (!isObject(inc)) return false;
+    const sev = norm(readString(inc, ['severity', 'sev', 'priority']) ?? '');
+    return ['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(sev);
 }
 
 function incidentTitle(inc: unknown): string {
     if (!isObject(inc)) return 'Incident';
     return (
-        readFirstString(inc, ['title', 'name', 'summary']) ??
+        readString(inc, ['title', 'name', 'summary']) ??
         (typeof inc.id === 'string' ? inc.id : 'Incident')
     );
 }
 
-function incidentStatus(inc: unknown): string {
-    if (!isObject(inc)) return 'unknown';
-    return readFirstString(inc, ['status', 'state']) ?? 'unknown';
-}
+export async function GET(request: Request) {
+    const origin = new URL(request.url).origin;
 
-function incidentSeverity(inc: unknown): string {
-    if (!isObject(inc)) return 'unknown';
-    return readFirstString(inc, ['severity', 'sev', 'priority']) ?? 'unknown';
-}
+    const [appsRes, incRes] = await Promise.all([
+        fetch(`${origin}/api/health/apps`, { cache: 'no-store' }),
+        fetch(`${origin}/api/incidents`, { cache: 'no-store' }),
+    ]);
 
-function isOpenIncident(inc: unknown): boolean {
-    const s = norm(incidentStatus(inc));
-    return !['closed', 'resolved', 'done'].includes(s);
-}
+    // If either upstream fails, still return a stable payload (yellow -> error-ish)
+    let appsPayload: unknown = null;
+    let incPayload: unknown = null;
 
-function isCriticalIncident(inc: unknown): boolean {
-    const sev = norm(incidentSeverity(inc));
-    return ['critical', 'sev1', 'sev-1', 'p0', 'p1'].includes(sev);
-}
-
-export async function GET(req: Request) {
     try {
-        const url = new URL(req.url);
-        const origin = url.origin;
-
-        const [appsRes, incRes] = await Promise.all([
-            fetch(`${origin}/api/health/apps`, { cache: 'no-store' }),
-            fetch(`${origin}/api/incidents`, { cache: 'no-store' }),
-        ]);
-
-        if (!appsRes.ok || !incRes.ok) {
-            return NextResponse.json(
-                { state: 'error', counts: { degraded: 0, down: 0, open: 0, critical: 0 }, reasons: {}, ts: Date.now() },
-                { status: 200 }
-            );
-        }
-
-        const appsJson: unknown = await appsRes.json();
-        const incJson: unknown = await incRes.json();
-
-        const apps = asArray(appsJson);
-        const incidents = asArray(incJson);
-
-        const degradedApps: string[] = [];
-        const downApps: string[] = [];
-
-        for (const a of apps) {
-            const bucket = appHealthBucket(a);
-            if (bucket === 'degraded') degradedApps.push(appName(a));
-            if (bucket === 'down') downApps.push(appName(a));
-        }
-
-        const openIncidents = incidents.filter(isOpenIncident);
-        const openTitles = openIncidents.map(incidentTitle);
-
-        const criticalIncidents = openIncidents.filter(isCriticalIncident);
-        const criticalTitles = criticalIncidents.map(incidentTitle);
-
-        let state: PillState = 'green';
-        if (downApps.length > 0 || criticalTitles.length > 0) state = 'red';
-        else if (degradedApps.length > 0 || openTitles.length > 0) state = 'yellow';
-
-        const body = {
-            state,
-            counts: {
-                degraded: degradedApps.length,
-                down: downApps.length,
-                open: openTitles.length,
-                critical: criticalTitles.length,
-            },
-            reasons: {
-                degradedApps,
-                downApps,
-                openIncidents: openTitles,
-                criticalIncidents: criticalTitles,
-            },
-            ts: Date.now(),
-        };
-
-        // Cache in CDN/edge for 15s; allow short stale while revalidating
-        const res = NextResponse.json(body, { status: 200 });
-        res.headers.set('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=60');
-        return res;
+        appsPayload = appsRes.ok ? await appsRes.json() : null;
     } catch {
-        const res = NextResponse.json(
-            { state: 'error', counts: { degraded: 0, down: 0, open: 0, critical: 0 }, reasons: {}, ts: Date.now() },
-            { status: 200 }
-        );
-        res.headers.set('Cache-Control', 'no-store');
-        return res;
+        appsPayload = null;
     }
+
+    try {
+        incPayload = incRes.ok ? await incRes.json() : null;
+    } catch {
+        incPayload = null;
+    }
+
+    const apps = asArray(appsPayload);
+    const incidents = asArray(incPayload);
+
+    const downApps = apps.filter((a) => appBucket(a) === 'down').map(appName);
+    const degradedApps = apps.filter((a) => appBucket(a) === 'degraded').map(appName);
+
+    const openIncidents = incidents.filter(incidentIsOpen);
+    const criticalIncidents = openIncidents.filter(incidentIsCritical);
+
+    const openTitles = openIncidents.map(incidentTitle);
+    const criticalTitles = criticalIncidents.map(incidentTitle);
+
+    const counts = {
+        down: downApps.length,
+        degraded: degradedApps.length,
+        open: openIncidents.length,
+        critical: criticalIncidents.length,
+    };
+
+    let state: SystemsState = 'green';
+    if (counts.critical > 0 || counts.down > 0) state = 'red';
+    else if (counts.degraded > 0 || counts.open > 0) state = 'yellow';
+
+    const body: SystemsResponse = {
+        ok: true,
+        state,
+        counts,
+        reasons: {
+            downApps,
+            degradedApps,
+            openIncidents: openTitles,
+            criticalIncidents: criticalTitles,
+        },
+        meta: {
+            generatedAt: new Date().toISOString(),
+            source: 'computed',
+        },
+    };
+
+    return NextResponse.json(body);
 }
