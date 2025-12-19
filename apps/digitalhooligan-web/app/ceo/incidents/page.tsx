@@ -115,7 +115,18 @@ export default function IncidentsPage() {
         () => (hideHandled ? activeIncidents : incidents),
         [hideHandled, activeIncidents, incidents]
     );
-
+    const severitySummary = useMemo(() => {
+        return {
+            critical: incidents.filter(
+                (i) => i.severity === 'critical' && i.status !== 'handled'
+            ).length,
+            high: incidents.filter(
+                (i) => i.severity === 'high' && i.status !== 'handled'
+            ).length,
+            open: incidents.filter((i) => i.status === 'open').length,
+            handled: incidents.filter((i) => i.status === 'handled').length,
+        };
+    }, [incidents]);
     /* ===== Actions ===== */
 
     const markHandled = (id: string) => {
@@ -162,7 +173,35 @@ export default function IncidentsPage() {
                         <th className="px-4 py-2">Updated</th>
                     </tr>
                 </thead>
+                <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="rounded border border-red-500/20 bg-red-500/10 px-3 py-2">
+                        <div className="text-xs text-red-300">Critical</div>
+                        <div className="text-lg font-semibold text-red-200">
+                            {severitySummary.critical}
+                        </div>
+                    </div>
 
+                    <div className="rounded border border-orange-500/20 bg-orange-500/10 px-3 py-2">
+                        <div className="text-xs text-orange-300">High</div>
+                        <div className="text-lg font-semibold text-orange-200">
+                            {severitySummary.high}
+                        </div>
+                    </div>
+
+                    <div className="rounded border border-yellow-500/20 bg-yellow-500/10 px-3 py-2">
+                        <div className="text-xs text-yellow-300">Open</div>
+                        <div className="text-lg font-semibold text-yellow-200">
+                            {severitySummary.open}
+                        </div>
+                    </div>
+
+                    <div className="rounded border border-emerald-500/20 bg-emerald-500/10 px-3 py-2">
+                        <div className="text-xs text-emerald-300">Handled</div>
+                        <div className="text-lg font-semibold text-emerald-200">
+                            {severitySummary.handled}
+                        </div>
+                    </div>
+                </div>
                 <tbody>
                     {visibleIncidents.map((incident) => {
                         const action = actions[incident.id];
