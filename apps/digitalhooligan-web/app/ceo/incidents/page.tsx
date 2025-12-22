@@ -76,6 +76,20 @@ const severityChip = (sev: Severity) => {
         default:
             return '';
     }
+
+};
+
+const fmtAge = (iso?: string) => {
+    if (!iso) return '—';
+
+    const deltaMs = Date.now() - new Date(iso).getTime();
+    const minutes = Math.floor(deltaMs / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    return `${days}d`;
 };
 
 const statusChip = (st: IncidentStatus) => {
@@ -243,6 +257,12 @@ export default function IncidentsPage() {
                                         >
                                             {title}
                                         </Link>
+
+                                        <div className="text-[11px] text-white/45">
+                                            {incident.status === 'handled'
+                                                ? `handled · ${fmtAge(incident.updatedAt)} ago`
+                                                : `${incident.status} · ${fmtAge(incident.updatedAt)}`}
+                                        </div>
 
                                         <div className="text-[11px] text-white/50">
                                             {appName && <span>{appName} · </span>}
