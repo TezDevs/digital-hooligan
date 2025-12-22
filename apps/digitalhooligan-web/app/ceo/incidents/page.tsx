@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
 /* ======================
@@ -32,7 +32,7 @@ interface IncidentAction {
 /* ======================
    Mock data (existing pattern)
 ====================== */
-
+const INCIDENTS_STORAGE_KEY = 'ceo.incidents.v1';
 const initialIncidents: Incident[] = [
     {
         id: 'INC-DROP-001',
@@ -99,7 +99,28 @@ const actionChip = () =>
 ====================== */
 
 export default function IncidentsPage() {
-    const [incidents, setIncidents] = useState<Incident[]>(initialIncidents);
+    const [incidents, setIncidents] = useState<Incident[]>(() => {
+        if (typeof window === 'undefined') return initialIncidents;
+
+        try {
+            const stored = localStorage.getItem(INCIDENTS_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : initialIncidents;
+        } catch {
+            return initialIncidents;
+        }
+
+    });
+    useEffect(() => {
+        try {
+            localStorage.setItem(
+                INCIDENTS_STORAGE_KEY,
+                JSON.stringify(incidents)
+            );
+        } catch {
+            // best-effort persistence
+        }
+    }, [incidents]);
+
     const [actions, setActions] = useState<Record<string, IncidentAction>>(initialActions);
     const [hideHandled, setHideHandled] = useState(false);
 
