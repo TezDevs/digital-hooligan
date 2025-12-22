@@ -8,3 +8,13 @@ body {
   background-color: #111111;
   color: white;
 }
+
+/* Digital Hooligan helpers */
+.dh-spray-divider {
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+      #ff3131,
+      #ff4db2,
+      #1effcb);
+}
