@@ -59,7 +59,7 @@ const initialIncidents: Incident[] = [
 const initialActions: Record<string, IncidentAction> = {};
 
 /* ======================
-   Helpers (HOISTED)
+   Helpers (SSR-safe)
 ====================== */
 
 function minutesSince(iso?: string) {
@@ -112,6 +112,15 @@ function slaColor(iso?: string) {
 ====================== */
 
 export default function IncidentsPage() {
+    /* ===== Hydration Guard ===== */
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    /* ===== State ===== */
+
     const [incidents, setIncidents] = useState<Incident[]>(() => {
         if (typeof window === 'undefined') return initialIncidents;
         try {
@@ -216,8 +225,8 @@ export default function IncidentsPage() {
                 </label>
             </div>
 
-            {/* Nominal Banner */}
-            {isNominal && (
+            {/* ✅ Hydration-safe Nominal Banner */}
+            {hasMounted && isNominal && (
                 <div className="mb-4 rounded border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
                     <div className="text-sm font-medium text-emerald-300">
                         🟢 All systems nominal
@@ -228,7 +237,7 @@ export default function IncidentsPage() {
                 </div>
             )}
 
-            {/* ✅ Severity Summary — OUTSIDE TABLE */}
+            {/* Severity Summary */}
             <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[
                     ['Critical', severitySummary.critical],
