@@ -3,37 +3,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
-/* ======================
+/* =====================
    Types
-====================== */
+===================== */
 
 type IncidentStatus = 'open' | 'investigating' | 'handled';
 type Severity = 'low' | 'medium' | 'high' | 'critical';
 
 interface Incident {
     id: string;
-    title?: string;
+    title: string;
     severity: Severity;
     status: IncidentStatus;
     appId?: string;
     detectedBy?: string;
-    updatedAt?: string;
 }
 
-interface IncidentAction {
-    resolved?: boolean;
-    updatedAt?: string;
-}
-
-/* ======================
-   Storage
-====================== */
-
-const INCIDENTS_STORAGE_KEY = 'ceo.incidents.v1';
-
-/* ======================
+/* =====================
    Seed Data
-====================== */
+===================== */
+
+const INCIDENTS_STORAGE_KEY = 'dh_ceo_incidents';
 
 const initialIncidents: Incident[] = [
     {
@@ -43,7 +33,6 @@ const initialIncidents: Incident[] = [
         status: 'open',
         appId: 'dropsignal',
         detectedBy: 'synthetics',
-        updatedAt: new Date().toISOString(),
     },
     {
         id: 'INC-PENNY-002',
@@ -52,91 +41,50 @@ const initialIncidents: Incident[] = [
         status: 'investigating',
         appId: 'pennywize',
         detectedBy: 'alerts',
-        updatedAt: new Date().toISOString(),
     },
 ];
 
-const initialActions: Record<string, IncidentAction> = {};
+/* =====================
+   Helpers
+===================== */
 
-/* ======================
-   Helpers (SSR-safe)
-====================== */
-
-function minutesSince(iso?: string) {
-    if (!iso) return 0;
-    return Math.floor(
-        (Date.now() - new Date(iso).getTime()) / 60000
-    );
-}
-
-function fmtAge(iso?: string) {
-    const m = minutesSince(iso);
-    if (m < 60) return `${m}m`;
-    if (m < 1440) return `${Math.floor(m / 60)}h`;
-    return `${Math.floor(m / 1440)}d`;
-}
+const severityRank: Record<Severity, number> = {
+    critical: 4,
+    high: 3,
+    medium: 2,
+    low: 1,
+};
 
 function priorityScore(i: Incident) {
-    let score = 0;
-
-    switch (i.severity) {
-        case 'critical':
-            score += 100;
-            break;
-        case 'high':
-            score += 60;
-            break;
-        case 'medium':
-            score += 30;
-            break;
-        case 'low':
-            score += 10;
-            break;
-    }
-
-    score += Math.min(minutesSince(i.updatedAt), 120);
-
-    if (i.status === 'handled') score = 0;
-    return score;
+    return severityRank[i.severity] * 10 + (i.status === 'open' ? 5 : 0);
 }
 
-function slaColor(iso?: string) {
-    const m = minutesSince(iso);
-    if (m >= 60) return 'text-red-400';
-    if (m >= 15) return 'text-yellow-400';
-    return 'text-white/45';
-}
-
-/* ======================
+/* =====================
    Page
-====================== */
+===================== */
 
 export default function IncidentsPage() {
-    /* ===== Hydration Guard ===== */
-    const [hasMounted, setHasMounted] = useState(false);
-
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
-
-    /* ===== State ===== */
+    /* ---------------------
+       State (UNCONDITIONAL)
+    --------------------- */
 
     const [incidents, setIncidents] = useState<Incident[]>(() => {
+        // SSR-safe initializer
         if (typeof window === 'undefined') return initialIncidents;
+
         try {
-            const raw = localStorage.getItem(INCIDENTS_STORAGE_KEY);
-            return raw ? JSON.parse(raw) : initialIncidents;
+            const stored = localStorage.getItem(INCIDENTS_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : initialIncidents;
         } catch {
             return initialIncidents;
         }
     });
 
-    const [actions, setActions] =
-        useState<Record<string, IncidentAction>>(initialActions);
-
     const [hideHandled, setHideHandled] = useState(false);
 
-    /* ===== Persistence ===== */
+    /* ---------------------
+       Effects (CLIENT ONLY)
+    --------------------- */
 
     useEffect(() => {
         try {
@@ -145,30 +93,26 @@ export default function IncidentsPage() {
                 JSON.stringify(incidents)
             );
         } catch {
-            /* best-effort */
+            // best effort
         }
     }, [incidents]);
 
-    /* ===== Derived State ===== */
-
-    const activeIncidents = useMemo(
-        () => incidents.filter((i) => i.status !== 'handled'),
-        [incidents]
-    );
-
-    const baseVisibleIncidents = useMemo(
-        () => (hideHandled ? activeIncidents : incidents),
-        [hideHandled, activeIncidents, incidents]
-    );
+    /* ---------------------
+       Derived State
+    --------------------- */
 
     const visibleIncidents = useMemo(() => {
-        return [...baseVisibleIncidents].sort(
+        const base = hideHandled
+            ? incidents.filter((i) => i.status !== 'handled')
+            : incidents;
+
+        return [...base].sort(
             (a, b) => priorityScore(b) - priorityScore(a)
         );
-    }, [baseVisibleIncidents]);
+    }, [hideHandled, incidents]);
 
-    const severitySummary = useMemo(
-        () => ({
+    const severitySummary = useMemo(() => {
+        return {
             critical: incidents.filter(
                 (i) => i.severity === 'critical' && i.status !== 'handled'
             ).length,
@@ -177,45 +121,52 @@ export default function IncidentsPage() {
             ).length,
             open: incidents.filter((i) => i.status === 'open').length,
             handled: incidents.filter((i) => i.status === 'handled').length,
-        }),
-        [incidents]
-    );
+        };
+    }, [incidents]);
 
     const isNominal =
-        severitySummary.critical === 0 &&
-        severitySummary.high === 0;
+        severitySummary.critical === 0 && severitySummary.high === 0;
 
-    /* ===== Actions ===== */
+    /* ---------------------
+       Actions
+    --------------------- */
 
     const markHandled = (id: string) => {
         setIncidents((prev) =>
             prev.map((i) =>
-                i.id === id
-                    ? {
-                        ...i,
-                        status: 'handled',
-                        updatedAt: new Date().toISOString(),
-                    }
-                    : i
+                i.id === id ? { ...i, status: 'handled' } : i
             )
         );
-
-        setActions((prev) => ({
-            ...prev,
-            [id]: { resolved: true, updatedAt: new Date().toISOString() },
-        }));
     };
 
-    /* ======================
+    /* ---------------------
        Render
-  ====================== */
+    --------------------- */
 
     return (
-        <div className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-                <h1 className="text-lg font-semibold">Incidents</h1>
+        <div className="p-6 space-y-4">
+            <h1 className="text-xl font-semibold">Incidents</h1>
 
-                <label className="flex items-center gap-2 text-sm text-white/70">
+            {isNominal && (
+                <div className="rounded border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
+                    <div className="text-sm font-semibold text-emerald-300">
+                        All systems nominal
+                    </div>
+                    <div className="text-xs text-emerald-200/70">
+                        No critical or high-severity incidents detected.
+                    </div>
+                </div>
+            )}
+
+            <div className="flex items-center justify-between text-sm">
+                <div className="flex gap-4">
+                    <span>Critical: {severitySummary.critical}</span>
+                    <span>High: {severitySummary.high}</span>
+                    <span>Open: {severitySummary.open}</span>
+                    <span>Handled: {severitySummary.handled}</span>
+                </div>
+
+                <label className="flex items-center gap-2 text-xs">
                     <input
                         type="checkbox"
                         checked={hideHandled}
@@ -225,122 +176,34 @@ export default function IncidentsPage() {
                 </label>
             </div>
 
-            {/* ✅ Hydration-safe Nominal Banner */}
-            {hasMounted && isNominal && (
-                <div className="mb-4 rounded border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
-                    <div className="text-sm font-medium text-emerald-300">
-                        🟢 All systems nominal
-                    </div>
-                    <div className="text-xs text-emerald-400/80">
-                        No critical or high-severity incidents detected.
-                    </div>
-                </div>
-            )}
+            <div className="divide-y divide-white/5">
+                {visibleIncidents.map((i) => (
+                    <div key={i.id} className="py-3 flex justify-between">
+                        <div>
+                            <div className="text-sm font-semibold">
+                                <Link
+                                    href={`/ceo/incidents/${i.id}`}
+                                    className="hover:underline"
+                                >
+                                    {i.title}
+                                </Link>
+                            </div>
+                            <div className="text-xs text-white/40">
+                                {i.appId} · detected by {i.detectedBy}
+                            </div>
+                        </div>
 
-            {/* Severity Summary */}
-            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {[
-                    ['Critical', severitySummary.critical],
-                    ['High', severitySummary.high],
-                    ['Open', severitySummary.open],
-                    ['Handled', severitySummary.handled],
-                ].map(([label, value]) => (
-                    <div
-                        key={label}
-                        className="rounded border border-white/10 bg-white/5 px-3 py-2"
-                    >
-                        <div className="text-xs text-white/60">{label}</div>
-                        <div className="text-lg font-semibold">{value}</div>
+                        {i.status !== 'handled' && (
+                            <button
+                                onClick={() => markHandled(i.id)}
+                                className="text-xs text-emerald-300 hover:underline"
+                            >
+                                Mark handled
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
-
-            {/* Table */}
-            <table className="w-full border-collapse text-sm">
-                <thead>
-                    <tr className="border-b border-white/10 text-left text-xs text-white/60">
-                        <th className="px-4 py-2">Incident</th>
-                        <th className="px-4 py-2">Severity</th>
-                        <th className="px-4 py-2">Status</th>
-                        <th className="px-4 py-2">Actions</th>
-                        <th className="px-4 py-2">Updated</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {visibleIncidents.map((incident) => {
-                        const action = actions[incident.id];
-                        return (
-                            <tr
-                                key={incident.id}
-                                className="border-t border-white/10"
-                            >
-                                <td className="px-4 py-3 align-top">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="font-mono text-[11px] text-white/50">
-                                            {incident.id}
-                                        </span>
-
-                                        <Link
-                                            href={`/ceo/incidents/${incident.id}`}
-                                            className="hover:underline"
-                                        >
-                                            {incident.title ?? '(untitled)'}
-                                        </Link>
-
-                                        <div
-                                            className={`text-[11px] ${slaColor(
-                                                incident.updatedAt
-                                            )}`}
-                                        >
-                                            {incident.status} ·{' '}
-                                            {fmtAge(incident.updatedAt)}
-                                        </div>
-
-                                        <div className="text-[11px] text-white/40">
-                                            {incident.appId} · detected by{' '}
-                                            {incident.detectedBy ?? 'unknown'}
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td className="px-4 py-3 align-top">
-                                    {incident.severity.toUpperCase()}
-                                </td>
-
-                                <td className="px-4 py-3 align-top">
-                                    {incident.status}
-                                </td>
-
-                                <td className="px-4 py-3 align-top">
-                                    {!action?.resolved &&
-                                        incident.status !== 'handled' && (
-                                            <button
-                                                onClick={() => markHandled(incident.id)}
-                                                className="text-xs text-emerald-400 hover:text-emerald-300"
-                                            >
-                                                Mark handled
-                                            </button>
-                                        )}
-                                    {action?.resolved && (
-                                        <span className="text-xs text-white/60">
-                                            Resolved
-                                        </span>
-                                    )}
-                                </td>
-
-                                <td className="px-4 py-3 align-top text-xs text-white/55">
-                                    {incident.updatedAt
-                                        ? new Date(
-                                            incident.updatedAt
-                                        ).toLocaleString()
-                                        : '—'}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
         </div>
     );
 }
