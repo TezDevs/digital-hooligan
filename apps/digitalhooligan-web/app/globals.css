@@ -1,47 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Digital Hooligan theme tokens (Tailwind v4 style) */
-@theme {
-  --color-dh-black: #111111;
-  --color-dh-rebel-red: #ff3131;
-  --color-dh-electric-mint: #1effcb;
-  --color-dh-graffiti-yellow: #ffc700;
-  --color-dh-street-gray: #3c3c3c;
-  --color-dh-spray-pink: #ff4db2;
-  --color-dh-circuit-blue: #00c8ff;
-}
-
-/* Base styles */
-:root {
-  color-scheme: dark;
-}
-
+/* Base document styles */
+html,
 body {
-  @apply bg-dh-black text-white font-sans antialiased;
-}
-
-/* Fancy DH helpers */
-.dh-spray-divider {
-  background: linear-gradient(90deg, #ff3131, #ff4db2, #1effcb);
-  filter: blur(1px);
-  height: 2px;
-  border-radius: 999px;
-}
-
-.dh-graffiti-underline {
-  position: relative;
-  display: inline-block;
-}
-
-.dh-graffiti-underline::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 110%;
-  height: 8px;
-  background: linear-gradient(90deg, #ffc700, #ff3131);
-  opacity: 0.8;
-  transform: skewX(-15deg);
-  z-index: -1;
+  background-color: #111111;
+  color: white;
 }
