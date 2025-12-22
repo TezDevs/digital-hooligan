@@ -108,6 +108,16 @@ const statusChip = (st: IncidentStatus) => {
 const actionChip = () =>
     'rounded px-2 py-0.5 text-xs bg-white/10 text-white/70';
 
+const slaColor = (iso?: string) => {
+    if (!iso) return 'text-white/45';
+
+    const deltaMs = Date.now() - new Date(iso).getTime();
+    const minutes = Math.floor(deltaMs / 60000);
+
+    if (minutes >= 60) return 'text-red-400';        // breach
+    if (minutes >= 15) return 'text-yellow-400';     // warning
+    return 'text-white/45';                          // normal
+};
 /* ======================
    Page
 ====================== */
@@ -279,7 +289,7 @@ export default function IncidentsPage() {
                                             {title}
                                         </Link>
 
-                                        <div className="text-[11px] text-white/45">
+                                        <div className={`text-[11px] ${slaColor(incident.updatedAt)}`}>
                                             {incident.status === 'handled'
                                                 ? `handled · ${fmtAge(incident.updatedAt)} ago`
                                                 : `${incident.status} · ${fmtAge(incident.updatedAt)}`}
