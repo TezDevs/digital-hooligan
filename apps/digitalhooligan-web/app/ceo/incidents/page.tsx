@@ -202,10 +202,9 @@ export default function IncidentsPage() {
             [id]: { ...prev[id], resolved: true, updatedAt: new Date().toISOString() },
         }));
     };
-    const priorityScore = (incident: Incident) => {
+    function priorityScore(incident: Incident) {
         let score = 0;
 
-        // Severity weight
         switch (incident.severity) {
             case 'critical':
                 score += 100;
@@ -221,20 +220,16 @@ export default function IncidentsPage() {
                 break;
         }
 
-        // Age weight (minutes)
         if (incident.updatedAt) {
             const minutes =
                 (Date.now() - new Date(incident.updatedAt).getTime()) / 60000;
-            score += Math.min(Math.floor(minutes), 120); // cap at 2h
+            score += Math.min(Math.floor(minutes), 120);
         }
 
-        // Handled incidents sink to bottom
-        if (incident.status === 'handled') {
-            score = 0;
-        }
+        if (incident.status === 'handled') score = 0;
 
         return score;
-    };
+    }
     /* ======================
        Render
     ====================== */
