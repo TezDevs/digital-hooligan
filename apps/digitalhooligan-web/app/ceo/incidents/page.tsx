@@ -155,11 +155,21 @@ export default function IncidentsPage() {
         [incidents]
     );
 
-
-    const visibleIncidents = useMemo(
+    const baseVisibleIncidents = useMemo(
         () => (hideHandled ? activeIncidents : incidents),
         [hideHandled, activeIncidents, incidents]
     );
+    // NOTE: React Compiler currently skips optimization here due to
+    // derived sorting logic. This is expected and safe.
+    const visibleIncidents = useMemo(
+        () =>
+            baseVisibleIncidents
+                .map((i) => ({ i, p: priorityScore(i) }))
+                .sort((a, b) => b.p - a.p)
+                .map(({ i }) => i),
+        [baseVisibleIncidents]
+    );
+
     const severitySummary = useMemo(() => {
         return {
             critical: incidents.filter(
@@ -192,7 +202,39 @@ export default function IncidentsPage() {
             [id]: { ...prev[id], resolved: true, updatedAt: new Date().toISOString() },
         }));
     };
+    const priorityScore = (incident: Incident) => {
+        let score = 0;
 
+        // Severity weight
+        switch (incident.severity) {
+            case 'critical':
+                score += 100;
+                break;
+            case 'high':
+                score += 60;
+                break;
+            case 'medium':
+                score += 30;
+                break;
+            case 'low':
+                score += 10;
+                break;
+        }
+
+        // Age weight (minutes)
+        if (incident.updatedAt) {
+            const minutes =
+                (Date.now() - new Date(incident.updatedAt).getTime()) / 60000;
+            score += Math.min(Math.floor(minutes), 120); // cap at 2h
+        }
+
+        // Handled incidents sink to bottom
+        if (incident.status === 'handled') {
+            score = 0;
+        }
+
+        return score;
+    };
     /* ======================
        Render
     ====================== */
