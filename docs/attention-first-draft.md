@@ -99,3 +99,58 @@ It is to support **one good decision at the right time**.
 
 If a dashboard cannot do that under pressure,
 it doesn’t matter how correct the data is.
+
+---
+
+## 3. Designing Backward from Decisions
+
+If dashboards exist to support decisions,
+then design has to start with the decision itself.
+
+Not the data.
+Not the metrics.
+The decision.
+
+A useful starting question is simple:
+“When something goes wrong, what choices does the operator actually have?”
+
+Those choices are usually limited.
+Roll back or not.
+Fail over or wait.
+Page someone or keep investigating.
+Communicate now or gather more signal.
+
+Each decision has a cost.
+Each decision has a time window.
+Each decision carries risk.
+
+Once the decision is clear,
+the dashboard’s job becomes much smaller.
+
+It needs to answer only two questions:
+“Is this decision required right now?”
+and
+“What signal tells me that confidently?”
+
+Everything else is secondary.
+
+This reverses how dashboards are commonly built.
+Instead of collecting data and hoping insight emerges,
+you define the decision first
+and then pull in only the signals that support it.
+
+Designing this way forces discipline.
+Every metric has to justify its presence.
+If it doesn’t make a decision clearer,
+it doesn’t belong on the main view.
+
+This doesn’t mean the data isn’t valuable.
+It means the data is layered.
+
+Primary views exist for decisions.
+Secondary views exist for investigation.
+Tertiary views exist for learning.
+
+When dashboards are designed backward from decisions,
+clarity stops being accidental.
+It becomes a deliberate feature.
