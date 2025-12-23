@@ -1,4 +1,4 @@
-import type { AttentionItem } from '../components/AttentionPanel'
+import type { AttentionItem } from '@/components/ceo/AttentionPanel'
 
 export const attentionMock: AttentionItem[] = [
   {
