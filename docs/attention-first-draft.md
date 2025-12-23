@@ -154,3 +154,51 @@ Tertiary views exist for learning.
 When dashboards are designed backward from decisions,
 clarity stops being accidental.
 It becomes a deliberate feature.
+
+---
+
+## 4. What to Leave Out
+
+Once decisions drive design,
+subtraction becomes unavoidable.
+
+Most dashboards fail not because they lack data,
+but because they refuse to let go of it.
+
+There are metrics that feel important
+but don’t belong on a decision surface.
+
+Some metrics are useful only after a decision is made.
+Some are valuable for trend analysis, not real-time action.
+Some exist to reassure stakeholders, not operators.
+
+When these metrics live on the primary dashboard,
+they create noise without direction.
+
+The cost of clutter is subtle.
+Each extra element steals attention.
+Each additional graph increases doubt.
+Each “nice to have” slows the moment of action.
+
+Good dashboard design requires saying no
+to metrics that are technically correct
+but operationally irrelevant in the moment.
+
+This is uncomfortable.
+Removing data feels risky.
+It feels like losing visibility.
+
+But visibility without action is not safety.
+It’s distraction.
+
+Subtraction doesn’t mean deletion.
+It means placement.
+
+Metrics that don’t support immediate decisions
+still matter.
+They belong one layer deeper,
+where investigation and learning happen.
+
+The main view should feel sparse by design.
+If it feels empty in calm moments,
+that’s a sign it may work when things break.
