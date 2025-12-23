@@ -127,3 +127,5 @@ The technology doesn’t save the day.
 The system makes it possible for people to do so.
 
 That distinction matters more than most teams realize.
+
+This way of thinking shows up clearly in how systems are designed for operators under pressure, especially in [how dashboards shape decisions during incidents](./attention-first-draft.md)

@@ -48,3 +48,5 @@ clarity becomes intentional instead of accidental.
 That shift—quiet but deliberate—
 is what separates dashboards that look impressive
 from ones that actually help.
+
+If this idea resonates, there’s a [longer piece](./attention-first-draft.md) that explores how decision-focused dashboards change behavior during incidents.
