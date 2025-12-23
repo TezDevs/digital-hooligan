@@ -202,3 +202,57 @@ where investigation and learning happen.
 The main view should feel sparse by design.
 If it feels empty in calm moments,
 that’s a sign it may work when things break.
+
+---
+
+## 5. A Simple Example
+
+Imagine a service that suddenly starts timing out.
+
+The decision the operator needs to make is simple:
+roll back the last deploy, or wait.
+
+That decision has a cost either way.
+Rolling back might disrupt users or hide the real issue.
+Waiting might extend customer impact.
+
+A decision-first dashboard does not try to explain
+everything about the system.
+
+It answers two questions clearly:
+“Did something change recently?”
+and
+“Is the system getting worse right now?”
+
+To support that decision,
+only a small set of signals needs to be visible:
+error rate over the last few minutes,
+request latency trend,
+and whether a deploy occurred recently.
+
+That’s it.
+
+CPU utilization, memory pressure,
+and long-term throughput trends may all be relevant later.
+They are not required to decide whether to roll back now.
+
+If error rates are climbing,
+latency is increasing,
+and a deploy just went out,
+the decision becomes clear quickly.
+
+If those signals are stable,
+waiting and investigating becomes safer.
+
+The power of this approach
+is not in choosing the “right” metrics.
+It’s in choosing metrics that serve
+a specific decision in a specific moment.
+
+The example is intentionally incomplete.
+Different systems will require different signals.
+
+What matters is the method:
+start with the decision,
+and let that decision dictate what earns space
+on the main dashboard.
