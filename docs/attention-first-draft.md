@@ -301,3 +301,51 @@ It made decision-making simpler.
 
 And in high-pressure moments,
 that difference matters.
+
+---
+
+## 7. Clarity Is a Feature
+
+Clarity doesn’t happen by accident.
+
+It isn’t the natural result of adding more data,
+more charts,
+or more tools.
+
+Clarity is the outcome of deliberate design.
+
+When dashboards are built around decisions,
+they stop trying to be encyclopedias.
+They become instruments.
+
+They tell you when action is required,
+when waiting is safer,
+and when more investigation is needed.
+
+This doesn’t make dashboards simpler in absolute terms.
+It makes them **honest**.
+
+Honest about uncertainty.
+Honest about tradeoffs.
+Honest about what they can and cannot tell you in the moment.
+
+The mistake most teams make is treating clarity as polish—
+something added at the end once the data is “done.”
+
+In reality, clarity has to be designed first.
+It determines what earns space,
+what gets deferred,
+and what stays out entirely.
+
+A dashboard that helps you decide
+won’t look impressive in a demo.
+It may even feel empty when nothing is wrong.
+
+That’s not a flaw.
+That’s the point.
+
+Because when the moment arrives—
+when time is short and consequences are real—
+clarity isn’t a luxury.
+
+It’s the feature that matters most.
