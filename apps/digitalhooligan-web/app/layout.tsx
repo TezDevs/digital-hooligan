@@ -1,8 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import GlobalNav from "@/components/nav/GlobalNav";
-import Footer from "@/components/layout/Footer";
-
+import FooterGate from "@/components/layout/FooterGate";
 
 export const metadata: Metadata = {
   title: "Digital Hooligan",
@@ -14,12 +13,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="en">
       <body className="bg-black text-white antialiased">
         <GlobalNav />
         {children}
-        <Footer />
+        <FooterGate />
       </body>
     </html>
   );
