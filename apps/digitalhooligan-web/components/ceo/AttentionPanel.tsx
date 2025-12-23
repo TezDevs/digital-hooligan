@@ -55,7 +55,7 @@ export function AttentionPanel({ items }: { items: AttentionItem[] }) {
                   {item.level}
                 </span>
                 <span className="text-xs text-slate-500">
-                  {new Date(item.timestamp).toLocaleString()}
+                  {item.timestamp}
                 </span>
               </div>
 
