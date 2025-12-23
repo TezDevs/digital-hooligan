@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { AttentionPanel } from '@/components/ceo/AttentionPanel'
+import { attentionMock } from './data/attention.mock'
 
 type Metric = {
     label: string
@@ -49,6 +51,7 @@ export default function CEOOverviewPage() {
             <h1 className="text-xl font-semibold mb-4">CEO Overview</h1>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <AttentionPanel items={attentionMock} />
                 {visibleMetrics.map(({ label, value }) => (
                     <div
                         key={label}
