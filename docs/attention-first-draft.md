@@ -54,7 +54,7 @@ is the real cost of bad dashboard design.
 
 ## 2. The Moment That Matters
 
-Dashboards are usually evaluated in calm moments.
+Dashboards are often evaluated in calm moments.
 They look fine in planning meetings,
 weekly reviews, or demos.
 
@@ -62,14 +62,15 @@ But dashboards don’t earn their keep in calm moments.
 They matter when something is already going wrong.
 
 That moment tends to look the same:
-time pressure, partial information, and real consequences.
+time pressure, partial information, real consequences.
 
 An alert fires.
 A customer is impacted.
 Someone is waiting for an answer.
 
 The operator isn’t trying to understand the entire system.
-They’re trying to decide *what to do next* without making things worse.
+They’re trying to decide *what to do next*
+without making things worse.
 
 In that moment, human limits dominate.
 
@@ -86,16 +87,18 @@ Every unexplained spike adds delay.
 Under pressure, delay isn’t neutral.
 It compounds risk.
 
-Good dashboards reduce the number of decisions required
-before action is possible.
+Good dashboards reduce the number of decisions
+required before action is possible.
 Bad dashboards increase them.
 
 This is why completeness is dangerous.
 A dashboard that tries to answer every question
 usually answers none of them well.
 
-The real job of an ops dashboard isn’t to explain everything.
-It’s to support **one good decision at the right time**.
+The real job of an ops dashboard
+isn’t to explain everything.
+It’s to support **one good decision
+at the right time**.
 
 If a dashboard can’t do that under pressure,
 the correctness of the data doesn’t matter.
@@ -112,7 +115,8 @@ Not the metrics.
 The decision.
 
 A useful starting question is simple:
-“When something goes wrong, what choices does the operator actually have?”
+“When something goes wrong,
+what choices does the operator actually have?”
 
 Those choices are usually limited.
 Roll back or not.
@@ -125,7 +129,7 @@ Each has a time window.
 Each carries risk.
 
 Once the decision is clear,
-the dashboard’s job becomes much smaller.
+the dashboard’s job becomes smaller.
 
 It needs to answer two questions:
 “Is this decision required right now?”
@@ -135,7 +139,8 @@ and
 Everything else is secondary.
 
 This reverses how dashboards are usually built.
-Instead of collecting data and hoping insight appears,
+Instead of collecting data
+and hoping insight appears,
 you define the decision first
 and pull in only the signals that support it.
 
@@ -185,7 +190,7 @@ to metrics that are technically correct
 but operationally irrelevant in the moment.
 
 This feels risky.
-Removing data feels like losing visibility.
+Removing data can feel like losing visibility.
 
 But visibility without action isn’t safety.
 It’s distraction.
@@ -193,7 +198,8 @@ It’s distraction.
 Subtraction doesn’t mean deletion.
 It means placement.
 
-Metrics that don’t support immediate decisions still matter.
+Metrics that don’t support immediate decisions
+still matter.
 They belong one layer deeper,
 where investigation and learning happen.
 
@@ -211,10 +217,12 @@ The decision is straightforward:
 roll back the last deploy, or wait.
 
 Both options have costs.
-Rolling back may disrupt users or hide the real issue.
+Rolling back may disrupt users
+or hide the real issue.
 Waiting may extend customer impact.
 
-A decision-first dashboard doesn’t try to explain everything.
+A decision-first dashboard
+doesn’t try to explain everything.
 It answers two questions clearly:
 “Did something change recently?”
 and
@@ -229,8 +237,9 @@ and whether a deploy just occurred.
 That’s it.
 
 CPU utilization, memory pressure,
-and long-term throughput all matter later.
-They aren’t required to decide whether to roll back *now*.
+and long-term throughput matter later.
+They aren’t required to decide
+whether to roll back *now*.
 
 If errors are climbing,
 latency is rising,
@@ -243,14 +252,16 @@ waiting and investigating is safer.
 The power of this approach
 isn’t choosing the “right” metrics.
 It’s choosing metrics that serve
-a specific decision in a specific moment.
+a specific decision
+in a specific moment.
 
 The example is intentionally incomplete.
 Different systems require different signals.
 
 What matters is the method:
 start with the decision,
-and let it dictate what earns space
+and let it dictate
+what earns space
 on the main dashboard.
 
 ---
@@ -278,7 +289,8 @@ people stopped assuming something was wrong.
 Silence became meaningful.
 
 Over time, this reduced alert fatigue
-and made escalations feel intentional instead of reactive.
+and made escalations feel intentional,
+not reactive.
 
 Not everything improved.
 
@@ -317,12 +329,14 @@ They tell you when action is required,
 when waiting is safer,
 and when investigation is needed.
 
-This doesn’t make dashboards simpler in absolute terms.
+This doesn’t make dashboards simpler
+in absolute terms.
 It makes them **honest**.
 
 Honest about uncertainty.
 Honest about tradeoffs.
-Honest about what they can and can’t tell you in the moment.
+Honest about what they can
+and can’t tell you in the moment.
 
 The mistake most teams make
 is treating clarity as polish—
@@ -335,7 +349,8 @@ and what stays out entirely.
 
 A dashboard that helps you decide
 won’t look impressive in a demo.
-It may even feel empty when nothing is wrong.
+It may even feel empty
+when nothing is wrong.
 
 That’s not a flaw.
 That’s the point.
