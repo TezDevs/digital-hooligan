@@ -360,3 +360,5 @@ and consequences are real,
 clarity isn’t a luxury.
 
 It’s the feature that matters most.
+
+This hesitation isn’t a tooling problem as much as a human one, something I explore more directly in a separate piece [why most incidents aren’t actually technical failures](./attention-content-3.md).
