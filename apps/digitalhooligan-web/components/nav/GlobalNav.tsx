@@ -53,6 +53,9 @@ export default function GlobalNav() {
               <Link href="/labs" className="text-neutral-300 hover:text-white">
                 Labs
               </Link>
+              <Link href="/contact" className="text-neutral-300 hover:text-white">
+                Contact
+              </Link>
               <Link href="/ceo" className="text-neutral-400 hover:text-neutral-200">
                 CEO
               </Link>
