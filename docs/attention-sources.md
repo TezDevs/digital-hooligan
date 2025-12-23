@@ -3,11 +3,11 @@ Digital Hooligan LLC
 
 ## Purpose
 
-This document defines the **approved source types** used to earn attention,
+This document defines the approved source types used to earn attention,
 trust, and credibility for Digital Hooligan content.
 
 Sources are not citations for their own sake.
-They are **signals of real-world competence**.
+They are signals of real-world competence.
 
 If a source does not increase trust with a technical buyer,
 it does not belong here.
@@ -18,63 +18,58 @@ it does not belong here.
 
 ### 1. Primary Sources (Highest Trust)
 
-These come directly from work performed by Digital Hooligan.
+Work performed directly by Digital Hooligan.
 
 Examples:
 - Internal builds (apps, dashboards, APIs, embedded prototypes)
 - Architecture decisions and tradeoffs
 - Failure modes, bugs, and fixes
-- Metrics, benchmarks, and before/after results
+- Benchmarks, metrics, before/after results
 - Postmortems and lessons learned
 
-Usage:
+Rules:
 - Preferred backbone of all content
-- Must be explained in plain language
+- Explained in plain language
 - Screenshots, diagrams, or code excerpts allowed
 
-Rule:
-If a piece of content has no primary source, it must justify why.
+If a piece of content has no primary source,
+it must justify why.
 
 ---
 
 ### 2. Practitioner Documentation
 
-Official documentation used by people who actually ship systems.
+Documentation used by people who ship systems.
 
 Examples:
-- Platform or vendor documentation
+- Official platform or vendor docs
 - SDK / API references
 - Hardware datasheets and specs
 - RFCs, standards, and protocol definitions
 
-Usage:
-- Used to support or validate a design choice
+Rules:
+- Used to validate decisions
 - Never quoted blindly
-- Always contextualized with “why this matters in practice”
+- Always contextualized with practical impact
 
-Rule:
 Documentation is evidence, not authority by itself.
 
 ---
 
 ### 3. Industry Signal & Shared Reality
 
-Widely accepted practices that define the current technical landscape.
+Widely accepted practices defining the current landscape.
 
 Examples:
 - Incident response frameworks
 - Reliability and observability patterns
 - Security baselines
-- Common deployment or architecture models
+- Common architecture models
 
-Usage:
-- Used to orient the reader
-- Helps establish shared mental models
-- Not used as justification for shallow conclusions
-
-Rule:
-If it’s controversial, say so.
-If it’s outdated, say so.
+Rules:
+- Used for orientation, not hand-waving
+- If controversial, say so
+- If outdated, say so
 
 ---
 
@@ -88,56 +83,53 @@ Examples:
 - Opinion pieces
 - Community discussions
 
-Usage:
-- Framing, contrast, or narrative support
-- Never the primary justification
-- Must be clearly labeled as opinion or inspiration
-
-Rule:
-If removed, the content should still stand.
+Rules:
+- Framing only
+- Never the core justification
+- Content must stand without them
 
 ---
 
 ## Explicitly Disallowed Sources
 
-The following are not valid foundations for Digital Hooligan content:
+Not valid foundations:
 
 - SEO listicles
 - Beginner tutorials without original insight
 - Influencer summaries without firsthand experience
-- Rewritten documentation with no added value
+- Rewritten docs with no added value
 
-These may be referenced only to critique or contrast.
+May only be referenced for critique or contrast.
 
 ---
 
 ## Source Reuse Strategy
 
-Sources should be reusable across formats:
+Every source should be reusable across:
 
 - Blog posts
 - Docs
 - Internal demos
-- Talks / presentations
-- Sales or capability discussions
+- Talks or presentations
+- Capability or sales discussions
 
 Each source should answer at least one:
 - What broke?
 - What changed?
 - Why this decision?
 - What tradeoff was accepted?
-- What would we do differently next time?
+- What would we do differently?
 
 ---
 
 ## Quality Gate
 
-Before publishing any “Attention” content, verify:
+Before publishing Attention content:
 
-- At least one Primary or Practitioner source is present
-- All sources are current and relevant
-- No source exists purely for credibility theater
-- The content would still be valuable without external links
+- At least one Primary or Practitioner source exists
+- Sources are current and relevant
+- No credibility theater
+- Content survives without external links
 
 If this gate fails, the content does not ship.
 
