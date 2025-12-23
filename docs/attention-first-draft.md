@@ -256,3 +256,48 @@ What matters is the method:
 start with the decision,
 and let that decision dictate what earns space
 on the main dashboard.
+
+---
+
+## 6. What Changed for Me After Designing This Way
+
+The most noticeable change was speed.
+
+Not faster dashboards,
+but faster decisions.
+
+When dashboards were designed around decisions,
+the hesitation disappeared.
+Operators spent less time debating what they were seeing
+and more time acting with confidence.
+
+Incidents didn’t magically vanish.
+Things still broke.
+Alerts still fired.
+
+But the path from signal to action shortened.
+
+Another change was trust.
+When the main dashboard stayed quiet,
+people stopped assuming something was wrong.
+Silence became meaningful instead of suspicious.
+
+Over time, this reduced alert fatigue
+and made escalations feel intentional instead of reactive.
+
+Not everything improved.
+
+Some questions still required digging.
+Some decisions were still uncomfortable.
+No dashboard removes uncertainty entirely.
+
+But the uncertainty was clearer.
+Instead of drowning in conflicting signals,
+operators knew when they were missing information
+and where to go find it.
+
+Designing dashboards this way didn’t make systems simpler.
+It made decision-making simpler.
+
+And in high-pressure moments,
+that difference matters.
