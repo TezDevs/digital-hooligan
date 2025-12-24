@@ -10,7 +10,7 @@ import DecisionGuardrailPanel from "@/components/ceo/DecisionGuardrailPanel";
 import { evaluateDecisionActions } from "@/lib/decisionActions";
 import DecisionActionsPanel from "@/components/ceo/DecisionActionsPanel";
 import AuditLogViewer from "@/components/ceo/AuditLogViewer";
-import { getAuditLog } from "@/lib/actionAuditLog";
+import { getAuditLog } from "@/lib/actionAuditStore";
 import { EvidenceItem, DecisionEvent } from "@/lib/decisionTypes";
 
 export default async function CeoDashboardPage() {
