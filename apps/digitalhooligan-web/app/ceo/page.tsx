@@ -1,42 +1,19 @@
 import DecisionExplanationPanel from '@/components/ceo/DecisionExplanationPanel';
-
-type DecisionRule = {
-  id: string;
-  label: string;
-  description: string;
-  status: 'passed' | 'failed' | 'unknown';
-};
+import { evaluateDecision } from '@/lib/decisionEngine';
 
 export default function CeoDashboardPage() {
-  const decisionState: 'ACT' | 'MONITOR' | 'NOMINAL' = 'ACT';
-
-  const decisionRules: DecisionRule[] = [
-    {
-      id: 'incidents-open',
-      label: 'Unresolved Incidents',
-      description: 'One or more incidents are currently unresolved',
-      status: 'passed',
-    },
-    {
-      id: 'health-degraded',
-      label: 'Degraded Health Signals',
-      description: 'At least one system reports degraded health',
-      status: 'passed',
-    },
-    {
-      id: 'data-freshness',
-      label: 'Data Freshness',
-      description: 'All sources reporting within expected interval',
-      status: 'unknown',
-    },
-  ];
+  const decision = evaluateDecision({
+    unresolvedIncidents: 2,
+    degradedSystems: 1,
+    dataFresh: false,
+  });
 
   return (
     <main className="space-y-6 p-6">
       <DecisionExplanationPanel
-        state={decisionState}
-        rules={decisionRules}
-        completeness={67}
+        state={decision.state}
+        rules={decision.rules}
+        completeness={decision.completeness}
       />
     </main>
   );
