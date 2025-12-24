@@ -1,3 +1,4 @@
+import DecisionMetadataPanel from '@/components/ceo/DecisionMetadataPanel';
 import DecisionExplanationPanel from '@/components/ceo/DecisionExplanationPanel';
 import EvidenceTrailPanel from '@/components/ceo/EvidenceTrailPanel';
 import { evaluateDecision } from '@/lib/decisionEngine';
@@ -43,6 +44,11 @@ const evidence: EvidenceItem[] = [
 
   return (
     <main className="space-y-6 p-6">
+      <DecisionMetadataPanel
+        snapshotId={decision.metadata.snapshotId}
+        evaluatedAt={decision.metadata.evaluatedAt}
+      />
+
       <DecisionExplanationPanel
         state={decision.state}
         rules={decision.rules}
