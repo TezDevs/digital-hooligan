@@ -1,7 +1,13 @@
 import DecisionMetadataPanel from '@/components/ceo/DecisionMetadataPanel';
+import DecisionHistoryPanel from '@/components/ceo/DecisionHistoryPanel';
 import DecisionExplanationPanel from '@/components/ceo/DecisionExplanationPanel';
 import EvidenceTrailPanel from '@/components/ceo/EvidenceTrailPanel';
 import { evaluateDecision } from '@/lib/decisionEngine';
+import {
+  EvidenceItem,
+  DecisionEvent,
+} from '@/lib/decisionTypes';
+
 
 export default function CeoDashboardPage() {
   const decision = evaluateDecision({
@@ -10,15 +16,28 @@ export default function CeoDashboardPage() {
     dataFresh: false,
   });
 
-  type EvidenceItem = {
-  id: string;
-  source: string;
-  signal: string;
-  status: 'used' | 'missing' | 'stale';
-  timestamp?: string;
-};
+  const history: DecisionEvent[] = [
+  {
+    id: 'evt-1',
+    state: 'NOMINAL',
+    summary: 'All systems healthy',
+    evaluatedAt: '2025-12-24T12:30Z',
+  },
+  {
+    id: 'evt-2',
+    state: 'MONITOR',
+    summary: 'Data freshness degraded',
+    evaluatedAt: '2025-12-24T13:45Z',
+  },
+  {
+    id: 'evt-3',
+    state: 'ACT',
+    summary: 'Incidents opened and health degraded',
+    evaluatedAt: '2025-12-24T14:32Z',
+  },
+];
 
-const evidence: EvidenceItem[] = [
+  const evidence: EvidenceItem[] = [
   {
     id: 'incidents-api',
     source: 'Incident Service',
@@ -48,6 +67,8 @@ const evidence: EvidenceItem[] = [
         snapshotId={decision.metadata.snapshotId}
         evaluatedAt={decision.metadata.evaluatedAt}
       />
+
+      <DecisionHistoryPanel events={history} />
 
       <DecisionExplanationPanel
         state={decision.state}

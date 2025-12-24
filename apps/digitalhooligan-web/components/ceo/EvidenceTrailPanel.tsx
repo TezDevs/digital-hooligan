@@ -1,12 +1,6 @@
 'use client';
 
-type EvidenceItem = {
-  id: string;
-  source: string;
-  signal: string;
-  status: 'used' | 'missing' | 'stale';
-  timestamp?: string;
-};
+import { EvidenceItem } from '@/lib/decisionTypes';
 
 type EvidenceTrailPanelProps = {
   items: EvidenceItem[];
