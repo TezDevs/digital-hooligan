@@ -1,8 +1,8 @@
-import DecisionMetadataPanel from '@/components/ceo/DecisionMetadataPanel';
+import { computeDecisionConfidence } from '@/lib/decisionConfidence';
 import DecisionHistoryPanel from '@/components/ceo/DecisionHistoryPanel';
 import DecisionExplanationPanel from '@/components/ceo/DecisionExplanationPanel';
 import EvidenceTrailPanel from '@/components/ceo/EvidenceTrailPanel';
-
+import DecisionMetadataPanel from '@/components/ceo/DecisionMetadataPanel';
 import { evaluateDecision } from '@/lib/decisionEngine';
 import { getDecisionInputs } from '@/lib/decisionSources';
 import {
@@ -57,13 +57,15 @@ export default async function CeoDashboardPage() {
       status: 'stale',
       timestamp: decision.metadata.evaluatedAt,
     },
+    
   ];
-
+  const confidence = computeDecisionConfidence(evidence);
   return (
     <main className="space-y-6 p-6">
       <DecisionMetadataPanel
         snapshotId={decision.metadata.snapshotId}
         evaluatedAt={decision.metadata.evaluatedAt}
+        confidence={confidence}
       />
 
       <DecisionHistoryPanel events={history} />
