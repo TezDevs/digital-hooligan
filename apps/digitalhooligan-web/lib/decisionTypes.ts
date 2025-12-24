@@ -21,3 +21,8 @@ export type DecisionEvent = {
   summary: string;
   evaluatedAt: string;
 };
+
+export type DecisionConfidence = {
+  score: number; // 0–100
+  label: 'HIGH' | 'MEDIUM' | 'LOW';
+};
