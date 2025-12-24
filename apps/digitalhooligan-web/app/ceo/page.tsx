@@ -1,14 +1,14 @@
-import { computeDecisionConfidence } from '@/lib/decisionConfidence';
-import DecisionHistoryPanel from '@/components/ceo/DecisionHistoryPanel';
-import DecisionExplanationPanel from '@/components/ceo/DecisionExplanationPanel';
-import EvidenceTrailPanel from '@/components/ceo/EvidenceTrailPanel';
-import DecisionMetadataPanel from '@/components/ceo/DecisionMetadataPanel';
-import { evaluateDecision } from '@/lib/decisionEngine';
-import { getDecisionInputs } from '@/lib/decisionSources';
-import {
-  EvidenceItem,
-  DecisionEvent,
-} from '@/lib/decisionTypes';
+import { computeDecisionConfidence } from "@/lib/decisionConfidence";
+import DecisionHistoryPanel from "@/components/ceo/DecisionHistoryPanel";
+import DecisionExplanationPanel from "@/components/ceo/DecisionExplanationPanel";
+import EvidenceTrailPanel from "@/components/ceo/EvidenceTrailPanel";
+import DecisionMetadataPanel from "@/components/ceo/DecisionMetadataPanel";
+import { evaluateDecision } from "@/lib/decisionEngine";
+import { getDecisionInputs } from "@/lib/decisionSources";
+import { evaluateGuardrails } from "@/lib/decisionGuardrails";
+import DecisionGuardrailPanel from "@/components/ceo/DecisionGuardrailPanel";
+
+import { EvidenceItem, DecisionEvent } from "@/lib/decisionTypes";
 
 export default async function CeoDashboardPage() {
   const inputs = await getDecisionInputs();
@@ -16,50 +16,51 @@ export default async function CeoDashboardPage() {
 
   const history: DecisionEvent[] = [
     {
-      id: 'evt-1',
-      state: 'NOMINAL',
-      summary: 'All systems healthy',
-      evaluatedAt: '2025-12-24T12:30Z',
+      id: "evt-1",
+      state: "NOMINAL",
+      summary: "All systems healthy",
+      evaluatedAt: "2025-12-24T12:30Z",
     },
     {
-      id: 'evt-2',
-      state: 'MONITOR',
-      summary: 'Data freshness degraded',
-      evaluatedAt: '2025-12-24T13:45Z',
+      id: "evt-2",
+      state: "MONITOR",
+      summary: "Data freshness degraded",
+      evaluatedAt: "2025-12-24T13:45Z",
     },
     {
-      id: 'evt-3',
-      state: 'ACT',
-      summary: 'Incidents opened and health degraded',
-      evaluatedAt: '2025-12-24T14:32Z',
+      id: "evt-3",
+      state: "ACT",
+      summary: "Incidents opened and health degraded",
+      evaluatedAt: "2025-12-24T14:32Z",
     },
   ];
 
   const evidence: EvidenceItem[] = [
     {
-      id: 'incidents-api',
-      source: 'Incident Service',
-      signal: 'Open incident count',
-      status: 'used',
+      id: "incidents-api",
+      source: "Incident Service",
+      signal: "Open incident count",
+      status: "used",
       timestamp: decision.metadata.evaluatedAt,
     },
     {
-      id: 'health-monitor',
-      source: 'Health Monitor',
-      signal: 'Degraded system count',
-      status: 'used',
+      id: "health-monitor",
+      source: "Health Monitor",
+      signal: "Degraded system count",
+      status: "used",
       timestamp: decision.metadata.evaluatedAt,
     },
     {
-      id: 'data-poller',
-      source: 'Data Poller',
-      signal: 'Freshness check',
-      status: 'stale',
+      id: "data-poller",
+      source: "Data Poller",
+      signal: "Freshness check",
+      status: "stale",
       timestamp: decision.metadata.evaluatedAt,
     },
-    
   ];
   const confidence = computeDecisionConfidence(evidence);
+
+  const guardrails = evaluateGuardrails(decision.state, confidence);
   return (
     <main className="space-y-6 p-6">
       <DecisionMetadataPanel
@@ -69,6 +70,10 @@ export default async function CeoDashboardPage() {
       />
 
       <DecisionHistoryPanel events={history} />
+      <DecisionGuardrailPanel
+        blocked={guardrails.blocked}
+        reasons={guardrails.reasons}
+      />
 
       <DecisionExplanationPanel
         state={decision.state}
