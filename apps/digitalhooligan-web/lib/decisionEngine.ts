@@ -13,16 +13,25 @@ export type DecisionInput = {
   dataFresh?: boolean;
 };
 
+export type DecisionMetadata = {
+  snapshotId: string;
+  evaluatedAt: string;
+};
+
 export type DecisionResult = {
   state: DecisionState;
   rules: DecisionRuleResult[];
   completeness: number;
+  metadata: DecisionMetadata;
 };
+
+function generateSnapshotId() {
+  return Math.random().toString(36).slice(2, 10);
+}
 
 export function evaluateDecision(input: DecisionInput): DecisionResult {
   const rules: DecisionRuleResult[] = [];
 
-  // Rule: Unresolved incidents
   if (typeof input.unresolvedIncidents === 'number') {
     rules.push({
       id: 'incidents-open',
@@ -39,7 +48,6 @@ export function evaluateDecision(input: DecisionInput): DecisionResult {
     });
   }
 
-  // Rule: Degraded health
   if (typeof input.degradedSystems === 'number') {
     rules.push({
       id: 'health-degraded',
@@ -56,7 +64,6 @@ export function evaluateDecision(input: DecisionInput): DecisionResult {
     });
   }
 
-  // Rule: Data freshness
   if (typeof input.dataFresh === 'boolean') {
     rules.push({
       id: 'data-freshness',
@@ -85,5 +92,13 @@ export function evaluateDecision(input: DecisionInput): DecisionResult {
     completeness < 100 ? 'MONITOR' :
     'NOMINAL';
 
-  return { state, rules, completeness };
+  return {
+    state,
+    rules,
+    completeness,
+    metadata: {
+      snapshotId: generateSnapshotId(),
+      evaluatedAt: new Date().toISOString(),
+    },
+  };
 }
