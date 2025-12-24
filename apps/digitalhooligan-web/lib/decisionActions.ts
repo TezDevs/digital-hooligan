@@ -1,6 +1,6 @@
 import { DecisionState, DecisionConfidence } from "./decisionTypes";
 import { GuardrailResult } from "./decisionGuardrails";
-import { appendAuditEntry } from "./actionAuditLog";
+import { appendAuditEntry } from "./actionAuditStore";
 
 export type DecisionAction = {
   id: string;
