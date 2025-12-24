@@ -7,6 +7,8 @@ import { evaluateDecision } from "@/lib/decisionEngine";
 import { getDecisionInputs } from "@/lib/decisionSources";
 import { evaluateGuardrails } from "@/lib/decisionGuardrails";
 import DecisionGuardrailPanel from "@/components/ceo/DecisionGuardrailPanel";
+import { evaluateDecisionActions } from "@/lib/decisionActions";
+import DecisionActionsPanel from "@/components/ceo/DecisionActionsPanel";
 
 import { EvidenceItem, DecisionEvent } from "@/lib/decisionTypes";
 
@@ -61,6 +63,13 @@ export default async function CeoDashboardPage() {
   const confidence = computeDecisionConfidence(evidence);
 
   const guardrails = evaluateGuardrails(decision.state, confidence);
+
+  const actions = evaluateDecisionActions(
+    decision.state,
+    confidence,
+    guardrails
+  );
+
   return (
     <main className="space-y-6 p-6">
       <DecisionMetadataPanel
@@ -74,6 +83,8 @@ export default async function CeoDashboardPage() {
         blocked={guardrails.blocked}
         reasons={guardrails.reasons}
       />
+
+      <DecisionActionsPanel actions={actions} />
 
       <DecisionExplanationPanel
         state={decision.state}
