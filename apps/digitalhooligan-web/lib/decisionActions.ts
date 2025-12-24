@@ -1,5 +1,6 @@
 import { DecisionState, DecisionConfidence } from "./decisionTypes";
 import { GuardrailResult } from "./decisionGuardrails";
+import { appendAuditEntry } from "./actionAuditLog";
 
 export type DecisionAction = {
   id: string;
@@ -8,39 +9,59 @@ export type DecisionAction = {
   reason?: string;
 };
 
+function generateId() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
 export function evaluateDecisionActions(
   state: DecisionState,
   confidence: DecisionConfidence,
-  guardrails: GuardrailResult
+  guardrails: GuardrailResult,
+  snapshotId: string
 ): DecisionAction[] {
   const actions: DecisionAction[] = [];
 
-  // Action: Escalate
-  if (state === "ACT") {
-    actions.push({
-      id: "escalate",
-      label: "Escalate Incident",
-      enabled: !guardrails.blocked,
-      reason: guardrails.blocked ? guardrails.reasons.join("; ") : undefined,
-    });
-  }
+  const evaluatedAt = new Date().toISOString();
 
-  // Action: Notify on-call
+  const escalateEnabled = state === "ACT" && !guardrails.blocked;
+
+  actions.push({
+    id: "escalate",
+    label: "Escalate Incident",
+    enabled: escalateEnabled,
+    reason: escalateEnabled ? undefined : guardrails.reasons.join("; "),
+  });
+
+  const notifyEnabled = confidence.label !== "LOW";
+
   actions.push({
     id: "notify",
     label: "Notify On-Call",
-    enabled: confidence.label !== "LOW",
-    reason:
-      confidence.label === "LOW"
-        ? "Notification suppressed due to low confidence"
-        : undefined,
+    enabled: notifyEnabled,
+    reason: notifyEnabled
+      ? undefined
+      : "Notification suppressed due to low confidence",
   });
 
-  // Action: Create ticket
   actions.push({
     id: "ticket",
     label: "Create Tracking Ticket",
     enabled: true,
+  });
+
+  // 🔒 Audit logging (append-only)
+  actions.forEach((action) => {
+    appendAuditEntry({
+      id: generateId(),
+      snapshotId,
+      actionId: action.id,
+      actionLabel: action.label,
+      enabled: action.enabled,
+      reason: action.reason,
+      decisionState: state,
+      confidence,
+      evaluatedAt,
+    });
   });
 
   return actions;

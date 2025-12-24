@@ -67,7 +67,8 @@ export default async function CeoDashboardPage() {
   const actions = evaluateDecisionActions(
     decision.state,
     confidence,
-    guardrails
+    guardrails,
+    decision.metadata.snapshotId
   );
 
   return (
