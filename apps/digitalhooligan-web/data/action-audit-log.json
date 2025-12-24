@@ -78,8 +78,8 @@
     "evaluatedAt": "2025-12-24T22:26:15.953Z"
   },
   {
-    "id": "jpp7sd0a",
-    "snapshotId": "ntg4o8ml",
+    "id": "d55knlaf",
+    "snapshotId": "s0d4qr54",
     "actionId": "escalate",
     "actionLabel": "Escalate Incident",
     "enabled": true,
@@ -88,11 +88,11 @@
       "score": 83,
       "label": "HIGH"
     },
-    "evaluatedAt": "2025-12-24T22:26:38.107Z"
+    "evaluatedAt": "2025-12-24T22:27:28.144Z"
   },
   {
-    "id": "08bvlrw5",
-    "snapshotId": "ntg4o8ml",
+    "id": "lebfzwpa",
+    "snapshotId": "s0d4qr54",
     "actionId": "notify",
     "actionLabel": "Notify On-Call",
     "enabled": true,
@@ -101,11 +101,11 @@
       "score": 83,
       "label": "HIGH"
     },
-    "evaluatedAt": "2025-12-24T22:26:38.107Z"
+    "evaluatedAt": "2025-12-24T22:27:28.144Z"
   },
   {
-    "id": "yp9erz9f",
-    "snapshotId": "ntg4o8ml",
+    "id": "jx3l2851",
+    "snapshotId": "s0d4qr54",
     "actionId": "ticket",
     "actionLabel": "Create Tracking Ticket",
     "enabled": true,
@@ -114,6 +114,6 @@
       "score": 83,
       "label": "HIGH"
     },
-    "evaluatedAt": "2025-12-24T22:26:38.107Z"
+    "evaluatedAt": "2025-12-24T22:27:28.144Z"
   }
 ]
