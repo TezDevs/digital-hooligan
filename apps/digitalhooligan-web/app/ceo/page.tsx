@@ -101,10 +101,8 @@ export default async function CeoDashboardPage() {
         evaluatedAt={snapshot.evaluatedAt}
         confidence={confidence}
       />
-
-      <DecisionHistoryPanel events={history} />
-
       <DecisionReplayPanel diff={diff} />
+      <DecisionHistoryPanel events={history} />
 
       <DecisionActionsPanel actions={actions} />
 
