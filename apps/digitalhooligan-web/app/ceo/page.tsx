@@ -11,6 +11,7 @@ import { deriveDecisionConfidence } from "@/lib/decisionConfidence";
 import { evaluateDecisionActions } from "@/lib/decisionActions";
 import { replayDecision } from "@/lib/decisionReplay";
 import { diffDecisions } from "@/lib/decisionDiff";
+import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
 
 import {
   DecisionEvent,
@@ -100,10 +101,8 @@ export default async function CeoDashboardPage() {
         evaluatedAt={snapshot.evaluatedAt}
         confidence={confidence}
       />
-
-      <DecisionHistoryPanel events={history} />
-
       <DecisionReplayPanel diff={diff} />
+      <DecisionHistoryPanel events={history} />
 
       <DecisionActionsPanel actions={actions} />
 
@@ -114,6 +113,7 @@ export default async function CeoDashboardPage() {
       />
 
       <EvidenceTrailPanel items={evidence} />
+      <DecisionInputsInspector />
     </main>
   );
 }
