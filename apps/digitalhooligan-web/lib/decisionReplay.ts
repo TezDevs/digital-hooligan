@@ -1,37 +1,32 @@
-import { evaluateDecision } from "./decisionEngine";
-import { deriveDecisionConfidence } from "./decisionConfidence";
-import { evaluateDecisionActions } from "./decisionActions";
-import { DecisionSnapshot } from "./decisionTypes";
+import {
+  ConfidenceSnapshot,
+  ConfidenceTimeline,
+  calculateConfidenceTimeline,
+} from "./decisionConfidence";
 
-export function replayDecision(snapshot: DecisionSnapshot): DecisionSnapshot {
-  const evaluated = evaluateDecision(snapshot.inputs);
+export interface DecisionReplayFrame {
+  at: string;
+  confidence: number;
+}
 
-  const confidence = deriveDecisionConfidence(
-    evaluated.state,
-    evaluated.completeness
-  );
+export interface DecisionReplay {
+  frames: DecisionReplayFrame[];
+  timeline: ConfidenceTimeline;
+}
 
-  const guardrails = {
-    blocked: false,
-    reasons: [],
-    allowedState: evaluated.state,
-  };
+export function replayDecisionConfidence(
+  baseline: number,
+  snapshots: ConfidenceSnapshot[]
+): DecisionReplay {
+  const timeline = calculateConfidenceTimeline(baseline, snapshots);
 
-  const actions = evaluateDecisionActions(
-    evaluated.state,
-    confidence,
-    guardrails,
-    snapshot.id
-  );
+  const frames: DecisionReplayFrame[] = timeline.deltas.map((d) => ({
+    at: d.at,
+    confidence: d.to,
+  }));
 
   return {
-    id: `replay-${snapshot.id}`,
-    evaluatedAt: new Date().toISOString(),
-    inputs: snapshot.inputs,
-    result: {
-      state: evaluated.state,
-      confidence,
-      actions,
-    },
+    frames,
+    timeline,
   };
 }
