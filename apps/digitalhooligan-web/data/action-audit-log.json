@@ -778,5 +778,83 @@
       "label": "MEDIUM"
     },
     "evaluatedAt": "2025-12-25T00:27:21.972Z"
+  },
+  {
+    "id": "klvz3iia",
+    "snapshotId": "mgcdji5i",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:58:47.102Z"
+  },
+  {
+    "id": "eekm3gkf",
+    "snapshotId": "mgcdji5i",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:58:47.102Z"
+  },
+  {
+    "id": "6sl09nto",
+    "snapshotId": "mgcdji5i",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:58:47.102Z"
+  },
+  {
+    "id": "h2q6cut9",
+    "snapshotId": "mgcdji5i",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:58:47.102Z"
+  },
+  {
+    "id": "2r255x1x",
+    "snapshotId": "mgcdji5i",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:58:47.102Z"
+  },
+  {
+    "id": "mudqust2",
+    "snapshotId": "mgcdji5i",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:58:47.102Z"
   }
 ]
