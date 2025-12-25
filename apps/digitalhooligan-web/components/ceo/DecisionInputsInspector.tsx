@@ -21,86 +21,58 @@ export default function DecisionInputsInspector() {
     <section className="rounded-xl border border-white/10 bg-black/40 p-4">
       <h2 className="mb-3 text-lg font-semibold">Decision Inputs Inspector</h2>
 
-      {/* Decision State Context */}
-      <div className="mt-6 border-t border-white/10 pt-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-white/40">
-          Decision State Context
-        </h3>
+      <ul className="space-y-4">
+        {decisions.map((decision) => (
+          <li
+            key={decision.id}
+            className="rounded-md border border-white/10 bg-black/30 p-3"
+          >
+            <div className="font-medium text-white">{decision.title}</div>
 
-        <ul className="mt-3 space-y-3 text-sm">
-          {decisions.map((decision) => (
-            <li
-              key={decision.id}
-              className="rounded-md border border-white/10 bg-black/30 p-3"
-            >
-              {/* Header */}
-              <div className="font-medium text-white">{decision.title}</div>
+            <div className="text-white/60">
+              {decision.status} — {decision.rationale}
+            </div>
 
-              {/* Status + Rationale */}
-              <div className="mt-1 text-white/60">
-                <span className="text-xs font-semibold uppercase tracking-wide">
-                  {decision.status}
-                </span>
-                {" — "}
-                {decision.rationale}
-              </div>
+            <div className="mt-1 text-xs text-white/50">
+              Confidence:{" "}
+              {decision.confidence === null
+                ? "Insufficient data"
+                : `${decision.confidence}%`}
+            </div>
 
-              {/* Aggregated Confidence */}
-              {decision.confidence !== undefined && (
-                <div className="mt-1 text-xs text-white/50">
-                  Confidence:{" "}
-                  {decision.confidence === null
-                    ? "Insufficient data"
-                    : `${decision.confidence}%`}
-                </div>
-              )}
+            <ul className="mt-3 space-y-2 text-xs">
+              {getDecisionInputs(decision.id).map((input) => (
+                <li
+                  key={input.id}
+                  className="flex justify-between rounded border border-white/10 px-2 py-1"
+                >
+                  <div>
+                    <div className="text-white">{input.name}</div>
+                    <div className="text-white/50">Source: {input.source}</div>
+                    {input.sourceReliability !== undefined && (
+                      <div className="text-white/40">
+                        Reliability: {Math.round(input.sourceReliability * 100)}
+                        %
+                      </div>
+                    )}
+                  </div>
 
-              {/* Derived Blockers */}
-              {decision.blockers && decision.blockers.length > 0 && (
-                <ul className="mt-2 list-disc pl-4 text-xs text-white/50">
-                  {decision.blockers.map((blocker) => (
-                    <li key={blocker}>{blocker}</li>
-                  ))}
-                </ul>
-              )}
-
-              {/* Supporting Inputs */}
-              <div className="mt-3 rounded-md border border-white/10 bg-black/40 p-3">
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-white/50">
-                  Supporting Inputs
-                </h4>
-
-                <ul className="mt-2 space-y-2 text-xs">
-                  {getDecisionInputs(decision.id).map((input) => (
-                    <li
-                      key={input.id}
-                      className="flex items-center justify-between rounded border border-white/10 px-2 py-1"
+                  <div className="text-right">
+                    <div
+                      className={`font-semibold ${inputStatusClass(
+                        input.status
+                      )}`}
                     >
-                      <div>
-                        <div className="text-white">{input.name}</div>
-                        <div className="text-white/50">
-                          Source: {input.source}
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <div
-                          className={`font-semibold ${inputStatusClass(
-                            input.status
-                          )}`}
-                        >
-                          {input.status.toUpperCase()}
-                        </div>
-                        <div className="text-white/50">{input.confidence}%</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+                      {input.status.toUpperCase()}
+                    </div>
+                    <div className="text-white/50">{input.confidence}%</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
