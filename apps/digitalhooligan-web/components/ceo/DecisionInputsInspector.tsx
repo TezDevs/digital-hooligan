@@ -13,8 +13,10 @@ function inputStatusClass(status: "fresh" | "degraded" | "missing") {
       return "text-gray-400";
   }
 }
+
 export default function DecisionInputsInspector() {
   const decisions = getDecisions();
+
   return (
     <section className="rounded-xl border border-white/10 bg-black/40 p-4">
       <h2 className="mb-3 text-lg font-semibold">Decision Inputs Inspector</h2>
@@ -31,8 +33,10 @@ export default function DecisionInputsInspector() {
               key={decision.id}
               className="rounded-md border border-white/10 bg-black/30 p-3"
             >
+              {/* Header */}
               <div className="font-medium text-white">{decision.title}</div>
 
+              {/* Status + Rationale */}
               <div className="mt-1 text-white/60">
                 <span className="text-xs font-semibold uppercase tracking-wide">
                   {decision.status}
@@ -41,6 +45,17 @@ export default function DecisionInputsInspector() {
                 {decision.rationale}
               </div>
 
+              {/* Aggregated Confidence */}
+              {decision.confidence !== undefined && (
+                <div className="mt-1 text-xs text-white/50">
+                  Confidence:{" "}
+                  {decision.confidence === null
+                    ? "Insufficient data"
+                    : `${decision.confidence}%`}
+                </div>
+              )}
+
+              {/* Derived Blockers */}
               {decision.blockers && decision.blockers.length > 0 && (
                 <ul className="mt-2 list-disc pl-4 text-xs text-white/50">
                   {decision.blockers.map((blocker) => (
@@ -48,6 +63,8 @@ export default function DecisionInputsInspector() {
                   ))}
                 </ul>
               )}
+
+              {/* Supporting Inputs */}
               <div className="mt-3 rounded-md border border-white/10 bg-black/40 p-3">
                 <h4 className="text-xs font-semibold uppercase tracking-wide text-white/50">
                   Supporting Inputs
