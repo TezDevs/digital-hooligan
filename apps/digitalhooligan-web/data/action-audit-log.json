@@ -778,5 +778,317 @@
       "label": "MEDIUM"
     },
     "evaluatedAt": "2025-12-25T00:27:21.972Z"
+  },
+  {
+    "id": "mxy4wbde",
+    "snapshotId": "orpm905v",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:46:51.940Z"
+  },
+  {
+    "id": "f4qm5l3e",
+    "snapshotId": "orpm905v",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:46:51.940Z"
+  },
+  {
+    "id": "b2rseg2i",
+    "snapshotId": "orpm905v",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:46:51.940Z"
+  },
+  {
+    "id": "rxrcw7ep",
+    "snapshotId": "orpm905v",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:46:51.940Z"
+  },
+  {
+    "id": "n8bjjb0u",
+    "snapshotId": "orpm905v",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:46:51.940Z"
+  },
+  {
+    "id": "ad72jlzd",
+    "snapshotId": "orpm905v",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:46:51.940Z"
+  },
+  {
+    "id": "fjlq4nbe",
+    "snapshotId": "koe779zq",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:14.525Z"
+  },
+  {
+    "id": "3ks00m28",
+    "snapshotId": "koe779zq",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:14.525Z"
+  },
+  {
+    "id": "zqcyezrz",
+    "snapshotId": "koe779zq",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:14.525Z"
+  },
+  {
+    "id": "k09oh7a2",
+    "snapshotId": "koe779zq",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:14.526Z"
+  },
+  {
+    "id": "rbli5xdl",
+    "snapshotId": "koe779zq",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:14.526Z"
+  },
+  {
+    "id": "eh7wije4",
+    "snapshotId": "koe779zq",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:14.526Z"
+  },
+  {
+    "id": "v4mdg7tp",
+    "snapshotId": "nl2xibji",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:30.838Z"
+  },
+  {
+    "id": "ph0usvdh",
+    "snapshotId": "nl2xibji",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:30.838Z"
+  },
+  {
+    "id": "9gaiuk0x",
+    "snapshotId": "nl2xibji",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:30.838Z"
+  },
+  {
+    "id": "jay2r4d3",
+    "snapshotId": "nl2xibji",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:30.839Z"
+  },
+  {
+    "id": "g55pm45j",
+    "snapshotId": "nl2xibji",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:30.839Z"
+  },
+  {
+    "id": "j2s6l4r7",
+    "snapshotId": "nl2xibji",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:30.839Z"
+  },
+  {
+    "id": "9hjquadx",
+    "snapshotId": "d0kss0cx",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:43.039Z"
+  },
+  {
+    "id": "gxgucv85",
+    "snapshotId": "d0kss0cx",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:43.039Z"
+  },
+  {
+    "id": "5nnzpx56",
+    "snapshotId": "d0kss0cx",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:43.039Z"
+  },
+  {
+    "id": "1q5sb6nd",
+    "snapshotId": "d0kss0cx",
+    "actionId": "escalate",
+    "actionLabel": "Escalate Incident",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:43.040Z"
+  },
+  {
+    "id": "b2pshfxo",
+    "snapshotId": "d0kss0cx",
+    "actionId": "notify",
+    "actionLabel": "Notify On-Call",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:43.040Z"
+  },
+  {
+    "id": "aj5ofk3q",
+    "snapshotId": "d0kss0cx",
+    "actionId": "ticket",
+    "actionLabel": "Create Tracking Ticket",
+    "enabled": true,
+    "decisionState": "ACT",
+    "confidence": {
+      "score": 100,
+      "label": "MEDIUM"
+    },
+    "evaluatedAt": "2025-12-25T18:48:43.040Z"
   }
 ]

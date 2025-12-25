@@ -3,6 +3,8 @@ import DecisionHistoryPanel from "@/components/ceo/DecisionHistoryPanel";
 import DecisionReplayPanel from "@/components/ceo/DecisionReplayPanel";
 import DecisionActionsPanel from "@/components/ceo/DecisionActionsPanel";
 import DecisionExplanationPanel from "@/components/ceo/DecisionExplanationPanel";
+import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
+
 import EvidenceTrailPanel from "@/components/ceo/EvidenceTrailPanel";
 
 import { evaluateDecision } from "@/lib/decisionEngine";
@@ -114,6 +116,7 @@ export default async function CeoDashboardPage() {
       />
 
       <EvidenceTrailPanel items={evidence} />
+      <DecisionInputsInspector />
     </main>
   );
 }
