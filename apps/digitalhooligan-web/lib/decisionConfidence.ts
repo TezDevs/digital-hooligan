@@ -1,28 +1,16 @@
-import { EvidenceItem, DecisionConfidence } from './decisionTypes';
+import { DecisionConfidence, DecisionState } from "./decisionTypes";
 
-const STATUS_WEIGHTS: Record<EvidenceItem['status'], number> = {
-  used: 1,
-  stale: 0.5,
-  missing: 0,
-};
-
-export function computeDecisionConfidence(
-  evidence: EvidenceItem[]
+export function deriveDecisionConfidence(
+  state: DecisionState,
+  completeness: number
 ): DecisionConfidence {
-  if (evidence.length === 0) {
-    return { score: 0, label: 'LOW' };
+  if (completeness >= 90 && state === "NOMINAL") {
+    return { score: completeness, label: "HIGH" };
   }
 
-  const total = evidence.reduce(
-    (sum, item) => sum + STATUS_WEIGHTS[item.status],
-    0
-  );
+  if (completeness >= 60) {
+    return { score: completeness, label: "MEDIUM" };
+  }
 
-  const score = Math.round((total / evidence.length) * 100);
-
-  let label: DecisionConfidence['label'] = 'LOW';
-  if (score >= 80) label = 'HIGH';
-  else if (score >= 50) label = 'MEDIUM';
-
-  return { score, label };
+  return { score: completeness, label: "LOW" };
 }

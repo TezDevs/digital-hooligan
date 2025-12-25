@@ -1,18 +1,33 @@
-export type DecisionState = 'ACT' | 'MONITOR' | 'NOMINAL';
+import { getDecisionInputs } from "./decisionSources";
 
-export type DecisionRuleResult = {
+export type DecisionInput = Awaited<ReturnType<typeof getDecisionInputs>>;
+
+export type DecisionSnapshot = {
   id: string;
-  label: string;
-  description: string;
-  status: 'passed' | 'failed' | 'unknown';
+  evaluatedAt: string;
+  inputs: DecisionInput;
+  result: {
+    state: DecisionState;
+    confidence: DecisionConfidence;
+    actions: DecisionAction[];
+  };
+};
+export type DecisionState = "ACT" | "MONITOR" | "NOMINAL";
+
+export type DecisionConfidence = {
+  score: number; // 0–100
+  label: "LOW" | "MEDIUM" | "HIGH";
 };
 
-export type EvidenceItem = {
+export type DecisionAction = {
   id: string;
-  source: string;
-  signal: string;
-  status: 'used' | 'missing' | 'stale';
-  timestamp?: string;
+  enabled: boolean;
+};
+
+export type DecisionResult = {
+  state: DecisionState;
+  confidence: DecisionConfidence;
+  actions: DecisionAction[];
 };
 
 export type DecisionEvent = {
@@ -22,7 +37,10 @@ export type DecisionEvent = {
   evaluatedAt: string;
 };
 
-export type DecisionConfidence = {
-  score: number; // 0–100
-  label: 'HIGH' | 'MEDIUM' | 'LOW';
+export type EvidenceItem = {
+  id: string;
+  source: string;
+  signal: string;
+  status: "used" | "missing" | "stale";
+  timestamp: string;
 };

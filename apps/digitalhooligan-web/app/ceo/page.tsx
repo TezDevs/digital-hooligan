@@ -1,21 +1,52 @@
-import { computeDecisionConfidence } from "@/lib/decisionConfidence";
+import DecisionMetadataPanel from "@/components/ceo/DecisionMetadataPanel";
 import DecisionHistoryPanel from "@/components/ceo/DecisionHistoryPanel";
+import DecisionReplayPanel from "@/components/ceo/DecisionReplayPanel";
+import DecisionActionsPanel from "@/components/ceo/DecisionActionsPanel";
 import DecisionExplanationPanel from "@/components/ceo/DecisionExplanationPanel";
 import EvidenceTrailPanel from "@/components/ceo/EvidenceTrailPanel";
-import DecisionMetadataPanel from "@/components/ceo/DecisionMetadataPanel";
+
 import { evaluateDecision } from "@/lib/decisionEngine";
 import { getDecisionInputs } from "@/lib/decisionSources";
-import { evaluateGuardrails } from "@/lib/decisionGuardrails";
-import DecisionGuardrailPanel from "@/components/ceo/DecisionGuardrailPanel";
+import { deriveDecisionConfidence } from "@/lib/decisionConfidence";
 import { evaluateDecisionActions } from "@/lib/decisionActions";
-import DecisionActionsPanel from "@/components/ceo/DecisionActionsPanel";
-import AuditLogViewer from "@/components/ceo/AuditLogViewer";
-import { getAuditLog } from "@/lib/actionAuditStore";
-import { EvidenceItem, DecisionEvent } from "@/lib/decisionTypes";
+import { replayDecision } from "@/lib/decisionReplay";
+import { diffDecisions } from "@/lib/decisionDiff";
+
+import {
+  DecisionEvent,
+  DecisionSnapshot,
+  EvidenceItem,
+} from "@/lib/decisionTypes";
 
 export default async function CeoDashboardPage() {
   const inputs = await getDecisionInputs();
-  const decision = evaluateDecision(inputs);
+  const evaluated = evaluateDecision(inputs);
+
+  const confidence = deriveDecisionConfidence(
+    evaluated.state,
+    evaluated.completeness
+  );
+
+  const actions = evaluateDecisionActions(
+    evaluated.state,
+    confidence,
+    { blocked: false, reasons: [], allowedState: evaluated.state },
+    evaluated.metadata.snapshotId
+  );
+
+  const snapshot: DecisionSnapshot = {
+    id: evaluated.metadata.snapshotId,
+    evaluatedAt: evaluated.metadata.evaluatedAt,
+    inputs,
+    result: {
+      state: evaluated.state,
+      confidence,
+      actions,
+    },
+  };
+
+  const replayed = replayDecision(snapshot);
+  const diff = diffDecisions(snapshot, replayed);
 
   const history: DecisionEvent[] = [
     {
@@ -44,56 +75,42 @@ export default async function CeoDashboardPage() {
       source: "Incident Service",
       signal: "Open incident count",
       status: "used",
-      timestamp: decision.metadata.evaluatedAt,
+      timestamp: snapshot.evaluatedAt,
     },
     {
       id: "health-monitor",
       source: "Health Monitor",
       signal: "Degraded system count",
       status: "used",
-      timestamp: decision.metadata.evaluatedAt,
+      timestamp: snapshot.evaluatedAt,
     },
     {
       id: "data-poller",
       source: "Data Poller",
       signal: "Freshness check",
       status: "stale",
-      timestamp: decision.metadata.evaluatedAt,
+      timestamp: snapshot.evaluatedAt,
     },
   ];
-  const confidence = computeDecisionConfidence(evidence);
-
-  const guardrails = evaluateGuardrails(decision.state, confidence);
-
-  const actions = evaluateDecisionActions(
-    decision.state,
-    confidence,
-    guardrails,
-    decision.metadata.snapshotId
-  );
-
-  const auditEntries = getAuditLog();
 
   return (
     <main className="space-y-6 p-6">
       <DecisionMetadataPanel
-        snapshotId={decision.metadata.snapshotId}
-        evaluatedAt={decision.metadata.evaluatedAt}
+        snapshotId={snapshot.id}
+        evaluatedAt={snapshot.evaluatedAt}
         confidence={confidence}
       />
 
       <DecisionHistoryPanel events={history} />
-      <DecisionGuardrailPanel
-        blocked={guardrails.blocked}
-        reasons={guardrails.reasons}
-      />
+
+      <DecisionReplayPanel diff={diff} />
 
       <DecisionActionsPanel actions={actions} />
-      <AuditLogViewer entries={auditEntries} />
+
       <DecisionExplanationPanel
-        state={decision.state}
-        rules={decision.rules}
-        completeness={decision.completeness}
+        state={evaluated.state}
+        rules={evaluated.rules}
+        completeness={evaluated.completeness}
       />
 
       <EvidenceTrailPanel items={evidence} />
