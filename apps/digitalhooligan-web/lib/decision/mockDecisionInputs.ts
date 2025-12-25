@@ -1,5 +1,3 @@
-// apps/digitalhooligan-web/lib/decision/mockDecisionInputs.ts
-
 import { DecisionInput } from "./decisionInput";
 
 export const mockDecisionInputs: DecisionInput[] = [
@@ -10,7 +8,7 @@ export const mockDecisionInputs: DecisionInput[] = [
     source: "Internal analysis",
     status: "fresh",
     confidence: 90,
-    usedBy: ["Decision State Layer"],
+    sourceReliability: 0.9,
   },
   {
     id: "input-002",
@@ -19,6 +17,7 @@ export const mockDecisionInputs: DecisionInput[] = [
     source: "Owner directive",
     status: "fresh",
     confidence: 85,
+    sourceReliability: 1.0,
   },
   {
     id: "input-003",
@@ -27,5 +26,6 @@ export const mockDecisionInputs: DecisionInput[] = [
     source: "Ops notes",
     status: "missing",
     confidence: 40,
+    sourceReliability: 0.6,
   },
 ];
