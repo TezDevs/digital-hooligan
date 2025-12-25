@@ -1,52 +1,43 @@
-import { decisionInputs } from "@/lib/decisionInputs";
-import { InputStatus } from "@/lib/decision";
-
-function statusClass(status: InputStatus) {
-  switch (status) {
-    case "fresh":
-      return "text-green-400";
-    case "degraded":
-      return "text-yellow-400";
-    case "missing":
-      return "text-red-400";
-    default:
-      return "text-gray-400";
-  }
-}
+import { getDecisions } from "@/lib/decision/getDecisions";
 
 export default function DecisionInputsInspector() {
+  const decisions = getDecisions();
   return (
     <section className="rounded-xl border border-white/10 bg-black/40 p-4">
       <h2 className="mb-3 text-lg font-semibold">Decision Inputs Inspector</h2>
 
-      <div className="space-y-3">
-        {decisionInputs.map((input) => (
-          <div
-            key={input.id}
-            className="flex items-center justify-between rounded-lg bg-white/5 p-3"
-          >
-            <div className="space-y-1">
-              <div className="font-medium">{input.name}</div>
-              <div className="text-xs text-white/60">
-                Source: {input.source}
-              </div>
-              <div className="text-xs text-white/40">
-                Used by: {input.usedBy.join(", ")}
-              </div>
-            </div>
+      {/* Decision State Context */}
+      <div className="mt-6 border-t border-white/10 pt-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-white/40">
+          Decision State Context
+        </h3>
 
-            <div className="text-right">
-              <div
-                className={`text-sm font-semibold ${statusClass(input.status)}`}
-              >
-                {input.status.toUpperCase()}
+        <ul className="mt-3 space-y-3 text-sm">
+          {decisions.map((decision) => (
+            <li
+              key={decision.id}
+              className="rounded-md border border-white/10 bg-black/30 p-3"
+            >
+              <div className="font-medium text-white">{decision.title}</div>
+
+              <div className="mt-1 text-white/60">
+                <span className="text-xs font-semibold uppercase tracking-wide">
+                  {decision.status}
+                </span>
+                {" — "}
+                {decision.rationale}
               </div>
-              <div className="text-xs text-white/60">
-                Confidence: {input.confidence}%
-              </div>
-            </div>
-          </div>
-        ))}
+
+              {decision.blockers && decision.blockers.length > 0 && (
+                <ul className="mt-2 list-disc pl-4 text-xs text-white/50">
+                  {decision.blockers.map((blocker) => (
+                    <li key={blocker}>{blocker}</li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
