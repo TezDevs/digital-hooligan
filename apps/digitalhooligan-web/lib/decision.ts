@@ -4,7 +4,7 @@ export interface DecisionInput {
   id: string;
   name: string;
   source: string;
-  lastUpdatedAt: string | null; // ISO timestamp or null if unknown
+  lastUpdatedAt: string | null;
   status: InputStatus;
   confidence: number; // 0–100
   usedBy: string[];

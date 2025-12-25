@@ -1,4 +1,4 @@
-import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
+import DecisionInputsInspector from '@/components/ceo/DecisionInputsInspector';
 
 export default function CEOPage() {
   return (
