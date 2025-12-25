@@ -35,3 +35,19 @@ export interface DecisionState {
    */
   lastUpdated: string;
 }
+
+export interface DecisionState {
+  id: string;
+  title: string;
+  status: DecisionStatus;
+  rationale: string;
+  blockers?: string[];
+
+  /**
+   * Aggregated confidence derived from supporting inputs.
+   * Null means insufficient data.
+   */
+  confidence?: number | null;
+
+  lastUpdated: string;
+}
