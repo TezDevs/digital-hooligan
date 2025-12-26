@@ -1,6 +1,7 @@
 import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
 import DecisionReviewSnapshotPanel from "@/components/ceo/DecisionReviewSnapshotPanel";
 import { getDecisions } from "@/lib/decision/getDecisions";
+import Link from "next/link";
 
 export default function CEOPage() {
   const decisions = getDecisions();
@@ -18,7 +19,14 @@ export default function CEOPage() {
         <ul className="mt-2 space-y-2 text-sm">
           {decisions.map((d) => (
             <li key={d.id}>
-              <span className="font-medium">{d.title}</span>
+              <span className="font-medium">
+                <Link
+                  href={`/ceo/decisions/${d.id}`}
+                  className="hover:underline text-primary"
+                >
+                  {d.id}
+                </Link>
+              </span>
               <span className="ml-2 text-neutral-400">{d.status}</span>
             </li>
           ))}
