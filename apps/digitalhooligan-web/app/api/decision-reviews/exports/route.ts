@@ -6,6 +6,7 @@ import {
 } from "@/lib/decisionReviewExports";
 import { requireDecisionReviewAuth } from "@/lib/requireDecisionReviewAuth";
 import { writeDecisionReviewAuditLog } from "@/lib/writeDecisionReviewAuditLog";
+import { isDryRun } from "@/lib/isDryRun";
 
 function getDecisionReviewRecords(): DecisionReviewExportRecord[] {
   return [
@@ -58,15 +59,9 @@ function toCSV(records: DecisionReviewExportRecord[]): string {
 
 export async function GET(request: Request) {
   const authResult = requireDecisionReviewAuth(request);
-  if (authResult) {
-    writeDecisionReviewAuditLog({
-      event: "decision.review.export.requested",
-      route: "/api/decision-reviews/exports",
-      success: false,
-      timestamp: new Date().toISOString(),
-    });
-    return authResult;
-  }
+  if (authResult) return authResult;
+
+  const dryRun = isDryRun(request);
 
   const { searchParams } = new URL(request.url);
   const format =
@@ -79,6 +74,15 @@ export async function GET(request: Request) {
     total: records.length,
     records,
   };
+
+  if (dryRun) {
+    return NextResponse.json({
+      dryRun: true,
+      action: "decision.review.export",
+      format,
+      recordCount: records.length,
+    });
+  }
 
   writeDecisionReviewAuditLog({
     event: "decision.review.export.requested",
