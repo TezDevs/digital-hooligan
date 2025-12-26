@@ -41,7 +41,14 @@ export default async function DecisionReviewDetailPage({ params }: PageProps) {
           Created: {new Date(decision.createdAt).toLocaleString()}
         </p>
       </header>
-
+      <a
+        href={`/api/decisions/review/${decision.id}/export`}
+        className="text-sm text-primary hover:underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Export JSON
+      </a>
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-lg border p-4">
           <h2 className="font-medium mb-2">Current State</h2>
