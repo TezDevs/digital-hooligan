@@ -1,4 +1,5 @@
 import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
+import DecisionReviewSnapshotPanel from "@/components/ceo/DecisionReviewSnapshotPanel";
 import { getDecisions } from "@/lib/decision/getDecisions";
 
 export default function CEOPage() {
@@ -8,6 +9,7 @@ export default function CEOPage() {
     <main className="space-y-6 p-6">
       <DecisionInputsInspector />
 
+      {/* Existing Decision States Section */}
       <section className="rounded-lg border border-neutral-800 p-4">
         <h2 className="text-sm font-semibold text-neutral-300">
           Decision States
@@ -22,6 +24,9 @@ export default function CEOPage() {
           ))}
         </ul>
       </section>
+
+      {/* New Snapshot Panel */}
+      <DecisionReviewSnapshotPanel />
     </main>
   );
 }
