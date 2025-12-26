@@ -4,13 +4,8 @@ import {
   DecisionReviewExportPayload,
   DecisionReviewExportRecord,
 } from "@/lib/decisionReviewExports";
+import { requireDecisionReviewAuth } from "@/lib/requireDecisionReviewAuth";
 
-/**
- * TEMPORARY DATA SOURCE
- * ---------------------
- * This intentionally mirrors existing read-only decision review access.
- * No new persistence or queries are introduced in this feature.
- */
 function getDecisionReviewRecords(): DecisionReviewExportRecord[] {
   return [
     {
@@ -61,6 +56,9 @@ function toCSV(records: DecisionReviewExportRecord[]): string {
 }
 
 export async function GET(request: Request) {
+  const authResult = requireDecisionReviewAuth(request);
+  if (authResult) return authResult;
+
   const { searchParams } = new URL(request.url);
   const format =
     (searchParams.get("format") as DecisionReviewExportFormat) ?? "json";

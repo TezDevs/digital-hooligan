@@ -5,6 +5,7 @@ import {
 } from "@/lib/decisionReviewExports";
 import { DecisionReviewWebhookEnvelope } from "@/lib/decisionReviewWebhooks";
 import { sendDecisionReviewWebhook } from "@/lib/sendDecisionReviewWebhook";
+import { requireDecisionReviewAuth } from "@/lib/requireDecisionReviewAuth";
 
 function getDecisionReviewRecords(): DecisionReviewExportRecord[] {
   return [
@@ -29,7 +30,10 @@ function getDecisionReviewRecords(): DecisionReviewExportRecord[] {
   ];
 }
 
-export async function POST() {
+export async function POST(request: Request) {
+  const authResult = requireDecisionReviewAuth(request);
+  if (authResult) return authResult;
+
   const webhookUrl = process.env.DECISION_REVIEW_WEBHOOK_URL;
 
   if (!webhookUrl) {
