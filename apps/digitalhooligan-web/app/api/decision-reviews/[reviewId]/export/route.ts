@@ -1,29 +1,29 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { requireDecisionReviewAuth } from "@/lib/requireDecisionReviewAuth";
+import { buildDecisionReviewSnapshot } from "@/lib/buildDecisionReviewSnapshot";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ decisionId: string }> }
+  request: Request,
+  context: { params: Promise<{ reviewId: string }> }
 ) {
   const authResult = requireDecisionReviewAuth(request);
   if (authResult) return authResult;
 
-  const { decisionId } = await params;
+  // Next.js 16: params are async
+  const { reviewId } = await context.params;
 
-  // Reuse existing review endpoint
-  const url = new URL(`/api/decisions/review/${decisionId}`, request.url);
+  const snapshot = buildDecisionReviewSnapshot();
+  const review = snapshot.recent.find((r) => r.id === reviewId);
 
-  const res = await fetch(url.toString(), { cache: "no-store" });
-
-  if (!res.ok) {
-    return NextResponse.json({ error: "Decision not found" }, { status: 404 });
+  if (!review) {
+    return NextResponse.json(
+      { error: "Decision review not found" },
+      { status: 404 }
+    );
   }
-
-  const decision = await res.json();
 
   return NextResponse.json({
     exportedAt: new Date().toISOString(),
-    decision,
+    review,
   });
 }
