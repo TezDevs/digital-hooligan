@@ -6,6 +6,7 @@ import {
 import { DecisionReviewWebhookEnvelope } from "@/lib/decisionReviewWebhooks";
 import { sendDecisionReviewWebhook } from "@/lib/sendDecisionReviewWebhook";
 import { requireDecisionReviewAuth } from "@/lib/requireDecisionReviewAuth";
+import { writeDecisionReviewAuditLog } from "@/lib/writeDecisionReviewAuditLog";
 
 function getDecisionReviewRecords(): DecisionReviewExportRecord[] {
   return [
@@ -32,11 +33,26 @@ function getDecisionReviewRecords(): DecisionReviewExportRecord[] {
 
 export async function POST(request: Request) {
   const authResult = requireDecisionReviewAuth(request);
-  if (authResult) return authResult;
+  if (authResult) {
+    writeDecisionReviewAuditLog({
+      event: "decision.review.webhook.triggered",
+      route: "/api/decision-reviews/webhooks/trigger",
+      success: false,
+      timestamp: new Date().toISOString(),
+    });
+    return authResult;
+  }
 
   const webhookUrl = process.env.DECISION_REVIEW_WEBHOOK_URL;
 
   if (!webhookUrl) {
+    writeDecisionReviewAuditLog({
+      event: "decision.review.webhook.triggered",
+      route: "/api/decision-reviews/webhooks/trigger",
+      success: false,
+      timestamp: new Date().toISOString(),
+    });
+
     return NextResponse.json(
       { error: "Webhook URL not configured" },
       { status: 500 }
@@ -56,6 +72,13 @@ export async function POST(request: Request) {
   };
 
   const result = await sendDecisionReviewWebhook(webhookUrl, envelope);
+
+  writeDecisionReviewAuditLog({
+    event: "decision.review.webhook.triggered",
+    route: "/api/decision-reviews/webhooks/trigger",
+    success: result.ok,
+    timestamp: new Date().toISOString(),
+  });
 
   return NextResponse.json({
     delivered: result.ok,
