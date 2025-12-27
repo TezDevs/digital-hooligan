@@ -18,17 +18,18 @@ export default function CEOPage() {
 
         <ul className="mt-2 space-y-2 text-sm">
           {decisions.map((d) => (
-            <li key={d.id}>
-              <span className="font-medium">
-                <Link
-                  href={`/ceo/decisions/${d.id}`}
-                  className="hover:underline text-primary"
-                >
-                  {d.id}
-                </Link>
-              </span>
-              <span className="ml-2 text-neutral-400">{d.status}</span>
-            </li>
+            <Link
+              key={d.id}
+              href={`/ceo/decisions/${d.id}`}
+              className="block rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer"
+            >
+              <div className="space-y-1">
+                <div className="font-medium">{d.title}</div>
+                <div className="text-sm text-muted-foreground">
+                  Decision ID: {d.id}
+                </div>
+              </div>
+            </Link>
           ))}
         </ul>
       </section>
