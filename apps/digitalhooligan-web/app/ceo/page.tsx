@@ -24,7 +24,16 @@ export default function CEOPage() {
               className="block rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer"
             >
               <div className="space-y-1">
-                <div className="font-medium">{d.title}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-medium">{d.title}</div>
+
+                  {"status" in d && d.status && (
+                    <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium bg-neutral-500/10 text-neutral-600 border-neutral-500/20">
+                      {String(d.status).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+
                 <div className="text-sm text-muted-foreground">
                   Decision ID: {d.id}
                 </div>
