@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { Decision } from "@/lib/decisionTypes";
 import { headers } from "next/headers";
+import { buildDecisionReviewSnapshot } from "@/lib/decisionReviewSnapshot";
+import { buildDecisionReviewTimeline } from "@/lib/decisionReviewTimeline";
+import { DecisionReviewTimeline } from "@/components/ceo/DecisionReviewTimeline";
 
 interface PageProps {
   params: Promise<{
@@ -27,6 +30,8 @@ async function getDecision(decisionId: string): Promise<Decision | null> {
 export default async function DecisionReviewDetailPage({ params }: PageProps) {
   const { decisionId } = await params;
   const decision = await getDecision(decisionId);
+  const reviewSnapshot = await buildDecisionReviewSnapshot(decisionId);
+  const reviewTimeline = buildDecisionReviewTimeline(reviewSnapshot);
 
   if (!decision) {
     notFound();
@@ -92,7 +97,10 @@ export default async function DecisionReviewDetailPage({ params }: PageProps) {
           </div>
         ))}
       </section>
-
+      <section className="rounded-lg border p-4 space-y-3">
+        <h2 className="font-medium">Review Activity</h2>
+        <DecisionReviewTimeline items={reviewTimeline} />
+      </section>
       {decision.confidenceSnapshots && (
         <section className="rounded-lg border p-4 space-y-2">
           <h2 className="font-medium">Confidence History</h2>
