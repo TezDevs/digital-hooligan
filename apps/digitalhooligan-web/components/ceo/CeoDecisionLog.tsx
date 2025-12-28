@@ -5,6 +5,8 @@ import { DecisionEntry, DecisionArea } from "@/lib/ceoDashboardData";
 import { DecisionStaleBadge } from "@/components/decision/DecisionStaleBadge";
 import { DecisionNeedsReviewBadge } from "@/components/decision/DecisionNeedsReviewBadge";
 import { decisionReviewPriority } from "@/lib/decisionReviewPriority";
+import { isDecisionStale } from "@/lib/decisionStale";
+import { needsDecisionReview } from "@/lib/decisionNeedsReview";
 
 type FilterArea = "ALL" | DecisionArea;
 
@@ -20,10 +22,28 @@ const AREA_FILTERS: { key: FilterArea; label: string }[] = [
 
 export function CeoDecisionLog({ decisions }: { decisions: DecisionEntry[] }) {
   const [areaFilter, setAreaFilter] = React.useState<FilterArea>("ALL");
+  const [focusMode, setFocusMode] = React.useState(false);
 
   const filtered = React.useMemo(() => {
     return decisions
       .filter((d) => (areaFilter === "ALL" ? true : d.area === areaFilter))
+      .filter((d) => {
+        if (!focusMode) return true;
+
+        const isStale = isDecisionStale({
+          updatedAt: d.date,
+        });
+
+        const needsReview = needsDecisionReview({
+          date: d.date,
+          area: d.area,
+          impact: d.impact,
+        });
+
+        const isHighImpact = d.impact === "HIGH";
+
+        return isStale || needsReview || isHighImpact;
+      })
       .slice()
       .sort((a, b) => {
         const scoreA = decisionReviewPriority({
@@ -44,7 +64,7 @@ export function CeoDecisionLog({ decisions }: { decisions: DecisionEntry[] }) {
 
         return new Date(b.date).getTime() - new Date(a.date).getTime();
       });
-  }, [decisions, areaFilter]);
+  }, [decisions, areaFilter, focusMode]);
 
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 space-y-3">
@@ -78,6 +98,19 @@ export function CeoDecisionLog({ decisions }: { decisions: DecisionEntry[] }) {
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={() => setFocusMode((v) => !v)}
+            className={[
+              "rounded-full border px-3 py-1 text-[11px] transition-colors",
+              focusMode
+                ? "border-rose-500/60 bg-rose-500/10 text-rose-400"
+                : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-600",
+            ].join(" ")}
+            title="Focus on decisions that likely need review"
+          >
+            Focus mode
+          </button>
         </div>
       </div>
 
