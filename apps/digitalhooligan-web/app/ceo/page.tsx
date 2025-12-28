@@ -12,11 +12,19 @@ export default function CEOPage() {
     <main className="space-y-6 p-6">
       <DecisionInputsInspector />
 
-      {/* Existing Decision States Section */}
       <section className="rounded-lg border border-neutral-800 p-4">
-        <h2 className="text-sm font-semibold text-neutral-300">
-          Decision States
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-neutral-300">
+            Decision States
+          </h2>
+
+          <Link
+            href="/ceo/reviews"
+            className="text-xs text-muted-foreground hover:underline"
+          >
+            View Review Queue →
+          </Link>
+        </div>
 
         <ul className="mt-2 space-y-2 text-sm">
           {decisions.map((d) => (
@@ -45,7 +53,6 @@ export default function CEOPage() {
         </ul>
       </section>
 
-      {/* NEW: Persisted Decision Entries (Read-Only) */}
       <section className="rounded-lg border border-neutral-800 p-4">
         <h2 className="text-sm font-semibold text-neutral-300">
           Decision Entries (Persisted)
@@ -83,7 +90,6 @@ export default function CEOPage() {
         )}
       </section>
 
-      {/* Existing Snapshot Panel */}
       <DecisionReviewSnapshotPanel />
     </main>
   );
