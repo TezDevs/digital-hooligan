@@ -38,8 +38,16 @@ export default function DecisionReviewQueuePage() {
                 {entry.summary}
               </div>
 
-              <div className="mt-2 text-xs text-muted-foreground">
-                Created: {new Date(entry.createdAt).toLocaleString()}
+              <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                <span>
+                  Created: {new Date(entry.createdAt).toLocaleString()}
+                </span>
+                <Link
+                  href={`/ceo/reviews/${entry.id}`}
+                  className="hover:underline"
+                >
+                  View Audit →
+                </Link>
               </div>
             </li>
           ))}
