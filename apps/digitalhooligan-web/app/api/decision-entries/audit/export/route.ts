@@ -5,39 +5,34 @@ import path from "path";
 const DATA_DIR = path.join(process.cwd(), ".data");
 const AUDIT_FILE = path.join(DATA_DIR, "decision-entry-audit.json");
 
-function loadAuditEvents() {
+type AuditEvent = {
+  id: string;
+  action: string;
+  timestamp: string;
+  meta?: Record<string, unknown>;
+};
+
+function loadAuditEvents(): AuditEvent[] {
   if (!fs.existsSync(AUDIT_FILE)) {
     return [];
   }
 
   const raw = fs.readFileSync(AUDIT_FILE, "utf-8");
-  return JSON.parse(raw) as {
-    id: string;
-    action: string;
-    timestamp: string;
-    meta?: Record<string, unknown>;
-  }[];
+  return JSON.parse(raw);
 }
 
 function toCSV(rows: Record<string, unknown>[]) {
   if (rows.length === 0) return "";
 
   const headers = Object.keys(rows[0]);
-  const lines = [
+  return [
     headers.join(","),
     ...rows.map((row) =>
       headers
-        .map((h) => {
-          const value = row[h];
-          if (value === null || value === undefined) return "";
-          const str = String(value).replace(/"/g, '""');
-          return `"${str}"`;
-        })
+        .map((h) => `"${String(row[h] ?? "").replace(/"/g, '""')}"`)
         .join(",")
     ),
-  ];
-
-  return lines.join("\n");
+  ].join("\n");
 }
 
 export async function GET(req: Request) {
@@ -52,9 +47,7 @@ export async function GET(req: Request) {
   }
 
   if (format === "csv") {
-    const csv = toCSV(events as unknown as Record<string, unknown>[]);
-
-    return new NextResponse(csv, {
+    return new NextResponse(toCSV(events), {
       headers: {
         "Content-Type": "text/csv",
         "Content-Disposition":
