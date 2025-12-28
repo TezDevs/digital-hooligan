@@ -42,11 +42,12 @@ export default function DecisionReviewQueuePage() {
                 <span>
                   Created: {new Date(entry.createdAt).toLocaleString()}
                 </span>
+
                 <Link
-                  href={`/ceo/reviews/${entry.id}`}
+                  href={`/ceo/dossier/${entry.id}`}
                   className="hover:underline"
                 >
-                  View Audit →
+                  Open Dossier →
                 </Link>
               </div>
             </li>
