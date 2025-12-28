@@ -3,6 +3,7 @@
 import React from "react";
 import { DecisionEntry, DecisionArea } from "@/lib/ceoDashboardData";
 import { DecisionStaleBadge } from "@/components/decision/DecisionStaleBadge";
+import { DecisionNeedsReviewBadge } from "@/components/decision/DecisionNeedsReviewBadge";
 
 type FilterArea = "ALL" | DecisionArea;
 
@@ -103,9 +104,16 @@ function DecisionRow({ decision }: { decision: DecisionEntry }) {
     <article className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="text-[10px] text-slate-500">{decision.date}</div>
+
             <DecisionStaleBadge updatedAt={decision.date} />
+
+            <DecisionNeedsReviewBadge
+              date={decision.date}
+              area={decision.area}
+              impact={decision.impact}
+            />
           </div>
 
           <div className="text-[12px] font-medium text-slate-200">
