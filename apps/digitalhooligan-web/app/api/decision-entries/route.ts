@@ -5,6 +5,7 @@ import {
   persistDecisionEntry,
 } from "@/lib/decisionEntryStore";
 import { DecisionEntry } from "@/lib/decisionEntryTypes";
+import { appendDecisionEntryAudit } from "@/lib/decisionEntryAudit";
 
 export async function GET() {
   const entries = loadDecisionEntries();
@@ -14,10 +15,18 @@ export async function GET() {
 export async function POST(req: Request) {
   const body = (await req.json()) as DecisionEntry;
 
-  persistDecisionEntry({
+  const entry: DecisionEntry = {
     ...body,
     createdAt: body.createdAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+  };
+
+  persistDecisionEntry(entry);
+
+  appendDecisionEntryAudit({
+    id: entry.id,
+    action: "created",
+    timestamp: new Date().toISOString(),
   });
 
   return NextResponse.json({ ok: true });
@@ -56,6 +65,13 @@ export async function PUT(req: Request) {
 
   entries[index] = updated;
   saveDecisionEntries(entries);
+
+  appendDecisionEntryAudit({
+    id: updated.id,
+    action: "status_updated",
+    timestamp: new Date().toISOString(),
+    meta: { status: updated.status },
+  });
 
   return NextResponse.json({ ok: true, entry: updated });
 }
