@@ -4,6 +4,7 @@ import React from "react";
 import { DecisionEntry, DecisionArea } from "@/lib/ceoDashboardData";
 import { DecisionStaleBadge } from "@/components/decision/DecisionStaleBadge";
 import { DecisionNeedsReviewBadge } from "@/components/decision/DecisionNeedsReviewBadge";
+import { decisionReviewPriority } from "@/lib/decisionReviewPriority";
 
 type FilterArea = "ALL" | DecisionArea;
 
@@ -21,9 +22,28 @@ export function CeoDecisionLog({ decisions }: { decisions: DecisionEntry[] }) {
   const [areaFilter, setAreaFilter] = React.useState<FilterArea>("ALL");
 
   const filtered = React.useMemo(() => {
-    return decisions.filter((d) =>
-      areaFilter === "ALL" ? true : d.area === areaFilter
-    );
+    return decisions
+      .filter((d) => (areaFilter === "ALL" ? true : d.area === areaFilter))
+      .slice()
+      .sort((a, b) => {
+        const scoreA = decisionReviewPriority({
+          date: a.date,
+          area: a.area,
+          impact: a.impact,
+        });
+
+        const scoreB = decisionReviewPriority({
+          date: b.date,
+          area: b.area,
+          impact: b.impact,
+        });
+
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA;
+        }
+
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
   }, [decisions, areaFilter]);
 
   return (
