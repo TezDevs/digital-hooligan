@@ -78,11 +78,16 @@ export function loadDecisionEntrySummaries(): DecisionEntrySummary[] {
     return DEV_SEED_SUMMARIES;
   }
 
-  return entries.map((entry) => ({
-    id: entry.id,
-    state: mapDomainStateToSummaryState(entry.state),
-    updatedAt: entry.updatedAt,
-  }));
+  return entries
+    .map((entry) => ({
+      id: entry.id,
+      state: mapDomainStateToSummaryState(entry.state),
+      updatedAt: entry.updatedAt,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
 }
 
 /**
