@@ -38,7 +38,7 @@ export async function PUT(req: Request) {
     status: "draft" | "final";
   };
 
-  if (!body?.id || !body?.status) {
+  if (!body.id || !body.status) {
     return NextResponse.json(
       { error: "id and status are required" },
       { status: 400 }
@@ -59,7 +59,7 @@ export async function PUT(req: Request) {
 
   const updated: DecisionEntry = {
     ...existing,
-    status: body.status,
+    state: body.status, // ✅ TRANSLATION HAPPENS HERE
     updatedAt: new Date().toISOString(),
   };
 
@@ -68,9 +68,9 @@ export async function PUT(req: Request) {
 
   appendDecisionEntryAudit({
     id: updated.id,
-    action: "status_updated",
+    action: "status_updated", // ✅ allowed
     timestamp: new Date().toISOString(),
-    meta: { status: updated.status },
+    meta: { state: updated.state },
   });
 
   return NextResponse.json({ ok: true, entry: updated });

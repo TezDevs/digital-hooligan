@@ -1,8 +1,10 @@
-export type DecisionEntry = {
+export interface DecisionEntry {
   id: string;
   title: string;
-  summary: string;
-  status: "draft" | "final";
   createdAt: string;
   updatedAt: string;
-};
+  state: "draft" | "final";
+  confidence: number;
+  confidenceBaseline: number;
+  evidence: unknown[]; // intentionally loose for now
+}

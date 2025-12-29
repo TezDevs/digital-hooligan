@@ -3,19 +3,35 @@ import { buildDecisionReviewTimeline } from "@/lib/decisionReviewTimeline";
 import { DecisionReviewTimeline } from "@/components/ceo/DecisionReviewTimeline";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{
+    decisionId: string;
+    id: string;
+  }>;
 }
 
 export default async function DecisionDetailPage({ params }: Props) {
-  const snapshot = await buildDecisionReviewSnapshot(params.id);
+  const { decisionId, id } = await params;
+
+  console.log("Decision params:", { decisionId, id });
+
+  const snapshot = await buildDecisionReviewSnapshot(id);
   const timeline = buildDecisionReviewTimeline(snapshot);
 
   return (
     <div className="space-y-8">
       <header>
         <h1 className="text-xl font-semibold">Decision Detail</h1>
+
         <div className="text-sm text-muted-foreground">
-          Decision ID: {params.id}
+          Decision ID: {id}
+          <a
+            href={`/api/decisions/${id}/export/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-4 text-sm font-medium text-blue-600 hover:underline"
+          >
+            Export PDF
+          </a>
         </div>
       </header>
 

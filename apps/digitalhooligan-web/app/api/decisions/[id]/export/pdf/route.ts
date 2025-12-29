@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadDecisionEntries } from "@/lib/decisionEntryStore";
+import { buildDecisionReviewSnapshot } from "@/lib/decisionReviewSnapshot";
 import { renderDecisionDossierHtml } from "@/lib/decisionDossierHtml";
 import { renderPdfFromHtml } from "@/lib/htmlToPdf";
 
@@ -9,20 +9,24 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const entries = await loadDecisionEntries();
-  const decision = entries.find((d) => d.id === id);
+  const snapshot = await buildDecisionReviewSnapshot(id);
 
-  if (!decision) {
+  if (!snapshot) {
     return NextResponse.json({ error: "Decision not found" }, { status: 404 });
   }
 
-  const html = renderDecisionDossierHtml(decision);
+  const html = renderDecisionDossierHtml({
+    id,
+    title: `Decision ${id}`,
+    createdAt: new Date().toISOString(),
+  });
+
   const pdfBuffer = await renderPdfFromHtml(html);
 
   return new NextResponse(new Uint8Array(pdfBuffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="decision-${decision.id}.pdf"`,
+      "Content-Disposition": `attachment; filename="decision-${id}.pdf"`,
     },
   });
 }
