@@ -60,7 +60,7 @@ export default async function CEOPage() {
                   <div className="flex items-center justify-between">
                     <div className="font-medium">{entry.title}</div>
                     <span className="text-xs text-muted-foreground">
-                      {entry.status.toUpperCase()}
+                      {(entry.status ?? "UNKNOWN").toUpperCase()}
                     </span>
                   </div>
 
