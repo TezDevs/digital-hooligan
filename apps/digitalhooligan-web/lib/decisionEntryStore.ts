@@ -84,10 +84,16 @@ export function loadDecisionEntrySummaries(): DecisionEntrySummary[] {
       state: mapDomainStateToSummaryState(entry.state),
       updatedAt: entry.updatedAt,
     }))
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    );
+    .sort((a, b) => {
+      const timeDelta =
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+
+      if (timeDelta !== 0) {
+        return timeDelta;
+      }
+
+      return a.id.localeCompare(b.id);
+    });
 }
 
 /**
