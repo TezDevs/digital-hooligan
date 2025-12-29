@@ -4,6 +4,7 @@ import DecisionReviewKeySignalsPanel from "@/components/decision-review/Decision
 import DecisionReviewAuditTimeline from "@/components/decision-review/DecisionReviewAuditTimeline";
 import { getServerBaseUrl } from "@/lib/serverApi";
 import { DecisionReviewAuditEvent } from "@/lib/decisionReviewAuditLog";
+import DecisionReviewNotes from "@/components/decision-review/DecisionReviewNotes";
 
 type DecisionEntry = {
   id: string;
@@ -54,7 +55,7 @@ export default async function DecisionReviewSessionPage({
   }
 
   const auditEvents = await fetchAuditEvents(entry.id);
-
+  const notes: [] = [];
   return (
     <main className="p-6 space-y-6">
       {/* Session Guard */}
@@ -94,6 +95,11 @@ export default async function DecisionReviewSessionPage({
         <h2 className="text-sm font-semibold text-slate-300">Audit Timeline</h2>
 
         <DecisionReviewAuditTimeline events={auditEvents} />
+      </section>
+      <section className="space-y-4">
+        <h2 className="text-sm font-semibold text-slate-300">Review Notes</h2>
+
+        <DecisionReviewNotes notes={notes} />
       </section>
     </main>
   );
