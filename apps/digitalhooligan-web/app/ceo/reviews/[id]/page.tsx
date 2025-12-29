@@ -112,7 +112,12 @@ export default async function DecisionReviewDetailPage({
           {new Date(entry.createdAt).toLocaleString()}
         </div>
       </header>
-
+      <Link
+        href={`/ceo/reviews/${entry.id}/session`}
+        className="text-xs underline text-slate-400 hover:text-slate-200"
+      >
+        Enter Review Session
+      </Link>
       {/* Audit Timeline */}
       <section className="rounded-lg border border-neutral-800 p-4">
         <h2 className="text-sm font-semibold text-neutral-300 mb-2">
