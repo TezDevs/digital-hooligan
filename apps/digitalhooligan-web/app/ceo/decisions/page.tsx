@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { loadDecisionEntries } from "@/lib/decisionEntryStore";
+import { loadDecisionEntrySummaries } from "@/lib/decisionEntryStore";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,7 @@ function StateBadge({ state }: { state: DecisionState }) {
 }
 
 export default async function DecisionsPage() {
-  const decisions = await loadDecisionEntries();
+  const decisions = await loadDecisionEntrySummaries();
 
   return (
     <div className="p-6 space-y-6">
