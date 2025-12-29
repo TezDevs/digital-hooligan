@@ -1,8 +1,16 @@
-export type DecisionEntry = {
+export interface EvidenceItem {
+  id: string;
+  label: string;
+  source: string;
+  reliability: number; // 0–100
+}
+
+export interface DecisionEntry {
   id: string;
   title: string;
-  summary: string;
-  status: "draft" | "final";
   createdAt: string;
-  updatedAt: string;
-};
+  state: string;
+  confidence: number;
+  confidenceBaseline: number;
+  evidence: EvidenceItem[];
+}

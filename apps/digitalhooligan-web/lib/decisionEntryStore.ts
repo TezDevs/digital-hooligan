@@ -3,7 +3,8 @@ import fs from "fs";
 import path from "path";
 import { DecisionEntry } from "./decisionEntryTypes";
 
-const DATA_DIR = path.join(process.cwd(), ".data");
+const DATA_DIR = path.resolve(process.cwd(), "apps/digitalhooligan-web/.data");
+
 const DATA_FILE = path.join(DATA_DIR, "decision-entries.json");
 
 function ensureStore() {
