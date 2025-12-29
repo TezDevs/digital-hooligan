@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getServerBaseUrl } from "@/lib/serverApi";
 import DecisionReviewSummaryHeader from "@/components/decision-review/DecisionReviewSummaryHeader";
+import DecisionReviewKeySignalsPanel from "@/components/decision-review/DecisionReviewKeySignalsPanel";
 
 function StateBadge({ state }: { state: string }) {
   const normalized = state.toLowerCase();
@@ -124,6 +125,14 @@ export default async function DecisionReviewDetailPage({
           lastUpdatedAt={entry.createdAt}
           isStale={false}
         />
+        <DecisionReviewKeySignalsPanel
+          status={entry.status}
+          createdAt={entry.createdAt}
+          auditEventCount={auditEvents.length}
+          exportCount={0}
+          isStale={false}
+        />
+
         {auditEvents.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No audit events recorded.
