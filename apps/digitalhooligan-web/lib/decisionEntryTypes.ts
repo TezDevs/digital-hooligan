@@ -1,16 +1,10 @@
-export interface EvidenceItem {
-  id: string;
-  label: string;
-  source: string;
-  reliability: number; // 0–100
-}
-
 export interface DecisionEntry {
   id: string;
   title: string;
   createdAt: string;
-  state: string;
+  updatedAt: string;
+  state: "draft" | "final";
   confidence: number;
   confidenceBaseline: number;
-  evidence: EvidenceItem[];
+  evidence: unknown[]; // intentionally loose for now
 }
