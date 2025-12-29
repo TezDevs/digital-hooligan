@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getServerBaseUrl } from "@/lib/serverApi";
+import DecisionReviewSummaryHeader from "@/components/decision-review/DecisionReviewSummaryHeader";
 
 function StateBadge({ state }: { state: string }) {
   const normalized = state.toLowerCase();
@@ -116,7 +117,13 @@ export default async function DecisionReviewDetailPage({
         <h2 className="text-sm font-semibold text-neutral-300 mb-2">
           Audit Timeline
         </h2>
-
+        <DecisionReviewSummaryHeader
+          reviewId={entry.id}
+          status={entry.status}
+          confidence={entry.status === "final" ? 100 : 50}
+          lastUpdatedAt={entry.createdAt}
+          isStale={false}
+        />
         {auditEvents.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No audit events recorded.
