@@ -1,6 +1,27 @@
 import Link from "next/link";
 import { getServerBaseUrl } from "@/lib/serverApi";
 
+function StateBadge({ state }: { state: string }) {
+  const normalized = state.toLowerCase();
+
+  const styles: Record<string, string> = {
+    draft: "bg-gray-200 text-gray-800",
+    review: "bg-amber-200 text-amber-900",
+    approved: "bg-green-200 text-green-900",
+    rejected: "bg-red-200 text-red-900",
+    final: "bg-green-200 text-green-900",
+  };
+
+  const className = styles[normalized] ?? "bg-slate-200 text-slate-900";
+
+  return (
+    <span
+      className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${className}`}
+    >
+      {state.toUpperCase()}
+    </span>
+  );
+}
 type DecisionEntry = {
   id: string;
   title: string;
@@ -67,8 +88,22 @@ export default async function DecisionReviewDetailPage({
           ← Back to Review Queue
         </Link>
 
-        <h1 className="text-2xl font-semibold">{entry.title}</h1>
-        <p className="text-sm text-muted-foreground">{entry.summary}</p>
+        <div className="space-y-2">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-semibold">{entry.title}</h1>
+              <StateBadge state={entry.status} />
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Created {new Date(entry.createdAt).toLocaleString()}
+            </p>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Created {new Date(entry.createdAt).toLocaleString()}
+          </p>
+        </div>
 
         <div className="text-xs text-muted-foreground">
           Status: {entry.status.toUpperCase()} · Created{" "}
