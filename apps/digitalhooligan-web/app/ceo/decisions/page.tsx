@@ -54,7 +54,20 @@ export default async function DecisionsPage() {
                   colSpan={3}
                   className="px-4 py-6 text-center text-muted-foreground"
                 >
-                  No decisions found.
+                  <div className="mx-auto max-w-xl space-y-1">
+                    <div className="font-medium text-foreground">
+                      No decisions recorded
+                    </div>
+                    <div className="text-sm">
+                      This table lists tracked decisions and their current
+                      review state. Entries appear here once a decision has been
+                      logged.
+                    </div>
+                    <div className="text-xs">
+                      This surface is read-only and reflects recorded state
+                      only.
+                    </div>
+                  </div>
                 </td>
               </tr>
             )}
