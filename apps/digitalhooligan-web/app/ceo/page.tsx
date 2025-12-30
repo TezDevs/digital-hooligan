@@ -1,5 +1,4 @@
 import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
-import DecisionReviewSnapshotPanel from "@/components/ceo/DecisionReviewSnapshotPanel";
 import Link from "next/link";
 import { getServerBaseUrl } from "@/lib/serverApi";
 
@@ -12,15 +11,25 @@ type DecisionEntry = {
 };
 
 async function fetchDecisionEntries(): Promise<DecisionEntry[]> {
-  const res = await fetch(`${getServerBaseUrl()}/api/decision-entries`, {
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`${getServerBaseUrl()}/api/decision-entries`, {
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
+    if (!res.ok) {
+      return [];
+    }
+
+    const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
+    return data as DecisionEntry[];
+  } catch {
     return [];
   }
-
-  return res.json();
 }
 
 export default async function CEOPage() {
@@ -46,11 +55,11 @@ export default async function CEOPage() {
         </div>
 
         {decisionEntries.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">
+          <div className="mt-4 text-sm text-muted-foreground">
             No persisted decision entries found.
-          </p>
+          </div>
         ) : (
-          <ul className="mt-2 space-y-2 text-sm">
+          <ul className="mt-4 space-y-2 text-sm">
             {decisionEntries.map((entry) => (
               <li key={entry.id}>
                 <Link
@@ -58,13 +67,15 @@ export default async function CEOPage() {
                   className="block rounded-lg border border-neutral-800 p-3 hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="font-medium">{entry.title}</div>
-                    <span className="text-xs text-muted-foreground">
-                      {(entry.status ?? "UNKNOWN").toUpperCase()}
+                    <div className="font-medium text-neutral-200">
+                      {entry.title || "Untitled Decision"}
+                    </div>
+                    <span className="text-xs uppercase text-muted-foreground">
+                      {(entry.status || "UNKNOWN").toUpperCase()}
                     </span>
                   </div>
 
-                  <div className="text-xs text-muted-foreground">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     Decision ID: {entry.id}
                   </div>
                 </Link>
@@ -74,8 +85,8 @@ export default async function CEOPage() {
         )}
       </section>
 
-      {/* Snapshot Panel */}
-      <DecisionReviewSnapshotPanel />
+      {/* Snapshot Panel (intentionally disabled for now) */}
+      {/* <DecisionReviewSnapshotPanel /> */}
     </main>
   );
 }
