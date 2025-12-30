@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import Link from "next/link";
 import { DecisionReviewSnapshot } from "@/lib/decisionReviewSnapshot";
 
 async function getSnapshot(): Promise<DecisionReviewSnapshot | null> {
@@ -7,9 +8,7 @@ async function getSnapshot(): Promise<DecisionReviewSnapshot | null> {
   const protocol = h.get("x-forwarded-proto") ?? "http";
   const host = h.get("x-forwarded-host") ?? h.get("host");
 
-  if (!host) {
-    return null;
-  }
+  if (!host) return null;
 
   const url = `${protocol}://${host}/api/decision-reviews/snapshot`;
 
@@ -20,9 +19,7 @@ async function getSnapshot(): Promise<DecisionReviewSnapshot | null> {
     cache: "no-store",
   });
 
-  if (!res.ok) {
-    return null;
-  }
+  if (!res.ok) return null;
 
   try {
     return (await res.json()) as DecisionReviewSnapshot;
@@ -68,13 +65,16 @@ export default async function DecisionReviewSnapshotPanel() {
         )}
 
         {recent.map((item) => (
-          <div
+          <Link
             key={item.id}
-            className="flex justify-between text-xs text-neutral-400"
+            href={`/ceo/dossier/${item.id}`}
+            className="block text-xs text-neutral-400 hover:underline"
           >
-            <span>{item.title ?? "Untitled"}</span>
-            <span className="uppercase">{item.status ?? "—"}</span>
-          </div>
+            <div className="flex justify-between">
+              <span>{item.title ?? "Untitled"}</span>
+              <span className="uppercase">{item.status ?? "—"}</span>
+            </div>
+          </Link>
         ))}
       </div>
 
