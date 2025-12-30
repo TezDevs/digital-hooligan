@@ -42,13 +42,19 @@ export default async function DecisionDetailPage({ params }: Props) {
         </p>
 
         {/* Snapshot Metadata - Read-Only */}
-        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
-          <div>
-            <span className="font-medium text-foreground">Decision:</span>{" "}
-            {decisionId}
+        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+          <div className="text-muted-foreground">
+            <span className="uppercase tracking-wide text-xs">Decision</span>
+            <div className="font-medium text-foreground leading-tight">
+              {decisionId}
+            </div>
           </div>
-          <div>
-            <span className="font-medium text-foreground">Snapshot:</span> {id}
+
+          <div className="text-muted-foreground">
+            <span className="uppercase tracking-wide text-xs">Snapshot</span>
+            <div className="font-medium text-foreground leading-tight">
+              {id}
+            </div>
           </div>
         </div>
 
