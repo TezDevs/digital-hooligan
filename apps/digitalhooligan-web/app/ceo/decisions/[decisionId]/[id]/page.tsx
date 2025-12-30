@@ -26,7 +26,7 @@ export default async function DecisionDetailPage({ params }: Props) {
           ← Back to Decisions
         </Link>
       </div>
-      <header className="space-y-3">
+      <header className="space-y-3 pb-4 border-b">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold">Decision Review</h1>
           <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
@@ -71,7 +71,7 @@ export default async function DecisionDetailPage({ params }: Props) {
         </div>
       </header>
 
-      <section className="space-y-2">
+      <section className="space-y-2 pt-6">
         <h2 className="text-lg font-medium">Review Activity (Snapshot)</h2>
 
         <div className="text-sm text-muted-foreground max-w-3xl">
@@ -91,7 +91,7 @@ export default async function DecisionDetailPage({ params }: Props) {
         )}
       </section>
 
-      <section className="text-sm text-muted-foreground">
+      <section className="mt-8 pt-4 border-t text-sm text-muted-foreground">
         This page is read-only. Editing and exports are intentionally disabled.
       </section>
     </div>
