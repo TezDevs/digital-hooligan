@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { buildDecisionReviewSnapshot } from "@/lib/decisionReviewSnapshot";
 import { buildDecisionReviewTimeline } from "@/lib/decisionReviewTimeline";
 import { DecisionReviewTimeline } from "@/components/ceo/DecisionReviewTimeline";
@@ -17,6 +18,14 @@ export default async function DecisionDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-8">
+      <div className="mb-4">
+        <Link
+          href="/ceo/decisions"
+          className="text-sm text-muted-foreground hover:underline"
+        >
+          ← Back to Decisions
+        </Link>
+      </div>
       <header className="space-y-3">
         <h1 className="text-xl font-semibold">Decision Review</h1>
 
