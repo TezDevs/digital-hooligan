@@ -47,11 +47,12 @@ export default async function DecisionDossierPage({
 
   if (!entry) {
     return (
-      <main className="p-6 space-y-4">
-        <p className="text-sm text-muted-foreground">
-          Decision dossier not found.
-        </p>
-        <Link href="/ceo" className="text-sm underline text-muted-foreground">
+      <main className="p-6">
+        <p className="text-sm text-muted-foreground">Decision not found.</p>
+        <Link
+          href="/ceo"
+          className="mt-2 inline-block text-sm underline text-muted-foreground"
+        >
           ← Back to CEO Dashboard
         </Link>
       </main>
@@ -61,51 +62,58 @@ export default async function DecisionDossierPage({
   const auditEvents = await fetchAuditEvents(entry.id);
 
   return (
-    <main className="p-6 space-y-8">
-      <header className="space-y-1">
-        <Link
-          href="/ceo"
-          className="text-sm text-muted-foreground hover:underline"
-        >
-          ← Back to CEO Dashboard
-        </Link>
+    <main className="space-y-8 p-6">
+      {/* Navigation */}
+      <Link
+        href="/ceo"
+        className="text-sm text-muted-foreground hover:underline"
+      >
+        ← Back to CEO Dashboard
+      </Link>
 
-        <h1 className="text-2xl font-semibold">{entry.title}</h1>
-        <p className="text-sm text-muted-foreground">{entry.summary}</p>
+      {/* Header */}
+      <header>
+        <h1 className="text-xl font-semibold text-neutral-100">
+          {entry.title}
+        </h1>
 
-        <div className="text-xs text-muted-foreground">
-          Status: {entry.status.toUpperCase()} · Created{" "}
+        <p className="mt-1 text-sm text-muted-foreground">{entry.summary}</p>
+
+        <div className="mt-2 text-xs text-muted-foreground">
+          Status: <span className="uppercase">{entry.status}</span> · Created{" "}
           {new Date(entry.createdAt).toLocaleString()}
         </div>
       </header>
 
-      {/* Snapshot */}
+      {/* Review Snapshot */}
       <section className="rounded-lg border border-neutral-800 p-4">
-        <h2 className="text-sm font-semibold text-neutral-300 mb-2">
-          Decision Snapshot
+        <h2 className="mb-2 text-sm font-semibold text-neutral-300">
+          Review Status Overview
         </h2>
         <DecisionReviewSnapshotPanel />
       </section>
 
       {/* Audit Timeline */}
       <section className="rounded-lg border border-neutral-800 p-4">
-        <h2 className="text-sm font-semibold text-neutral-300 mb-2">
-          Audit Timeline
+        <h2 className="mb-2 text-sm font-semibold text-neutral-300">
+          Decision Activity Timeline
         </h2>
 
         {auditEvents.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No audit events recorded.
+            No recorded activity for this decision yet.
           </p>
         ) : (
           <ul className="space-y-2 text-sm">
             {auditEvents.map((event) => (
               <li
                 key={event.id}
-                className="rounded-lg border border-neutral-800 p-3"
+                className="rounded border border-neutral-800 p-3"
               >
                 <div className="font-medium">
-                  {event.action === "created" ? "Created" : "Status Updated"}
+                  {event.action === "created"
+                    ? "Decision Created"
+                    : "Decision Updated"}
                 </div>
 
                 <div className="text-xs text-muted-foreground">
@@ -113,7 +121,7 @@ export default async function DecisionDossierPage({
                 </div>
 
                 {event.meta && (
-                  <pre className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                  <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground">
                     {JSON.stringify(event.meta, null, 2)}
                   </pre>
                 )}
@@ -123,7 +131,7 @@ export default async function DecisionDossierPage({
         )}
       </section>
 
-      {/* Navigation */}
+      {/* Review Navigation */}
       <section>
         <Link
           href={`/ceo/reviews/${entry.id}`}
