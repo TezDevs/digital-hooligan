@@ -62,21 +62,36 @@ export default async function DecisionsPage() {
             {decisions.map((decision) => (
               <tr
                 key={decision.id}
-                className="border-t hover:bg-muted/40 transition"
+                className="border-b last:border-0 hover:bg-muted/30"
               >
-                <td className="px-4 py-2 font-mono">
+                {/* ID (still clickable if already wrapped elsewhere) */}
+                <td className="px-3 py-2 font-mono text-sm">
                   <Link
                     href={`/ceo/decisions/review/${decision.id}`}
-                    className="underline underline-offset-2"
+                    className="underline-offset-4 hover:underline"
                   >
                     {decision.id}
                   </Link>
                 </td>
-                <td className="px-4 py-2">
+
+                {/* State */}
+                <td className="px-3 py-2">
                   <StateBadge state={decision.state} />
                 </td>
-                <td className="px-4 py-2">
+
+                {/* Updated */}
+                <td className="px-3 py-2 text-sm text-muted-foreground">
                   {new Date(decision.updatedAt).toLocaleString()}
+                </td>
+
+                {/* Explicit action */}
+                <td className="px-3 py-2 text-right">
+                  <Link
+                    href={`/ceo/decisions/review/${decision.id}`}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Open review →
+                  </Link>
                 </td>
               </tr>
             ))}

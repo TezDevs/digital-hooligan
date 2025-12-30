@@ -1,26 +1,25 @@
 import { notFound } from "next/navigation";
-import { Decision } from "@/lib/decisionTypes";
 import { headers } from "next/headers";
+import type { Decision } from "@/lib/decisionTypes";
 import { buildDecisionReviewSnapshot } from "@/lib/decisionReviewSnapshot";
 import { buildDecisionReviewTimeline } from "@/lib/decisionReviewTimeline";
 import { DecisionReviewTimeline } from "@/components/ceo/DecisionReviewTimeline";
 
 interface PageProps {
-  params: Promise<{
+  params: {
     decisionId: string;
-  }>;
+    id: string; // reviewId
+  };
 }
 
-async function getDecision(decisionId: string): Promise<Decision | null> {
+async function getDecisionReview(reviewId: string): Promise<Decision | null> {
   const headersList = await headers();
-
   const host = headersList.get("host");
   const proto = headersList.get("x-forwarded-proto") ?? "http";
 
   if (!host) return null;
 
-  const url = `${proto}://${host}/api/decisions/review/${decisionId}`;
-
+  const url = `${proto}://${host}/api/decisions/reviews/${reviewId}`;
   const res = await fetch(url, { cache: "no-store" });
 
   if (!res.ok) return null;
@@ -28,32 +27,37 @@ async function getDecision(decisionId: string): Promise<Decision | null> {
 }
 
 export default async function DecisionReviewDetailPage({ params }: PageProps) {
-  const { decisionId } = await params;
-  const decision = await getDecision(decisionId);
-  const reviewSnapshot = await buildDecisionReviewSnapshot(decisionId);
-  const reviewTimeline = buildDecisionReviewTimeline(reviewSnapshot);
+  const reviewId = params.id;
 
+  const decision = await getDecisionReview(reviewId);
   if (!decision) {
     notFound();
   }
 
+  const reviewSnapshot = await buildDecisionReviewSnapshot(reviewId);
+  const reviewTimeline = buildDecisionReviewTimeline(reviewSnapshot);
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       <header className="space-y-1">
         <h1 className="text-xl font-semibold">{decision.title}</h1>
-        <p className="text-sm text-muted-foreground">ID: {decision.id}</p>
         <p className="text-sm text-muted-foreground">
+          Review ID: {decision.id}
+        </p>
+        <p className="text-xs text-muted-foreground">
           Created: {new Date(decision.createdAt).toLocaleString()}
         </p>
       </header>
+
       <a
-        href={`/api/decisions/review/${decision.id}/export`}
-        className="text-sm text-primary hover:underline"
+        href={`/api/decisions/reviews/${decision.id}/export`}
         target="_blank"
         rel="noreferrer"
+        className="text-sm text-primary hover:underline"
       >
         Export JSON
       </a>
+
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-lg border p-4">
           <h2 className="font-medium mb-2">Current State</h2>
@@ -81,33 +85,35 @@ export default async function DecisionReviewDetailPage({ params }: PageProps) {
 
       <section className="rounded-lg border p-4 space-y-3">
         <h2 className="font-medium">Evidence</h2>
-
-        {decision.evidence.length === 0 && (
+        {decision.evidence.length === 0 ? (
           <p className="text-sm text-muted-foreground">No evidence recorded.</p>
-        )}
-
-        {decision.evidence.map((item) => (
-          <div key={item.id} className="rounded border p-3 text-sm space-y-1">
-            <div className="font-medium">{item.signal}</div>
-            <div className="text-muted-foreground">Source: {item.source}</div>
-            <div className="text-xs text-muted-foreground">
-              Status: {item.status} ·{" "}
-              {new Date(item.timestamp).toLocaleString()}
+        ) : (
+          decision.evidence.map((item) => (
+            <div key={item.id} className="border-b pb-2 space-y-1">
+              <div className="font-medium">{item.signal}</div>
+              <div className="text-xs text-muted-foreground">
+                Source: {item.source}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Status: {item.status} ·{" "}
+                {new Date(item.timestamp).toLocaleString()}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </section>
+
       <section className="rounded-lg border p-4 space-y-3">
         <h2 className="font-medium">Review Activity</h2>
         <DecisionReviewTimeline items={reviewTimeline} />
       </section>
-      {decision.confidenceSnapshots && (
+
+      {decision.confidenceSnapshots.length > 0 && (
         <section className="rounded-lg border p-4 space-y-2">
           <h2 className="font-medium">Confidence History</h2>
           {decision.confidenceSnapshots.map((snap) => (
             <div key={snap.id} className="text-sm text-muted-foreground">
-              {snap.inputId}: {snap.value} @{" "}
-              {new Date(snap.observedAt).toLocaleString()}
+              {snap.value} · {new Date(snap.observedAt).toLocaleString()}
             </div>
           ))}
         </section>
