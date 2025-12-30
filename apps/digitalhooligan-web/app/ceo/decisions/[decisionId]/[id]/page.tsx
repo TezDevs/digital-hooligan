@@ -17,8 +17,15 @@ export default async function DecisionDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-xl font-semibold">Decision Detail</h1>
+      <header className="space-y-3">
+        <h1 className="text-xl font-semibold">Decision Review</h1>
+
+        {/* Copy Framing — Read-Only */}
+        <div className="text-sm text-muted-foreground max-w-3xl">
+          A decision review represents collected inputs and context for a single
+          snapshot in time. Reviews capture information and reasoning, but do
+          not imply approval, rejection, or final outcome.
+        </div>
 
         {/* Snapshot Metadata — Read-Only */}
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -46,8 +53,13 @@ export default async function DecisionDetailPage({ params }: Props) {
         </div>
       </header>
 
-      <section>
-        <h2 className="text-lg font-medium mb-2">Review Activity</h2>
+      <section className="space-y-2">
+        <h2 className="text-lg font-medium">Review Activity (Snapshot)</h2>
+
+        <div className="text-sm text-muted-foreground max-w-3xl">
+          Timeline entries reflect recorded review inputs for this snapshot
+          only. They are informational and do not represent a decision outcome.
+        </div>
 
         {timeline.length === 0 ? (
           <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
