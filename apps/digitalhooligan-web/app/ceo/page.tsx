@@ -1,4 +1,5 @@
 import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
+import DecisionReviewSnapshotPanel from "@/components/ceo/DecisionReviewSnapshotPanel";
 import Link from "next/link";
 import { getServerBaseUrl } from "@/lib/serverApi";
 
@@ -16,15 +17,10 @@ async function fetchDecisionEntries(): Promise<DecisionEntry[]> {
       cache: "no-store",
     });
 
-    if (!res.ok) {
-      return [];
-    }
+    if (!res.ok) return [];
 
     const data = await res.json();
-
-    if (!Array.isArray(data)) {
-      return [];
-    }
+    if (!Array.isArray(data)) return [];
 
     return data as DecisionEntry[];
   } catch {
@@ -38,6 +34,9 @@ export default async function CEOPage() {
   return (
     <main className="space-y-6 p-6">
       <DecisionInputsInspector />
+
+      {/* Snapshot Panel — Read-Only Status Surface */}
+      <DecisionReviewSnapshotPanel />
 
       {/* Decision States */}
       <section className="rounded-lg border border-neutral-800 p-4">
@@ -84,9 +83,6 @@ export default async function CEOPage() {
           </ul>
         )}
       </section>
-
-      {/* Snapshot Panel (intentionally disabled for now) */}
-      {/* <DecisionReviewSnapshotPanel /> */}
     </main>
   );
 }
