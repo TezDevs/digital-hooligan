@@ -78,7 +78,7 @@ export default async function DecisionsPage() {
                 className="border-b last:border-0 hover:bg-muted/30"
               >
                 {/* ID (still clickable if already wrapped elsewhere) */}
-                <td className="px-3 py-2 font-mono text-sm">
+                <td className="px-3 py-2 font-mono text-sm font-medium text-foreground">
                   <Link
                     href={`/ceo/decisions/review/${decision.id}`}
                     className="underline-offset-4 hover:underline"
@@ -88,7 +88,7 @@ export default async function DecisionsPage() {
                 </td>
 
                 {/* State */}
-                <td className="px-3 py-2">
+                <td className="px-3 py-2 text-sm text-muted-foreground">
                   <StateBadge state={decision.state} />
                 </td>
 
