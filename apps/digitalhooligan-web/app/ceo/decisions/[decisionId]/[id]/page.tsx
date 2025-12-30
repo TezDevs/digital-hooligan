@@ -27,29 +27,32 @@ export default async function DecisionDetailPage({ params }: Props) {
         </Link>
       </div>
       <header className="space-y-3">
-        <h1 className="text-xl font-semibold">Decision Review</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-xl font-semibold">Decision Review</h1>
+          <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+            Read-only snapshot
+          </span>
+        </div>
 
-        {/* Copy Framing — Read-Only */}
-        <div className="text-sm text-muted-foreground max-w-3xl">
+        {/* Copy Framing - Read-Only */}
+        <p className="text-sm text-muted-foreground max-w-3xl">
           A decision review represents collected inputs and context for a single
           snapshot in time. Reviews capture information and reasoning, but do
           not imply approval, rejection, or final outcome.
-        </div>
+        </p>
 
-        {/* Snapshot Metadata — Read-Only */}
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          <span>
+        {/* Snapshot Metadata - Read-Only */}
+        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
+          <div>
             <span className="font-medium text-foreground">Decision:</span>{" "}
             {decisionId}
-          </span>
-          <span>
+          </div>
+          <div>
             <span className="font-medium text-foreground">Snapshot:</span> {id}
-          </span>
-          <span className="rounded-full border px-2 py-0.5 text-xs">
-            Read-Only
-          </span>
+          </div>
         </div>
 
+        {/* Export (UNCHANGED) */}
         <div className="text-sm text-muted-foreground">
           <a
             href={`/api/decisions/${id}/export/pdf`}
