@@ -1,14 +1,14 @@
 import { headers } from "next/headers";
 import { DecisionReviewSnapshot } from "@/lib/decisionReviewSnapshot";
 
-async function getSnapshot(): Promise<DecisionReviewSnapshot> {
+async function getSnapshot(): Promise<DecisionReviewSnapshot | null> {
   const h = await headers();
 
   const protocol = h.get("x-forwarded-proto") ?? "http";
   const host = h.get("x-forwarded-host") ?? h.get("host");
 
   if (!host) {
-    throw new Error("Unable to determine request host");
+    return null;
   }
 
   const url = `${protocol}://${host}/api/decision-reviews/snapshot`;
@@ -21,35 +21,59 @@ async function getSnapshot(): Promise<DecisionReviewSnapshot> {
   });
 
   if (!res.ok) {
-    throw new Error("Failed to load decision review snapshot");
+    return null;
   }
 
-  return res.json();
+  try {
+    return (await res.json()) as DecisionReviewSnapshot;
+  } catch {
+    return null;
+  }
 }
 
 export default async function DecisionReviewSnapshotPanel() {
   const snapshot = await getSnapshot();
 
+  if (!snapshot) {
+    return (
+      <section className="rounded-lg border border-neutral-800 bg-neutral-950 p-4">
+        <h2 className="text-sm font-semibold text-neutral-300">
+          Decision Reviews
+        </h2>
+        <p className="mt-2 text-sm text-neutral-500">
+          No review data available.
+        </p>
+      </section>
+    );
+  }
+
+  const counts = snapshot.counts ?? { open: 0, review: 0, closed: 0 };
+  const recent = Array.isArray(snapshot.recent) ? snapshot.recent : [];
+
   return (
-    <section className="rounded-lg border border-neutral-800 p-4">
-      <h2 className="mb-3 text-sm font-semibold text-neutral-300">
+    <section className="rounded-lg border border-neutral-800 bg-neutral-950 p-4">
+      <h2 className="mb-2 text-sm font-semibold text-neutral-300">
         Decision Reviews
       </h2>
 
       <div className="mb-4 flex gap-4 text-sm">
-        <div>Open: {snapshot.counts.open}</div>
-        <div>Review: {snapshot.counts.review}</div>
-        <div>Closed: {snapshot.counts.closed}</div>
+        <div>Open: {counts.open}</div>
+        <div>Review: {counts.review}</div>
+        <div>Closed: {counts.closed}</div>
       </div>
 
       <div className="space-y-2">
-        {snapshot.recent.map((item) => (
+        {recent.length === 0 && (
+          <div className="text-xs text-neutral-500">No recent decisions.</div>
+        )}
+
+        {recent.map((item) => (
           <div
             key={item.id}
             className="flex justify-between text-xs text-neutral-400"
           >
-            <span>{item.title}</span>
-            <span className="uppercase">{item.status}</span>
+            <span>{item.title ?? "Untitled"}</span>
+            <span className="uppercase">{item.status ?? "—"}</span>
           </div>
         ))}
       </div>
