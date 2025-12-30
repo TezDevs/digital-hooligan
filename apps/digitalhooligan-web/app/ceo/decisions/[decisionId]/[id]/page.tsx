@@ -12,8 +12,6 @@ interface Props {
 export default async function DecisionDetailPage({ params }: Props) {
   const { decisionId, id } = await params;
 
-  console.log("Decision params:", { decisionId, id });
-
   const snapshot = await buildDecisionReviewSnapshot(id);
   const timeline = buildDecisionReviewTimeline(snapshot);
 
@@ -50,7 +48,17 @@ export default async function DecisionDetailPage({ params }: Props) {
 
       <section>
         <h2 className="text-lg font-medium mb-2">Review Activity</h2>
-        <DecisionReviewTimeline items={timeline} />
+
+        {timeline.length === 0 ? (
+          <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+            No review activity recorded for this snapshot.
+            <div className="mt-1 text-xs">
+              This does not imply approval or rejection.
+            </div>
+          </div>
+        ) : (
+          <DecisionReviewTimeline items={timeline} />
+        )}
       </section>
 
       <section className="text-sm text-muted-foreground">
