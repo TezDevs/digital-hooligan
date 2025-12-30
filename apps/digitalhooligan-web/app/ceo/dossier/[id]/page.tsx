@@ -76,9 +76,7 @@ export default async function DecisionDossierPage({
         <h1 className="text-xl font-semibold text-neutral-100">
           {entry.title}
         </h1>
-
         <p className="mt-1 text-sm text-muted-foreground">{entry.summary}</p>
-
         <div className="mt-2 text-xs text-muted-foreground">
           Status: <span className="uppercase">{entry.status}</span> · Created{" "}
           {new Date(entry.createdAt).toLocaleString()}
@@ -93,10 +91,10 @@ export default async function DecisionDossierPage({
         <DecisionReviewSnapshotPanel />
       </section>
 
-      {/* Audit Timeline */}
+      {/* Decision Timeline */}
       <section className="rounded-lg border border-neutral-800 p-4">
-        <h2 className="mb-2 text-sm font-semibold text-neutral-300">
-          Decision Activity Timeline
+        <h2 className="mb-4 text-sm font-semibold text-neutral-300">
+          Decision Timeline
         </h2>
 
         {auditEvents.length === 0 ? (
@@ -104,18 +102,15 @@ export default async function DecisionDossierPage({
             No recorded activity for this decision yet.
           </p>
         ) : (
-          <ul className="space-y-2 text-sm">
+          <ol className="relative border-l border-neutral-800 space-y-6 ml-3">
             {auditEvents.map((event) => (
-              <li
-                key={event.id}
-                className="rounded border border-neutral-800 p-3"
-              >
-                <div className="font-medium">
+              <li key={event.id} className="ml-4">
+                <div className="absolute -left-1.5 h-3 w-3 rounded-full bg-neutral-500" />
+                <div className="text-sm font-medium text-neutral-200">
                   {event.action === "created"
                     ? "Decision Created"
                     : "Decision Updated"}
                 </div>
-
                 <div className="text-xs text-muted-foreground">
                   {new Date(event.timestamp).toLocaleString()}
                 </div>
@@ -127,7 +122,7 @@ export default async function DecisionDossierPage({
                 )}
               </li>
             ))}
-          </ul>
+          </ol>
         )}
       </section>
 
