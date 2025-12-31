@@ -32,35 +32,55 @@ export default async function DecisionsPage() {
   return (
     <div className="p-6 space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold">Decisions</h1>
+        <h1 className="text-xl font-semibold">Decisions</h1>
         <p className="text-sm text-muted-foreground">
           Read-only decision index. Status badges reflect current state.
         </p>
       </header>
+
+      {/* ✅ Bucket 1 helper copy (explanatory only) */}
+      <div className="text-xs text-muted-foreground max-w-3xl">
+        <strong>Status definitions:</strong> Draft (created, not yet
+        snapshotted), Recorded (stored without snapshots), Snapshotted (one or
+        more snapshots exist), Locked (latest snapshot locked), Archived
+        (decision archived).
+      </div>
 
       <div className="border rounded-md overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
               <th className="px-4 py-2 text-left font-medium">ID</th>
-              <th className="px-4 py-2 text-left font-medium">State</th>
+
+              {/* ✅ Header helper line added safely */}
+              <th className="px-4 py-2 text-left font-medium">
+                <div className="flex flex-col">
+                  <span>Status</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    Draft · Recorded · Snapshotted · Locked · Archived
+                  </span>
+                </div>
+              </th>
+
               <th className="px-4 py-2 text-left font-medium">Last Updated</th>
+              <th className="px-4 py-2 text-left font-medium"></th>
             </tr>
           </thead>
+
           <tbody>
             {decisions.length === 0 && (
               <tr>
                 <td
-                  colSpan={3}
+                  colSpan={4}
                   className="px-4 py-6 text-center text-muted-foreground"
                 >
-                  <div className="mx-auto max-w-xl space-y-1">
+                  <div className="space-y-2">
                     <div className="font-medium text-foreground">
                       No decisions recorded
                     </div>
-                    <div className="text-sm">
+                    <div className="text-xs">
                       This table lists tracked decisions and their current
-                      review state. Entries appear here once a decision has been
+                      review state. Entries appear once a decision has been
                       logged.
                     </div>
                     <div className="text-xs">
@@ -75,10 +95,10 @@ export default async function DecisionsPage() {
             {decisions.map((decision) => (
               <tr
                 key={decision.id}
-                className="border-b last:border-0 hover:bg-muted/30"
+                className="border-t last:border-b hover:bg-muted/30"
               >
-                {/* ID (still clickable if already wrapped elsewhere) */}
-                <td className="px-3 py-2 font-mono text-sm font-medium text-foreground">
+                {/* ID */}
+                <td className="px-4 py-2 font-mono text-sm">
                   <Link
                     href={`/ceo/decisions/review/${decision.id}`}
                     className="underline-offset-4 hover:underline"
@@ -87,23 +107,23 @@ export default async function DecisionsPage() {
                   </Link>
                 </td>
 
-                {/* State */}
-                <td className="px-3 py-2 text-sm text-muted-foreground">
+                {/* Status (existing behavior preserved) */}
+                <td className="px-4 py-2">
                   <StateBadge state={decision.state} />
                 </td>
 
-                {/* Updated */}
-                <td className="px-3 py-2 text-sm text-muted-foreground">
+                {/* Last Updated */}
+                <td className="px-4 py-2 text-muted-foreground">
                   {new Date(decision.updatedAt).toLocaleString()}
                 </td>
 
-                {/* Explicit action */}
-                <td className="px-3 py-2 text-right">
+                {/* Explicit Action */}
+                <td className="px-4 py-2 text-right">
                   <Link
                     href={`/ceo/decisions/review/${decision.id}`}
                     className="text-sm text-primary hover:underline"
                   >
-                    Open review →
+                    Open review
                   </Link>
                 </td>
               </tr>
