@@ -20,7 +20,7 @@ function StateBadge({ state }: { state: DecisionState }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${className}`}
+      className={`inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium ${className}`}
     >
       {state.toUpperCase()}
     </span>
@@ -31,7 +31,7 @@ export default async function DecisionsPage() {
   const decisions = await loadDecisionEntrySummaries();
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-5">
       <header>
         <h1 className="text-xl font-semibold">Decisions</h1>
         <p className="text-sm text-muted-foreground">
@@ -43,10 +43,10 @@ export default async function DecisionsPage() {
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="px-4 py-2 text-left font-medium">ID</th>
-              <th className="px-4 py-2 text-left font-medium">Status</th>
-              <th className="px-4 py-2 text-left font-medium">Last Updated</th>
-              <th className="px-4 py-2 text-right font-medium">Action</th>
+              <th className="px-3 py-2 text-left font-medium">ID</th>
+              <th className="px-3 py-2 text-left font-medium">Status</th>
+              <th className="px-3 py-2 text-left font-medium">Updated</th>
+              <th className="px-3 py-2 text-right font-medium">Action</th>
             </tr>
           </thead>
 
@@ -55,7 +55,7 @@ export default async function DecisionsPage() {
               <tr>
                 <td
                   colSpan={4}
-                  className="px-4 py-10 text-center text-muted-foreground"
+                  className="px-3 py-10 text-center text-muted-foreground"
                 >
                   <div className="space-y-2">
                     <div className="font-medium">No decisions recorded</div>
@@ -76,7 +76,7 @@ export default async function DecisionsPage() {
                 key={decision.id}
                 className="border-t last:border-b hover:bg-muted/30"
               >
-                <td className="px-4 py-2 font-mono text-xs">
+                <td className="px-3 py-2 font-mono text-xs">
                   <Link
                     href={`/ceo/decisions/review/${decision.id}`}
                     className="underline-offset-4 hover:underline"
@@ -85,20 +85,20 @@ export default async function DecisionsPage() {
                   </Link>
                 </td>
 
-                <td className="px-4 py-2">
+                <td className="px-3 py-2">
                   <StateBadge state={decision.state} />
                 </td>
 
-                <td className="px-4 py-2 text-muted-foreground">
+                <td className="px-3 py-2 text-xs text-muted-foreground">
                   {new Date(decision.updatedAt).toLocaleString()}
                 </td>
 
-                <td className="px-4 py-2 text-right">
+                <td className="px-3 py-2 text-right text-xs">
                   <Link
                     href={`/ceo/decisions/review/${decision.id}`}
                     className="text-primary hover:underline"
                   >
-                    Open review
+                    Open
                   </Link>
                 </td>
               </tr>
