@@ -14,13 +14,16 @@ export function DecisionReviewTimeline({ items }: Props) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {items.map((item) => (
-        <div key={item.id} className="flex items-start gap-3 border-l pl-3">
-          <div className="text-xs text-muted-foreground w-32 shrink-0">
+        <div key={item.id} className="flex gap-4 border-l pl-4 py-1">
+          {/* Timestamp */}
+          <div className="w-36 shrink-0 text-xs text-muted-foreground leading-tight">
             {new Date(item.timestamp).toLocaleString()}
           </div>
-          <div className="text-sm">{item.summary}</div>
+
+          {/* Summary */}
+          <div className="text-sm leading-relaxed">{item.summary}</div>
         </div>
       ))}
     </div>
