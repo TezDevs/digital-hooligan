@@ -30,7 +30,6 @@ export default async function DecisionDetailPage({ params }: Props) {
 
       {/* Snapshot Header */}
       <header className="space-y-4 pb-4 border-b">
-        {/* Title + Orientation */}
         <div className="space-y-1">
           <h1 className="text-xl font-semibold">Decision Review</h1>
           <p className="text-sm text-muted-foreground">
@@ -51,7 +50,7 @@ export default async function DecisionDetailPage({ params }: Props) {
           <div className="font-mono text-foreground">{id}</div>
         </div>
 
-        {/* Export (Unchanged) */}
+        {/* Export */}
         <div className="text-sm pt-1">
           <a
             href={`/api/decisions/${id}/export/pdf`}
@@ -86,10 +85,11 @@ export default async function DecisionDetailPage({ params }: Props) {
         )}
       </section>
 
-      {/* Footer Notice */}
-      <section className="pt-4 border-t text-sm text-muted-foreground">
-        This page is read-only. Editing and exports are intentionally disabled.
-      </section>
+      {/* Footer Boundary */}
+      <footer className="pt-6 border-t text-xs text-muted-foreground">
+        This page presents a historical record of a decision snapshot. Content
+        is intentionally non-interactive.
+      </footer>
     </div>
   );
 }
