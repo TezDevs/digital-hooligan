@@ -90,7 +90,14 @@ export default async function DecisionsPage() {
                 </td>
 
                 <td className="px-3 py-2 text-xs text-muted-foreground">
-                  {new Date(decision.updatedAt).toLocaleString()}
+                  <div className="leading-tight">
+                    <div className="text-[11px] uppercase tracking-wide">
+                      Updated
+                    </div>
+                    <div className="font-mono">
+                      {new Date(decision.updatedAt).toLocaleString()}
+                    </div>
+                  </div>
                 </td>
 
                 <td className="px-3 py-2 text-right text-xs">
