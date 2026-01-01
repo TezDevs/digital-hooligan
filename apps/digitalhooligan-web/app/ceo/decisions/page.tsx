@@ -100,12 +100,12 @@ export default async function DecisionsPage() {
                   </div>
                 </td>
 
-                <td className="px-3 py-2 text-right text-xs">
+                <td className="px-3 py-2 text-right">
                   <Link
                     href={`/ceo/decisions/review/${decision.id}`}
-                    className="text-primary hover:underline"
+                    className="inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium text-primary hover:bg-muted"
                   >
-                    Open
+                    Open →
                   </Link>
                 </td>
               </tr>
