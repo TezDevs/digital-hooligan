@@ -1,27 +1,46 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 
-import { loadDecisionEntries } from "../../../../lib/decisionEntryStore";
-import type { DecisionEntry } from "../../../../lib/decisionEntryTypes";
+type Decision = {
+  id: string;
+  title: string;
+  state: string;
+  confidence: number;
+  updatedAt: string;
+};
 
 interface PageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function DecisionPage({ params }: PageProps) {
-  // ✅ unwrap params (THIS WAS THE MISSING PIECE)
+  // ✅ REQUIRED in Next 16
   const { id } = await params;
 
-  console.log("DECISION ID:", id);
+  // ✅ headers() is ALSO async
+  const h = await headers();
+  const host = h.get("host");
 
-  const decisions: DecisionEntry[] = loadDecisionEntries();
-  const decision = decisions.find((d) => d.id === id);
+  if (!host) {
+    throw new Error("Missing host header");
+  }
 
-  if (!decision) {
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  const baseUrl = `${protocol}://${host}`;
+
+  const res = await fetch(`${baseUrl}/api/decisions/${id}`, {
+    cache: "no-store",
+  });
+
+  if (res.status === 404) {
     notFound();
   }
+
+  if (!res.ok) {
+    throw new Error("Failed to load decision");
+  }
+
+  const decision: Decision = await res.json();
 
   return (
     <div className="space-y-6 p-6">
@@ -36,24 +55,13 @@ export default async function DecisionPage({ params }: PageProps) {
       </header>
 
       <section className="rounded-lg border p-4">
-        <h2 className="font-medium">Current State</h2>
+        <h2 className="font-medium">State</h2>
         <p className="text-sm">{decision.state}</p>
       </section>
 
-      <section className="flex gap-4 pt-2">
-        <Link
-          href={`/ceo/decisions/review/${decision.id}`}
-          className="text-sm underline text-primary"
-        >
-          Open Review
-        </Link>
-
-        <Link
-          href="/ceo/decisions"
-          className="text-sm underline text-muted-foreground"
-        >
-          Back to Decisions
-        </Link>
+      <section className="rounded-lg border p-4">
+        <h2 className="font-medium">Confidence</h2>
+        <p className="text-sm">{decision.confidence}</p>
       </section>
     </div>
   );

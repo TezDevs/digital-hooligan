@@ -71,6 +71,7 @@ function mapDomainStateToSummaryState(
       return "draft";
   }
 }
+
 export function loadDecisionEntrySummaries(): DecisionEntrySummary[] {
   const entries = loadDecisionEntries();
 
