@@ -1,5 +1,5 @@
 import { getDecisionInputs } from "./decisionSources";
-
+import { DecisionStatus } from "./domain/decisionStatus";
 /**
  * ===== Core Decision Types (RESTORED) =====
  */
@@ -80,3 +80,11 @@ export interface Decision {
   confidenceBaseline: number;
   confidenceSnapshots: ConfidenceSnapshot[];
 }
+/** decision list */
+export type DecisionListItem = {
+  id: string;
+  title: string;
+  status: DecisionStatus;
+  createdAt: string;
+  updatedAt: string;
+};
