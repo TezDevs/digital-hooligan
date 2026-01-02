@@ -58,7 +58,7 @@ export function loadDecisionEntries(): DecisionEntry[] {
  * ✅ READ-ONLY SUMMARY LOAD
  * Used ONLY by list / dashboard pages.
  */
-function mapDomainStateToSummaryState(
+function normalizeEntryStateForSummary(
   state: DecisionEntry["state"]
 ): DecisionEntrySummary["state"] {
   switch (state) {
@@ -82,7 +82,7 @@ export function loadDecisionEntrySummaries(): DecisionEntrySummary[] {
   return entries
     .map((entry) => ({
       id: entry.id,
-      state: mapDomainStateToSummaryState(entry.state),
+      state: normalizeEntryStateForSummary(entry.state),
       updatedAt: entry.updatedAt,
     }))
     .sort((a, b) => {
