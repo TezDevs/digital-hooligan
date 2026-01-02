@@ -4,6 +4,10 @@ export default function DecisionReviewDetailPage() {
   return (
     <main className="p-6 space-y-4">
       <p className="text-sm text-muted-foreground">
+        This review shows the decision summary and recorded context. Full
+        decision details live in the dossier.
+      </p>
+      <p className="text-sm text-muted-foreground">
         Decision detail view is temporarily disabled.
       </p>
 
