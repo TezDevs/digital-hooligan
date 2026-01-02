@@ -78,7 +78,7 @@ export default async function DecisionsPage() {
               >
                 <td className="px-3 py-2 font-mono text-xs">
                   <Link
-                    href={`/ceo/decisions/review/${decision.id}`}
+                    href={`/ceo/decisions/${decision.id}`}
                     className="underline-offset-4 hover:underline"
                   >
                     {decision.id}
@@ -102,7 +102,7 @@ export default async function DecisionsPage() {
 
                 <td className="px-3 py-2 text-right">
                   <Link
-                    href={`/ceo/decisions/review/${decision.id}`}
+                    href={`/ceo/decisions/${decision.id}`}
                     className="inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium text-primary hover:bg-muted"
                   >
                     Open →
