@@ -1,0 +1,60 @@
+== GIT STATE ==
+## main...origin/main
+?? docs/context/
+
+290e970 chore(vercel): trigger deploy from app root
+c56be3e chore(vercel): trigger deploy from app root
+05d3ab0 chore(vercel): trigger deploy from app root
+9e814f6 Merge pull request #279 from digital-hooligan/content/attention-first-draft-outline
+f5972b7 chore: confirm business repo deploy pipeline
+7d85a41 chore: confirm business repo deploy pipeline
+aae9681 chore: confirm business repo deploy pipeline
+cec0e20 Merge pull request #407 from TezDevs/feature/decision-review-boundary-clarification
+9f5b4b0 Clarify Decision Review as summary-only surface (read-only)
+a95820f Merge pull request #406 from TezDevs/feature/decision-list-api-alignment
+0166ec8 Harden Decision List summary contract (read-only)
+f6b8d37 Merge pull request #405 from TezDevs/feature/decision-readonly-api
+bc620db feat(decisions): canonical read-only decision page via API (Option B)
+773a47e Merge pull request #404 from TezDevs/feature/decision-canonical-page
+30d9d07 Fix canonical /ceo/decisions/[id] route and remove invalid decisionId paths
+1c74bc3 Merge pull request #403 from TezDevs/feature/decision-list-action-clarity
+2ef323c UI: improve decision list action column clarity (Bucket 1)
+414e88f Merge pull request #402 from TezDevs/feature/decision-list-timestamp-readability
+26b3f6d UI: improve decision list timestamp readability (Bucket 1)
+975395c Merge pull request #401 from TezDevs/ui/decision-review-footer-clarity
+46c1572 UI: decision review footer boundary clarity (Bucket 1)
+5892aa9 Merge pull request #400 from TezDevs/ui/decision-review-metadata-alignment
+7c10247 UI: decision review metadata micro-alignment (Bucket 1)
+0b9d9ea Merge pull request #399 from TezDevs/ui/decision-review-timeline-density
+679118e UI: decision review timeline density & readability (Bucket 1)
+fbd78c4 Merge pull request #398 from TezDevs/ui/decision-list-column-density
+5a96b94 UI: decision list column density & scan hierarchy (Bucket 1)
+8d43c70 Merge pull request #397 from TezDevs/ui/decision-list-empty-state
+ec5ebdc UI: decision list empty state orientation (Bucket 1)
+763cb4c Merge pull request #396 from TezDevs/feature/decision-status-helper-copy
+
+* main
+  ui/decision-list-empty-state
+  feature/review-empty-state-clarity
+  hotfix/decision-review-readonly-freeze
+  feature/decision-review-snapshot-panel
+  hotfix/decision-entry-api-crash
+  feature/decision-inputs-inspector
+  feature/decision-snapshot-metadata
+  fix/pnpm-lockfile-sync
+  fix/tailwind-v3-postcss-lockfile
+  fix/tailwind-v3-postcss-hydration
+  fix/tailwind-v3-clean-restore
+  fix/tailwind-v3-postcss-restore
+  feature/tailwind-clean-restore
+  feature/rebel-red-theme
+  feature/incidents-handled-filter-fix
+  feature/systems-nominal-pill
+  fix/healthstatuschip-named-export
+  feature/insomnia-workspace-export
+  feature/ceo-incident-detail
+  feature/fix-ceo-login-redirect
+  feature/ceo-incidents-stub-view
+  feature/ceo-dev-workbench
+  feature/ceo-performance-by-app
+  feature/fix-registry-fetch-base-url

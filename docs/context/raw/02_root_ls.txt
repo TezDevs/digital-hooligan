@@ -1,0 +1,15 @@
+== ROOT LIST ==
+total 344
+drwxr-xr-x  13 courtezcannady  staff     416 Jan  1 16:46 .
+drwxr-xr-x   5 courtezcannady  staff     160 Dec 11 20:05 ..
+drwxr-xr-x  15 courtezcannady  staff     480 Jan  7 22:20 .git
+-rw-r--r--@  1 courtezcannady  staff     296 Nov 23 23:41 .gitignore
+drwxr-xr-x   4 courtezcannady  staff     128 Jan  2 10:39 app
+drwxr-xr-x@  5 courtezcannady  staff     160 Dec 22 14:12 apps
+drwxr-xr-x@ 20 courtezcannady  staff     640 Jan  7 22:20 docs
+drwxr-xr-x  10 courtezcannady  staff     320 Jan  1 16:46 node_modules
+-rw-r--r--   1 courtezcannady  staff     574 Dec 24 18:58 package.json
+drwxr-xr-x@  5 courtezcannady  staff     160 Dec 22 14:12 packages
+-rw-r--r--   1 courtezcannady  staff  157121 Dec 29 17:38 pnpm-lock.yaml
+-rw-r--r--   1 courtezcannady  staff     137 Dec  3 00:32 pnpm-workspace.yaml
+-rw-r--r--@  1 courtezcannady  staff     370 Nov 23 19:33 tsconfig.base.json

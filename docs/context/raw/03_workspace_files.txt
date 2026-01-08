@@ -1,0 +1,35 @@
+== WORKSPACE FILES ==
+--- package.json ---
+{
+  "name": "digital-hooligan",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:dh": "pnpm --filter digitalhooligan-web dev",
+    "dev:penny": "pnpm --filter pennywize-web dev",
+    "dev:sneaker": "pnpm --filter sneakerscout-web dev",
+    "dev:all": "pnpm --parallel --filter digitalhooligan-web --filter pennywize-web --filter sneakerscout-web dev"
+  },
+  "dependencies": {
+    "lucide-react": "^0.555.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "3.4.17"
+  }
+}
+
+--- pnpm-workspace.yaml ---
+packages:
+  - "apps/*"
+  - "apps/bots/*"
+  - "packages/*"
+  - "backend/*"
+  - "docs/*"
+onlyBuiltDependencies:
+  - sharp
+  - unrs-resolver

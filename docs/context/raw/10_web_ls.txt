@@ -1,0 +1,32 @@
+== DIGITALHOOLIGAN-WEB LISTING ==
+total 0
+drwxr-xr-x@  5 courtezcannady  staff  160 Dec 22 14:12 .
+drwxr-xr-x  13 courtezcannady  staff  416 Jan  1 16:46 ..
+drwxr-xr-x@ 24 courtezcannady  staff  768 Jan  5 14:13 digitalhooligan-web
+drwxr-xr-x@ 14 courtezcannady  staff  448 Dec  3 00:59 pennywize-web
+drwxr-xr-x@ 13 courtezcannady  staff  416 Dec  3 00:59 sneakerscout-lite
+total 104
+drwxr-xr-x@ 24 courtezcannady  staff   768 Jan  5 14:13 .
+drwxr-xr-x@  5 courtezcannady  staff   160 Dec 22 14:12 ..
+drwxr-xr-x   3 courtezcannady  staff    96 Dec 28 12:20 .data
+-rw-r--r--   1 courtezcannady  staff   576 Dec 26 15:00 .decision-review-audit.log
+-rw-r--r--   1 courtezcannady  staff   179 Dec 26 16:48 .env.local
+-rw-r--r--   1 courtezcannady  staff   486 Dec 28 12:34 .gitignore
+drwxr-xr-x  24 courtezcannady  staff   768 Jan  2 10:40 .next
+-rw-r--r--   1 courtezcannady  staff    29 Jan  5 14:14 .vercel-trigger
+drwxr-xr-x@ 21 courtezcannady  staff   672 Dec 23 12:10 app
+drwxr-xr-x   3 courtezcannady  staff    96 Dec 28 23:37 apps
+drwxr-xr-x@ 11 courtezcannady  staff   352 Dec 29 13:45 components
+drwxr-xr-x   3 courtezcannady  staff    96 Dec 29 18:24 data
+-rw-r--r--@  1 courtezcannady  staff   465 Nov 23 22:11 eslint.config.mjs
+drwxr-xr-x  56 courtezcannady  staff  1792 Jan  2 11:18 lib
+-rw-r--r--   1 courtezcannady  staff   488 Dec 13 10:20 middleware.ts
+-rw-r--r--@  1 courtezcannady  staff   251 Jan  2 11:10 next-env.d.ts
+-rw-r--r--@  1 courtezcannady  staff   156 Nov 23 22:11 next.config.ts
+drwxr-xr-x  16 courtezcannady  staff   512 Dec 28 21:47 node_modules
+-rw-r--r--   1 courtezcannady  staff   628 Dec 29 17:38 package.json
+-rw-r--r--   1 courtezcannady  staff    82 Dec 22 18:44 postcss.config.js
+drwxr-xr-x@ 16 courtezcannady  staff   512 Nov 30 22:49 public
+-rw-r--r--@  1 courtezcannady  staff  1450 Nov 23 22:11 README.md
+-rw-r--r--   1 courtezcannady  staff   262 Dec 22 18:57 tailwind.config.js
+-rw-r--r--   1 courtezcannady  staff   666 Jan  1 23:42 tsconfig.json
