@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,24 +16,34 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version-file: ".nvmrc"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Activate pnpm
+        run: corepack prepare pnpm@9.15.4 --activate
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
         with:
-          version: 9
+          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies (repo root)
         run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm -C apps/digitalhooligan-web lint
-        continue-on-error: false
 
       - name: Typecheck
         run: pnpm -C apps/digitalhooligan-web typecheck
-        continue-on-error: false
 
       - name: Build
         run: pnpm -C apps/digitalhooligan-web build
