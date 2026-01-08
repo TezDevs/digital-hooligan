@@ -1,3 +1,5 @@
+import Container from "../layout/Container";
+
 export default function Hero() {
   const highlights = [
     "Out-of-the-box ops brain",
@@ -9,103 +11,103 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden border-b border-white/5 bg-gradient-to-b from-black via-slate-950 to-black"
+      className="relative overflow-hidden border-b border-dh-street-gray/40 bg-dh-black"
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(94,234,212,0.2),transparent_60%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(77,163,255,0.16),transparent_60%)]"
         aria-hidden="true"
       />
-      <div className="relative mx-auto flex max-w-6xl flex-col gap-12 px-4 py-16 sm:px-6 md:py-24 lg:flex-row lg:items-center lg:py-28 lg:px-8">
-        {/* Left: main copy */}
-        <div className="flex-1 space-y-6">
-          <p className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-400/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-emerald-300">
-            DIGITAL HOOLIGAN LLC · HOOLIGAN LABS
-          </p>
 
-          <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-            <span className="block text-slate-50">
-              Apps, bots, & dashboards
-            </span>
-            <span className="mt-1 block bg-gradient-to-r from-emerald-400 via-sky-400 to-fuchsia-500 bg-clip-text text-transparent">
-              for hooligan-minded builders.
-            </span>
-          </h1>
+      <Container>
+        <div className="relative flex flex-col gap-12 py-16 md:py-20 lg:flex-row lg:items-center lg:py-24">
+          {/* Left: main copy */}
+          <div className="flex-1 space-y-6">
+            <p className="inline-flex items-center rounded-full border border-dh-electric-mint/40 bg-dh-deep-void/60 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.22em] text-dh-electric-mint">
+              Digital Hooligan LLC · Hooligan Labs
+            </p>
 
-          <p className="max-w-xl text-balance text-sm text-slate-300 sm:text-base">
-            Digital Hooligan is a one-person studio building{" "}
-            <span className="font-medium text-slate-100">
-              tool-first apps with a social layer
-            </span>{" "}
-            around the data: price-watching for sneakers and collectibles,
-            penny-stock scrapers, ops automation toys, and internal dashboards
-            for operators, founders, and gov/enterprise teams.
-          </p>
+            <h1 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <span className="block">Apps, bots, & dashboards</span>
+              <span className="mt-1 block text-dh-electric-mint">
+                for hooligan-minded builders.
+              </span>
+            </h1>
 
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="/services"
-              className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-4 py-2 text-sm font-medium text-black shadow-lg shadow-emerald-500/40 transition hover:bg-emerald-300"
-            >
-              Talk services & builds
-            </a>
-            <a
-              href="/labs"
-              className="inline-flex items-center justify-center rounded-full border border-slate-700 bg-slate-900/60 px-4 py-2 text-sm font-medium text-slate-100 hover:border-emerald-400/60 hover:bg-slate-900"
-            >
-              Explore Hooligan Labs
-            </a>
-          </div>
+            <p className="max-w-xl text-balance text-sm text-dh-street-gray sm:text-base">
+              Digital Hooligan is a one-person studio building{" "}
+              <span className="font-medium text-dh-offwhite">
+                tool-first apps with a social layer
+              </span>{" "}
+              around the data: price-watching for sneakers and collectibles,
+              penny-stock scrapers, ops automation toys, and internal dashboards
+              for operators, founders, and gov/enterprise teams.
+            </p>
 
-          <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
-            <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Single-member LLC · Software, SaaS & automation
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1">
-              NAICS 541511 · SAM.gov in registered
-            </span>
-          </div>
-        </div>
-
-        {/* Right: highlight cards */}
-        <div className="flex-1">
-          <div className="mx-auto grid max-w-md gap-4 sm:grid-cols-2 sm:gap-5">
-            {highlights.map((item) => (
-              <div
-                key={item}
-                className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/80 to-black/90 p-4 shadow-lg shadow-black/60"
+            <div className="flex flex-wrap gap-3">
+              {/* Conversion = red */}
+              <a
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-full bg-dh-rebel-red px-5 py-2.5 text-sm font-semibold text-black shadow shadow-dh-rebel-red/30 transition hover:opacity-90"
               >
-                <div className="absolute inset-px rounded-2xl border border-white/5/40" />
-                <div className="relative space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
-                    HOOLIGAN MODE
-                  </p>
-                  <p className="text-sm font-semibold text-slate-50">
-                    {item}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Designed like something you’d hide behind a CEO dashboard,
-                    but safe enough for legal to sign off on.
-                  </p>
-                </div>
-              </div>
-            ))}
+                Start a conversation
+              </a>
 
-            <div className="relative col-span-full mt-1 overflow-hidden rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-sky-500/10 to-fuchsia-500/20 p-4 text-xs text-emerald-100">
-              <p className="font-semibold text-emerald-200">
-                Built for sneakers, collectibles & ops.
-              </p>
-              <p className="mt-1 text-slate-100/80">
-                <span className="font-medium text-emerald-200">
-                  PennyWize, DropSignal, HypeWatch, Ops Toys
-                </span>{" "}
-                live here — starting as bots & dashboards, graduating to web +
-                mobile apps when they earn it.
-              </p>
+              {/* Secondary = steel blue */}
+              <a
+                href="/labs"
+                className="inline-flex items-center justify-center rounded-full border border-dh-electric-mint/70 bg-dh-electric-mint/10 px-5 py-2.5 text-sm font-medium text-dh-electric-mint transition hover:bg-dh-electric-mint/20"
+              >
+                Explore Hooligan Labs
+              </a>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2 text-xs text-dh-street-gray">
+              <span className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/50 bg-dh-deep-void/50 px-3 py-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint shadow-[0_0_10px_rgba(77,163,255,0.7)]" />
+                Single-member LLC · Software, SaaS & automation
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/50 bg-dh-deep-void/50 px-3 py-1">
+                NAICS 541511 · SAM.gov registered · SDVOSB / VOSB · SBA 8(a)
+              </span>
+            </div>
+          </div>
+
+          {/* Right: highlight cards */}
+          <div className="flex-1">
+            <div className="mx-auto grid max-w-md gap-4 sm:grid-cols-2 sm:gap-5">
+              {highlights.map((item) => (
+                <div
+                  key={item}
+                  className="relative overflow-hidden rounded-2xl border border-dh-street-gray/60 bg-gradient-to-b from-dh-deep-void/80 to-black/90 p-4 shadow-[0_18px_45px_rgba(0,0,0,0.65)]"
+                >
+                  <div className="relative space-y-2">
+                    <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-dh-street-gray/80">
+                      Hooligan mode
+                    </p>
+                    <p className="text-sm font-semibold text-white">{item}</p>
+                    <p className="text-xs text-dh-street-gray/80">
+                      Built like an ops tool, presented like a product.
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+              <div className="relative col-span-full mt-1 overflow-hidden rounded-2xl border border-dh-electric-mint/40 bg-dh-deep-void/60 p-4 text-xs text-dh-offwhite">
+                <p className="font-semibold text-dh-electric-mint">
+                  Built for sneakers, collectibles & ops.
+                </p>
+                <p className="mt-1 text-dh-street-gray/80">
+                  <span className="font-medium text-dh-offwhite">
+                    PennyWize, DropSignal, HypeWatch, Ops Toys
+                  </span>{" "}
+                  start as bots & dashboards, graduating to web + mobile once
+                  they earn it.
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
