@@ -73,7 +73,8 @@ export default function LabsPage() {
               PennyWize, DropSignal, HypeWatch, and Ops Toys
             </span>{" "}
             get built, broken, and promoted. Phase 0 lives here: scripts, bots,
-            dashboards, and prototypes that may grow into full products if they earn it.
+            dashboards, and prototypes that may grow into full products if they
+            earn it.
           </p>
         </div>
       </section>
@@ -86,8 +87,9 @@ export default function LabsPage() {
               Current experiment tracks
             </h2>
             <p className="max-w-sm text-xs text-slate-400">
-              This isn&apos;t a launch board. It&apos;s the honest state of work-in-progress
-              toys and tools, including rough edges and half-finished ideas.
+              This isn&apos;t a launch board. It&apos;s the honest state of
+              work-in-progress toys and tools, including rough edges and
+              half-finished ideas.
             </p>
           </div>
 
@@ -104,7 +106,9 @@ export default function LabsPage() {
                       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
                         {exp.track}
                       </p>
-                      <h3 className="text-base font-semibold text-slate-50">{exp.name}</h3>
+                      <h3 className="text-base font-semibold text-slate-50">
+                        {exp.name}
+                      </h3>
                     </div>
                     <span className="rounded-full border border-slate-700 bg-slate-950/80 px-3 py-1 text-[11px] text-slate-300">
                       {exp.status}
@@ -121,7 +125,9 @@ export default function LabsPage() {
                     >
                       View details <span aria-hidden="true">↗</span>
                     </Link>
-                    <span className="text-slate-500">Promoted when the signal is real.</span>
+                    <span className="text-slate-500">
+                      Promoted when the signal is real.
+                    </span>
                   </div>
                 </div>
               </article>
@@ -138,30 +144,38 @@ export default function LabsPage() {
               The Hooligan Labs pipeline
             </h2>
             <p className="text-sm text-slate-300">
-              Ideas don&apos;t jump straight to “polished app”. They earn their way up through
-              phases, with real usage and feedback guiding what gets built next.
+              Ideas don&apos;t jump straight to “polished app”. They earn their
+              way up through phases, with real usage and feedback guiding what
+              gets built next.
             </p>
             <ol className="space-y-2 text-sm text-slate-300">
               <li>
-                <span className="font-semibold text-slate-100">Phase 0 · Script / bot</span>{" "}
-                – A scrappy tool, often CLI or bot-based, used internally to prove
-                there&apos;s something there.
+                <span className="font-semibold text-slate-100">
+                  Phase 0 · Script / bot
+                </span>{" "}
+                – A scrappy tool, often CLI or bot-based, used internally to
+                prove there&apos;s something there.
               </li>
               <li>
-                <span className="font-semibold text-slate-100">Phase 1 · Web app</span>{" "}
-                – A focused, opinionated UI that exposes the useful parts to real users.
+                <span className="font-semibold text-slate-100">
+                  Phase 1 · Web app
+                </span>{" "}
+                – A focused, opinionated UI that exposes the useful parts to
+                real users.
               </li>
               <li>
-                <span className="font-semibold text-slate-100">Phase 2 · Mobile app</span>{" "}
-                – iOS and Android builds once the usage and value justify being in
-                people&apos;s pockets.
+                <span className="font-semibold text-slate-100">
+                  Phase 2 · Mobile app
+                </span>{" "}
+                – iOS and Android builds once the usage and value justify being
+                in people&apos;s pockets.
               </li>
               <li>
                 <span className="font-semibold text-slate-100">
                   Phase 3 · APIs & integrations
                 </span>{" "}
-                – Integrations, partner access, and more serious contracts if it&apos;s worth
-                turning into a platform.
+                – Integrations, partner access, and more serious contracts if
+                it&apos;s worth turning into a platform.
               </li>
             </ol>
           </div>
@@ -171,8 +185,8 @@ export default function LabsPage() {
               WHAT WE SHARE PUBLICLY
             </p>
             <p>
-              This page is the public window into ongoing work. Internal planning, ops, and
-              build telemetry remain restricted.
+              This page is the public window into ongoing work. Internal
+              planning, ops, and build telemetry remain restricted.
             </p>
             <ul className="mt-1 space-y-1.5">
               <li>• What we&apos;re exploring now</li>
@@ -180,7 +194,8 @@ export default function LabsPage() {
               <li>• The likely path from prototype to product</li>
             </ul>
             <p className="pt-2 text-[11px] text-slate-500">
-              Want a sharper view of capability and delivery? See Services and the Gov page.
+              Want a sharper view of capability and delivery? See Services and
+              the Gov page.
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
               <Link
@@ -204,10 +219,12 @@ export default function LabsPage() {
       <section className="bg-slate-950 px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-5xl flex-col gap-4 border-t border-slate-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1 text-sm text-slate-200">
-            <p className="font-semibold text-slate-50">Keep an eye on the experiments.</p>
+            <p className="font-semibold text-slate-50">
+              Keep an eye on the experiments.
+            </p>
             <p className="text-xs text-slate-400">
-              As projects level up, they&apos;ll move into dedicated pages with clearer
-              flows and sharper UX.
+              As projects level up, they&apos;ll move into dedicated pages with
+              clearer flows and sharper UX.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">

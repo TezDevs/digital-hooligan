@@ -5,16 +5,22 @@
 /* Base document styles */
 html,
 body {
+  height: 100%;
+}
+
+body {
   background-color: #111111;
   color: white;
 }
 
+/* Keep links readable by default */
+a {
+  text-decoration: none;
+}
+
 /* Digital Hooligan helpers */
-.dh-spray-divider {
+.dh-gray-divider {
   height: 2px;
   border-radius: 999px;
-  background: linear-gradient(90deg,
-      #ff3131,
-      #ff4db2,
-      #1effcb);
+  background: linear-gradient(90deg, #333333, #444444, #333333);
 }
