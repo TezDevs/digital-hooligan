@@ -12,19 +12,13 @@ const PUBLIC_NAV_ITEMS = [
   { label: "Contact", href: "/contact" },
 ];
 
-const HIDE_NAV_PREFIXES = [
-  "/ceo",
-  "/labs/hq",
-  "/labs/app-registry",
-  "/labs/experiments",
-];
+// Hide global public nav on internal/admin surfaces (allowed; not public links)
+const HIDE_NAV_PREFIXES = ["/ceo", "/labs/hq", "/labs/app-registry", "/labs/experiments"];
 
 export default function GlobalNav() {
   const pathname = usePathname();
 
-  const hideNav = HIDE_NAV_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix)
-  );
+  const hideNav = HIDE_NAV_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   if (hideNav) return null;
 
   return (
@@ -39,8 +33,8 @@ export default function GlobalNav() {
               href={item.href}
               className={
                 isActive
-                  ? "text-red-300"
-                  : "transition-colors hover:text-red-200"
+                  ? "text-dh-electric-mint"
+                  : "transition-colors hover:text-dh-electric-mint"
               }
             >
               {item.label}
