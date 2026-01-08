@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black text-slate-50">
+    <main className="min-h-screen bg-dh-carbon text-dh-text">
       <Hero />
       <Apps />
       <Labs />
