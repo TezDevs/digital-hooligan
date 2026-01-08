@@ -83,7 +83,8 @@ const IMPACT_LABEL: Record<ExperimentImpact, string> = {
 };
 
 function statusClasses(status: ExperimentStatus): string {
-  const base = "inline-flex items-center rounded-full px-2.5 py-0.5 text-[0.7rem] font-medium";
+  const base =
+    "inline-flex items-center rounded-full px-2.5 py-0.5 text-[0.7rem] font-medium";
   switch (status) {
     case "running":
       return `${base} bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/40`;
@@ -118,6 +119,9 @@ export default function LabsExperimentsPage() {
   const [appFilter, setAppFilter] = React.useState<AppId | "all">("all");
   const [search, setSearch] = React.useState("");
 
+  const neutralBack =
+    "inline-flex items-center justify-center rounded-full border border-dh-border bg-transparent px-4 py-2 text-xs font-semibold text-dh-text transition hover:bg-white/5";
+
   // Map app id -> registry entry for quick lookup
   const registryById = React.useMemo(() => {
     const map = new Map<AppId, AppRegistryEntry>();
@@ -135,7 +139,13 @@ export default function LabsExperimentsPage() {
       if (search.trim().length > 0) {
         const q = search.trim().toLowerCase();
         const app = exp.appId ? registryById.get(exp.appId as AppId) : null;
-        const haystack = [exp.title, exp.summary, app?.name ?? "", app?.shortName ?? "", (exp.tags ?? []).join(" ")]
+        const haystack = [
+          exp.title,
+          exp.summary,
+          app?.name ?? "",
+          app?.shortName ?? "",
+          (exp.tags ?? []).join(" "),
+        ]
           .join(" ")
           .toLowerCase();
 
@@ -165,17 +175,18 @@ export default function LabsExperimentsPage() {
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 md:pt-10">
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="mb-1 text-[0.75rem] uppercase tracking-[0.18em] text-slate-500">Labs &gt; Experiments</p>
-            <h1 className="text-2xl font-semibold text-slate-50 md:text-3xl">Experiments by app</h1>
+            <p className="mb-1 text-[0.75rem] uppercase tracking-[0.18em] text-slate-500">
+              Labs &gt; Experiments
+            </p>
+            <h1 className="text-2xl font-semibold text-slate-50 md:text-3xl">
+              Experiments by app
+            </h1>
             <p className="mt-1 max-w-xl text-sm text-slate-400">
               A lightweight snapshot of active work across Labs apps and tooling.
             </p>
           </div>
 
-          <Link
-            href="/labs"
-            className="inline-flex items-center justify-center rounded-full border border-dh-street-gray/60 bg-dh-black/60 px-4 py-2 text-xs font-medium text-dh-offwhite transition hover:border-dh-electric-mint/60 hover:text-dh-electric-mint"
-          >
+          <Link href="/labs" className={neutralBack}>
             ← Back to Labs
           </Link>
         </div>
@@ -183,7 +194,9 @@ export default function LabsExperimentsPage() {
         <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-3">
             <div className="flex flex-col text-[0.7rem] text-slate-400">
-              <span className="mb-1 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-slate-500">Status</span>
+              <span className="mb-1 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-slate-500">
+                Status
+              </span>
               <select
                 className="rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[0.8rem] text-slate-100"
                 value={statusFilter}
@@ -199,7 +212,9 @@ export default function LabsExperimentsPage() {
             </div>
 
             <div className="flex flex-col text-[0.7rem] text-slate-400">
-              <span className="mb-1 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-slate-500">App</span>
+              <span className="mb-1 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-slate-500">
+                App
+              </span>
               <select
                 className="rounded-lg border border-slate-700 bg-slate-900/80 px-2 py-1 text-[0.8rem] text-slate-100"
                 value={appFilter}
@@ -258,7 +273,10 @@ export default function LabsExperimentsPage() {
                         <div className="mt-1 flex flex-wrap gap-2 text-[0.7rem] text-slate-400">
                           {app && (
                             <span>
-                              App: <span className="text-slate-200">{app.name} ({app.id})</span>
+                              App:{" "}
+                              <span className="text-slate-200">
+                                {app.name} ({app.id})
+                              </span>
                             </span>
                           )}
                           {exp.tags && exp.tags.length > 0 && (

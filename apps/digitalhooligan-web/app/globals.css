@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Public v1 theme tokens (CSS variables for non-tailwind usage) */
+:root {
+  --dh-primary: #FF3B30; /* Rebel Red (primary CTAs only) */
+  --dh-accent: #4DA3FF; /* Steel Blue (links + secondary CTAs) */
+
+  --dh-bg: #0B0F14;     /* Carbon */
+  --dh-panel: #111827;  /* Panel */
+  --dh-border: #243042; /* Border */
+
+  --dh-text: #F7FAFF;   /* Text Primary */
+  --dh-muted: #A7B0C0;  /* Text Muted */
+}
+
 /* Base document styles */
 html,
 body {
@@ -9,12 +22,13 @@ body {
 }
 
 body {
-  background-color: #111111;
-  color: white;
+  background-color: var(--dh-bg);
+  color: var(--dh-text);
 }
 
-/* Keep links readable by default */
+/* Keep links readable by default (Steel Blue), no underline by default */
 a {
+  color: var(--dh-accent);
   text-decoration: none;
 }
 
@@ -22,5 +36,5 @@ a {
 .dh-gray-divider {
   height: 2px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #333333, #444444, #333333);
+  background: linear-gradient(90deg, var(--dh-border), rgba(36, 48, 66, 0.35), var(--dh-border));
 }

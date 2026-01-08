@@ -13,10 +13,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html lang="en">
-      <body className="bg-black text-white antialiased">
+      <body className="bg-dh-carbon text-dh-text antialiased">
         <GlobalNav />
         {children}
         <FooterGate />
