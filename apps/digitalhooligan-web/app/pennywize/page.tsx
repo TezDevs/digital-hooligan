@@ -4,62 +4,56 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "PennyWize · Digital Hooligan",
   description:
-    "PennyWize is a signal + research assist for penny-stock activity—built for scanning, context, and clarity (not predictions or buy/sell advice).",
+    "PennyWize is a signal + research assist for noisy penny-stock tickers—scanner boards, briefings, and explainability. No predictions. No buy/sell calls.",
 };
 
 const primaryCta =
   "inline-flex items-center justify-center rounded-full bg-dh-rebel-red px-5 py-2.5 text-sm font-semibold text-white shadow shadow-dh-rebel-red/30 transition hover:bg-dh-rebel-red/90";
 const secondaryCta =
-  "inline-flex items-center justify-center rounded-full border border-slate-700 bg-black px-5 py-2.5 text-sm font-semibold text-slate-100 transition hover:border-dh-rebel-red/60 hover:text-white";
+  "inline-flex items-center justify-center rounded-full border border-dh-street-gray/60 bg-dh-black/60 px-5 py-2.5 text-sm font-semibold text-dh-offwhite transition hover:border-dh-rebel-red/60 hover:text-dh-rebel-red";
+const chip =
+  "inline-flex items-center gap-2 rounded-full border border-dh-street-gray/60 bg-dh-black/60 px-3 py-1 text-xs font-medium text-dh-offwhite";
+const card =
+  "rounded-2xl border border-dh-street-gray/40 bg-dh-black/60 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.65)]";
+const subtle = "text-sm text-dh-street-gray/80 sm:text-[15px]";
 
 export default function PennyWizePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-black text-slate-50">
+    <main className="min-h-screen bg-dh-black text-dh-offwhite">
       {/* Hero */}
-      <section className="border-b border-white/5 px-4 py-12 sm:px-6 md:py-16 lg:px-8">
-        <div className="mx-auto max-w-5xl space-y-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-            HOOLIGAN LABS · PRODUCT PAGE
+      <section className="border-b border-dh-street-gray/40 px-4 py-12 sm:px-6 md:py-16 lg:px-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dh-street-gray/80">
+            Hooligan Labs · Product
           </p>
 
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div className="space-y-4">
-              <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-                PennyWize
-              </h1>
-              <p className="max-w-3xl text-sm text-slate-300 sm:text-base">
-                <span className="font-semibold text-slate-100">
-                  Signals. Context. Clarity.
-                </span>{" "}
-                PennyWize is a{" "}
-                <span className="font-medium text-slate-100">
-                  signal + research assist
-                </span>{" "}
-                for penny-stock activity—built to help you scan faster, collect
-                context, and keep your notes straight.
-              </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-balance text-3xl font-semibold tracking-tight text-dh-offwhite sm:text-4xl">
+              PennyWize
+            </h1>
+            <span className={chip}>
+              <span className="h-2 w-2 rounded-full bg-dh-rebel-red" />
+              <span className="uppercase tracking-[0.18em] text-[11px] text-dh-offwhite/90">
+                Status · Discovery
+              </span>
+            </span>
+          </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-black/60 p-4 text-sm text-slate-300">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                  Important note
-                </p>
-                <p className="mt-2">
-                  PennyWize does{" "}
-                  <span className="font-semibold text-slate-100">not</span>{" "}
-                  provide financial advice. It is not predictive and does not
-                  generate buy/sell calls.
-                </p>
-              </div>
-            </div>
-
-            <div className="shrink-0">
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-black/60 px-3 py-1 text-xs">
-                <span className="h-2 w-2 rounded-full bg-dh-rebel-red" />
-                <span className="font-semibold uppercase tracking-[0.2em]">
-                  Status: Discovery
-                </span>
-              </div>
-            </div>
+          <div className="space-y-3">
+            <p className="text-lg font-semibold text-dh-offwhite">
+              Signals. Context. Clarity.
+            </p>
+            <p className={subtle}>
+              PennyWize is a{" "}
+              <span className="font-semibold text-dh-offwhite">
+                signal + research assist
+              </span>{" "}
+              for noisy tickers: scanner boards, briefings, and explainability
+              that help you understand what changed and why it matters.
+            </p>
+            <p className="text-xs text-dh-street-gray/70">
+              Not predictive. Not financial advice. No buy/sell calls.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
@@ -73,152 +67,195 @@ export default function PennyWizePage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="border-b border-white/5 bg-slate-950/70 px-4 py-12 sm:px-6 md:py-16 lg:px-8">
-        <div className="mx-auto max-w-5xl space-y-6">
+      {/* Features + What it’s not */}
+      <section className="border-b border-dh-street-gray/40 bg-dh-black px-4 py-12 sm:px-6 md:py-14 lg:px-8">
+        <div className="mx-auto max-w-5xl space-y-8">
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-              FEATURES
-            </p>
-            <h2 className="text-balance text-xl font-semibold text-slate-50 sm:text-2xl">
-              Built like a terminal-minded scanner, not a hype machine.
+            <h2 className="text-xl font-semibold text-dh-offwhite">
+              What it does
             </h2>
-            <p className="max-w-3xl text-sm text-slate-300 sm:text-base">
-              The goal is to reduce noise, capture context, and keep a clean
-              audit trail of what you saw and why it mattered.
+            <p className={subtle}>
+              Built for “weird move” detection without turning into a hype
+              machine. The output is structured context you can act on
+              responsibly.
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="space-y-2 rounded-2xl border border-slate-800 bg-black/80 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                SCANNER BOARD
+          <div className="grid gap-5 md:grid-cols-3">
+            <div className={card}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-street-gray/80">
+                Feature
               </p>
-              <h3 className="text-sm font-semibold text-slate-50">
-                Fast scan surface
+              <h3 className="mt-2 text-base font-semibold text-dh-offwhite">
+                Scanner board
               </h3>
-              <p className="text-xs text-slate-300">
-                A single board to watch unusual activity, filter signals, and
-                keep your short list tight.
+              <p className="mt-2 text-sm text-dh-street-gray/80">
+                A clean board of unusual tickers and movement patterns—built to
+                reduce noise, not amplify it.
               </p>
+              <ul className="mt-3 space-y-1.5 text-xs text-dh-street-gray/80">
+                <li>• Filters for volume/float/volatility</li>
+                <li>• “Why it surfaced” labels</li>
+                <li>• Watchlist-friendly layout</li>
+              </ul>
             </div>
 
-            <div className="space-y-2 rounded-2xl border border-slate-800 bg-black/80 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                TICKER BRIEFING
+            <div className={card}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-street-gray/80">
+                Feature
               </p>
-              <h3 className="text-sm font-semibold text-slate-50">
-                Context on demand
+              <h3 className="mt-2 text-base font-semibold text-dh-offwhite">
+                Ticker briefing
               </h3>
-              <p className="text-xs text-slate-300">
-                Pulls together basic background, recent notes, and “what
-                changed” so you’re not starting from zero every time.
+              <p className="mt-2 text-sm text-dh-street-gray/80">
+                A short, structured briefing that summarizes the day’s relevant
+                changes and what sources were involved.
               </p>
+              <ul className="mt-3 space-y-1.5 text-xs text-dh-street-gray/80">
+                <li>• What changed since last check</li>
+                <li>• Source buckets (news, filings, socials)</li>
+                <li>• Links-ready output for later citations</li>
+              </ul>
             </div>
 
-            <div className="space-y-2 rounded-2xl border border-slate-800 bg-black/80 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                EXPLAINABILITY
+            <div className={card}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-street-gray/80">
+                Feature
               </p>
-              <h3 className="text-sm font-semibold text-slate-50">
-                Why this showed up
+              <h3 className="mt-2 text-base font-semibold text-dh-offwhite">
+                Explainability
               </h3>
-              <p className="text-xs text-slate-300">
-                Clear “reason codes” for alerts (rule hits, thresholds, sources)
-                so you can trust the workflow.
+              <p className="mt-2 text-sm text-dh-street-gray/80">
+                “Show your work” tracing—what inputs drove the alert and what
+                evidence supports the summary.
               </p>
+              <ul className="mt-3 space-y-1.5 text-xs text-dh-street-gray/80">
+                <li>• Evidence-first summaries</li>
+                <li>• Confidence cues (not predictions)</li>
+                <li>• Audit-friendly trail for later</li>
+              </ul>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-black/60 p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              WHAT IT’S NOT
-            </p>
-            <p className="mt-2 text-sm text-slate-300">
-              PennyWize is{" "}
-              <span className="font-semibold text-slate-100">not</span> a
-              buy/sell engine, not a prediction model, and not financial advice.
-              It’s a scanning + context tool that helps you do research with
-              less friction.
-            </p>
-          </div>
+          {/* What it’s not */}
+          <div className="rounded-2xl border border-dh-rebel-red/40 bg-dh-black/60 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.65)]">
+            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+              <div className="space-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-rebel-red/90">
+                  What it’s not
+                </p>
+                <p className="text-sm text-dh-offwhite">
+                  PennyWize is not a buy/sell bot. It does not predict prices or
+                  tell you what to trade.
+                </p>
+                <p className="text-xs text-dh-street-gray/80">
+                  It’s a signal + research workflow: surface changes, attach
+                  context, and make it easier to do your own diligence.
+                </p>
+              </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              SOURCES &amp; CITATIONS
-            </p>
-            <p className="mt-2 text-sm text-slate-300">
-              UI will include a “sources &amp; citations” panel to show where
-              each fact came from (links, timestamps, and evidence notes). This
-              page does not provide real citations yet—only the intended UI copy.
-            </p>
+              <span className={`${chip} mt-2 w-fit md:mt-0`}>
+                <span className="h-2 w-2 rounded-full bg-dh-rebel-red" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-dh-offwhite/90">
+                  No predictions · No advice
+                </span>
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Roadmap */}
-      <section className="border-b border-white/5 bg-black px-4 py-12 sm:px-6 md:py-16 lg:px-8">
-        <div className="mx-auto max-w-5xl grid gap-8 md:grid-cols-[minmax(0,1.3fr),minmax(0,1fr)]">
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-slate-50">
-              Status &amp; roadmap
+      {/* Status / Phase + Roadmap */}
+      <section className="border-b border-dh-street-gray/40 bg-dh-black px-4 py-12 sm:px-6 md:py-14 lg:px-8">
+        <div className="mx-auto max-w-5xl grid gap-6 md:grid-cols-2">
+          <div className={card}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-street-gray/80">
+              Status / Phase
+            </p>
+            <h2 className="mt-2 text-lg font-semibold text-dh-offwhite">
+              Phase 1 MVP (current target)
             </h2>
-            <p className="text-sm text-slate-300">
-              Build order is simple: ship a tight MVP, then add workflow and
-              evidence depth.
+            <p className="mt-2 text-sm text-dh-street-gray/80">
+              A tight, shippable slice: scanner → briefing → explainability
+              trail.
             </p>
 
-            <ol className="space-y-3 text-sm text-slate-300">
+            <div className="mt-4 space-y-2 text-sm text-dh-street-gray/80">
+              <div className="flex items-start gap-2">
+                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-dh-rebel-red" />
+                <span>Scanner board with sensible filters and watchlists</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-dh-rebel-red" />
+                <span>
+                  Briefing output per ticker (what changed + where it came from)
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-dh-rebel-red" />
+                <span>
+                  Explainability panel (inputs, evidence buckets, timestamps)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className={card}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-street-gray/80">
+              Roadmap
+            </p>
+            <h2 className="mt-2 text-lg font-semibold text-dh-offwhite">
+              Promoted when the signal is real
+            </h2>
+
+            <ol className="mt-4 space-y-3 text-sm text-dh-street-gray/80">
               <li>
-                <span className="font-semibold text-slate-100">
+                <span className="font-semibold text-dh-offwhite">
                   Phase 1 · MVP
                 </span>{" "}
-                — scanner board, saved watchlists, basic alert rules, and ticker
-                briefing.
+                — Scanner board + ticker briefings + explainability.
               </li>
               <li>
-                <span className="font-semibold text-slate-100">
-                  Phase 2 · Workflow / pro mode
+                <span className="font-semibold text-dh-offwhite">
+                  Phase 2 · Workflow / Pro mode
                 </span>{" "}
-                — tagging, notes, review queues, and “why this fired” drilldowns
-                for heavier users.
+                — Saved rules, exports, alert routing, and operator-grade
+                filtering.
               </li>
               <li>
-                <span className="font-semibold text-slate-100">
-                  Phase 3 · Sources &amp; evidence
+                <span className="font-semibold text-dh-offwhite">
+                  Phase 3 · Sources & evidence
                 </span>{" "}
-                — stronger provenance: linked sources, timestamps, and
-                human-readable evidence trails.
+                — Stronger provenance: evidence links, source snapshots, and
+                audit trails.
               </li>
             </ol>
-          </div>
 
-          <aside className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4 text-xs text-slate-300">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
-              SAFE POSITIONING
-            </p>
-            <ul className="space-y-1.5">
-              <li>• Signal + context, not predictions</li>
-              <li>• No buy/sell calls</li>
-              <li>• Evidence-first UI</li>
-              <li>• Research assist workflow</li>
-            </ul>
-          </aside>
+            <div className="mt-5 rounded-xl border border-dh-street-gray/40 bg-dh-black/60 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-dh-street-gray/80">
+                Sources & citations
+              </p>
+              <p className="mt-2 text-sm text-dh-street-gray/80">
+                UI will include a “sources” panel designed for citations and
+                evidence links. (No public citations are shown here yet.)
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* CTA Row */}
-      <section className="bg-slate-950 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 border-t border-slate-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1 text-sm text-slate-200">
-            <p className="font-semibold text-slate-50">
+      {/* Footer CTA row */}
+      <section className="bg-dh-black px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col gap-4 border-t border-dh-street-gray/40 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1 text-sm text-dh-offwhite">
+            <p className="font-semibold text-dh-offwhite">
               Want to build around PennyWize?
             </p>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-dh-street-gray/80">
               A short email with your constraints and goals is perfect.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <Link href="/contact" className={primaryCta}>
               Contact Digital Hooligan
             </Link>
