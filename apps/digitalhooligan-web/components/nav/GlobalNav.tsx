@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const PUBLIC_NAV_ITEMS = [
@@ -15,6 +16,8 @@ const PUBLIC_NAV_ITEMS = [
 // Hide global public nav on internal/admin-ish surfaces (allowed; not public links)
 const HIDE_NAV_PREFIXES = ["/ceo", "/labs/hq", "/labs/app-registry", "/labs/experiments"];
 
+const LOGO_SRC = "/brand/digital_hooligan_logo_square.png";
+
 export default function GlobalNav() {
   const pathname = usePathname();
 
@@ -26,9 +29,20 @@ export default function GlobalNav() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="rounded-xl px-2 py-2 transition-colors hover:bg-white/5"
           aria-label="Digital Hooligan homepage"
+          className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-dh-steel-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dh-carbon"
         >
+          <div className="relative h-6 w-6 overflow-hidden rounded-lg bg-white/95 shadow-[0_0_28px_rgba(255,255,255,0.08)] sm:h-8 sm:w-8">
+            <Image
+              src={LOGO_SRC}
+              alt="Digital Hooligan logo"
+              fill
+              sizes="(max-width: 640px) 24px, 32px"
+              className="object-contain"
+              priority
+            />
+          </div>
+
           <div className="leading-tight">
             <span className="block text-[10px] font-medium uppercase tracking-[0.35em] text-dh-muted/70">
               Digital
