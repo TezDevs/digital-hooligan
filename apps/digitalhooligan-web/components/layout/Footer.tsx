@@ -1,4 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
+
+const LOGO_SRC = "/brand/digital_hooligan_logo_square.png";
 
 export default function Footer() {
   return (
@@ -6,17 +9,32 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl space-y-8 text-sm text-dh-muted">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
-              Digital Hooligan LLC
-            </p>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 rounded-xl py-1 pr-2 transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-dh-steel-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dh-carbon"
+              aria-label="Digital Hooligan homepage"
+            >
+              <div className="relative h-7 w-7 overflow-hidden rounded-lg bg-white/95 shadow-[0_0_24px_rgba(255,255,255,0.08)]">
+                <Image
+                  src={LOGO_SRC}
+                  alt="Digital Hooligan logo"
+                  fill
+                  sizes="28px"
+                  className="object-contain"
+                />
+              </div>
+
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
+                Digital Hooligan LLC
+              </p>
+            </Link>
+
             <p className="max-w-md text-dh-muted">
-              A small, veteran-led software studio building web apps, dashboards,
-              and automation — with clean delivery, tight scope, and maintainable
-              code.
+              A small, veteran-led software studio building web apps, dashboards, and automation — with
+              clean delivery, tight scope, and maintainable code.
             </p>
             <p className="text-dh-muted/80">
-              NAICS 541511 · SAM.gov registered · SDVOSB · VOSB · SBA 8(a) Business
-              Development
+              NAICS 541511 · SAM.gov registered · SDVOSB · VOSB · SBA 8(a) Business Development
             </p>
             <p className="text-dh-muted/80">UEI/CAGE available upon request.</p>
           </div>
@@ -33,26 +51,17 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/services"
-                    className="transition-colors hover:text-dh-steel-blue"
-                  >
+                  <Link href="/services" className="transition-colors hover:text-dh-steel-blue">
                     Services
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/company"
-                    className="transition-colors hover:text-dh-steel-blue"
-                  >
+                  <Link href="/company" className="transition-colors hover:text-dh-steel-blue">
                     Company
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/contact"
-                    className="transition-colors hover:text-dh-steel-blue"
-                  >
+                  <Link href="/contact" className="transition-colors hover:text-dh-steel-blue">
                     Contact
                   </Link>
                 </li>
@@ -83,18 +92,12 @@ export default function Footer() {
               </p>
               <ul className="space-y-1.5">
                 <li>
-                  <Link
-                    href="/privacy"
-                    className="transition-colors hover:text-dh-steel-blue"
-                  >
+                  <Link href="/privacy" className="transition-colors hover:text-dh-steel-blue">
                     Privacy
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/terms"
-                    className="transition-colors hover:text-dh-steel-blue"
-                  >
+                  <Link href="/terms" className="transition-colors hover:text-dh-steel-blue">
                     Terms
                   </Link>
                 </li>
