@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Container from "../layout/Container";
 
 type AppConfig = {
@@ -10,7 +11,8 @@ type AppConfig = {
   tag: string;
   blurb: string;
   image: string;
-  pill: string;
+  href: string;
+  cta: string;
 };
 
 const APPS: AppConfig[] = [
@@ -21,65 +23,82 @@ const APPS: AppConfig[] = [
     blurb:
       "Real-time penny stock alerts, micro-market intelligence, and pattern detection so you never miss the weird moves.",
     image: "/images/hero/dh-hero-bear.png", // TODO: swap to real PennyWize art
-    pill: "View project →",
+    href: "/pennywize",
+    cta: "View details →",
   },
   {
-    id: "sneakerscout",
-    name: "SneakerScout",
-    tag: "Sneakers • Price drops",
+    id: "dropsignal",
+    name: "DropSignal",
+    tag: "Signals • Price drops",
     blurb:
-      "Smart sneaker price-drop radar and automated scraper that surfaces under-retail steals before the herd.",
-    image: "/images/hero/dh-hero-bear.png", // TODO: swap to real SneakerScout art
-    pill: "View project →",
+      "Price-drop and restock radar that surfaces changes fast—built for people who live in release calendars and alerts.",
+    image: "/images/hero/dh-hero-bear.png", // TODO: swap to real DropSignal art
+    href: "/dropsignal",
+    cta: "View details →",
   },
   {
-    id: "hooliganlabs",
-    name: "Hooligan Labs",
-    tag: "R&D • Prototyping",
+    id: "opstoys",
+    name: "Ops Toys",
+    tag: "Ops • Automation drawer",
     blurb:
-      "A skunkworks for bots, dashboards, scrapers, and neon-fast experiments that may or may not behave.",
-    image: "/images/hero/dh-hero-bear.png", // TODO: swap to real Labs art
-    pill: "View experiments →",
+      "Tiny utilities for infra, logging, and dev workflow—built as a tool drawer, not another monolithic platform.",
+    image: "/images/hero/dh-hero-bear.png", // TODO: swap to real Ops Toys art
+    href: "/ops-toys",
+    cta: "View details →",
   },
 ];
 
+const chipBase =
+  "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.25em]";
+const secondaryPill =
+  "inline-flex w-fit items-center gap-2 rounded-full border border-dh-steel-blue/60 bg-dh-steel-blue/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.2em] text-dh-steel-blue transition hover:bg-dh-steel-blue/15";
+const dot = "h-1.5 w-1.5 rounded-full bg-dh-steel-blue";
 
 export default function Products() {
   const [activeId, setActiveId] = useState<string>(APPS[0].id);
-  const active = APPS.find((app) => app.id === activeId) ?? APPS[0];
+
+  const active = useMemo(
+    () => APPS.find((app) => app.id === activeId) ?? APPS[0],
+    [activeId],
+  );
 
   return (
-    <section className="bg-dh-black border-t border-dh-street-gray/40">
+    <section className="border-t border-dh-border bg-dh-carbon">
       <Container>
         <div className="py-16 lg:py-20">
           {/* label */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/60 bg-dh-black/80 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-dh-graffiti-yellow/80">
-            <span className="h-1 w-1 rounded-full bg-dh-electric-mint shadow-[0_0_10px_rgba(30,255,203,0.9)]" />
+          <div
+            className={[
+              chipBase,
+              "border-dh-border bg-dh-panel/50 text-dh-muted",
+            ].join(" ")}
+          >
+            <span className={dot} />
             <span>The Hooligan Stack</span>
           </div>
 
           {/* top detail panel */}
           <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-stretch">
-            <div className="flex flex-col justify-between space-y-4 rounded-3xl border border-dh-street-gray/60 bg-gradient-to-b from-dh-deep-void/90 to-black/95 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.75)]">
+            <div className="flex flex-col justify-between space-y-4 rounded-3xl border border-dh-border bg-dh-panel p-6 shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
               <div className="space-y-3">
-                <div className="text-[11px] uppercase tracking-[0.25em] text-dh-soft-white/60">
+                <div className="text-[11px] uppercase tracking-[0.25em] text-dh-muted/80">
                   {active.tag}
                 </div>
-                <h2 className="text-2xl font-semibold text-white sm:text-3xl">
+                <h2 className="text-2xl font-semibold text-dh-text sm:text-3xl">
                   {active.name}
                 </h2>
-                <p className="text-sm leading-relaxed text-dh-street-gray sm:text-[15px]">
+                <p className="text-sm leading-relaxed text-dh-muted sm:text-[15px]">
                   {active.blurb}
                 </p>
               </div>
 
-              <button className="mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-dh-street-gray/60 bg-dh-black/80 px-4 py-1.5 text-[11px] uppercase tracking-[0.2em] text-dh-soft-white/80">
-                <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint shadow-[0_0_10px_rgba(30,255,203,0.9)]" />
-                {active.pill}
-              </button>
+              <Link href={active.href} className={secondaryPill}>
+                <span className={dot} />
+                {active.cta}
+              </Link>
             </div>
 
-            <div className="overflow-hidden rounded-3xl border border-dh-street-gray/60 bg-dh-deep-void shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+            <div className="overflow-hidden rounded-3xl border border-dh-border bg-dh-panel shadow-[0_20px_50px_rgba(0,0,0,0.55)]">
               <Image
                 src={active.image}
                 alt={active.name}
@@ -102,16 +121,18 @@ export default function Products() {
                   className={[
                     "group flex flex-col items-start rounded-2xl border px-4 py-3 text-left transition-all",
                     isActive
-                      ? "border-dh-electric-mint/80 bg-dh-deep-void shadow-[0_0_40px_rgba(30,255,203,0.35)]"
-                      : "border-dh-street-gray/60 bg-black/40 hover:border-dh-electric-mint/60 hover:bg-dh-deep-void/70",
+                      ? "border-dh-steel-blue/70 bg-dh-panel shadow-[0_0_40px_rgba(77,163,255,0.18)]"
+                      : "border-dh-border bg-dh-carbon/40 hover:border-dh-steel-blue/50 hover:bg-dh-panel/60",
                   ].join(" ")}
                 >
-                  <div className="mb-2 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-dh-soft-white/60">
-                    <span className="h-1 w-1 rounded-full bg-dh-electric-mint/80 shadow-[0_0_10px_rgba(30,255,203,0.9)]" />
+                  <div className="mb-2 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-dh-muted/80">
+                    <span className="h-1 w-1 rounded-full bg-dh-steel-blue/80" />
                     <span>{app.tag}</span>
                   </div>
-                  <div className="text-sm font-medium text-white">{app.name}</div>
-                  <p className="mt-1 text-[11px] leading-relaxed text-dh-street-gray/80 line-clamp-2">
+                  <div className="text-sm font-medium text-dh-text">
+                    {app.name}
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-dh-muted/80">
                     {app.blurb}
                   </p>
                 </button>
