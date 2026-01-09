@@ -56,7 +56,7 @@ const experiments: Experiment[] = [
 ];
 
 const secondaryPill =
-  "inline-flex items-center gap-1 rounded-full border border-dh-steel-blue/60 bg-transparent px-3 py-1 text-[11px] font-semibold text-dh-steel-blue transition hover:border-dh-steel-blue hover:bg-dh-steel-blue/10";
+  "inline-flex items-center gap-1 rounded-full border border-[#4DA3FF]/70 bg-transparent px-3 py-1 text-[11px] font-semibold text-[#4DA3FF] transition hover:border-[#4DA3FF] hover:bg-[#4DA3FF]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4DA3FF]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-dh-carbon";
 
 const neutralPill =
   "inline-flex items-center rounded-full border border-dh-border bg-transparent px-3 py-1.5 text-[11px] font-semibold text-dh-text transition hover:bg-white/5";

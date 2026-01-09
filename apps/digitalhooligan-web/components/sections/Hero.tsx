@@ -63,7 +63,10 @@ export default function Hero() {
 
             <div className="mt-4 flex flex-wrap gap-2 text-xs text-dh-street-gray">
               <span className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/50 bg-dh-deep-void/50 px-3 py-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-dh-electric-mint shadow-[0_0_10px_rgba(77,163,255,0.7)]" />
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[#4DA3FF] shadow-[0_0_0_3px_rgba(77,163,255,0.16),0_0_10px_rgba(77,163,255,0.32)]"
+                  aria-hidden="true"
+                />
                 Single-member LLC · Software, SaaS & automation
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-dh-street-gray/50 bg-dh-deep-void/50 px-3 py-1">
