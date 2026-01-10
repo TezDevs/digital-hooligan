@@ -6,6 +6,8 @@
     "packages/*"
   ],
   "scripts": {
+    "bootstrap": "node scripts/bootstrap.mjs",
+    "env:check": "node scripts/check-env.mjs",
     "dev:dh": "pnpm --filter digitalhooligan-web dev",
     "dev:penny": "pnpm --filter pennywize-web dev",
     "dev:sneaker": "pnpm --filter sneakerscout-web dev",
