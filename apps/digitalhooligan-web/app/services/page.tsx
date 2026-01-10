@@ -4,171 +4,232 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Services · Digital Hooligan",
   description:
-    "Services offered by Digital Hooligan LLC – tool-first apps, bots, internal dashboards, and gov/enterprise-ready prototypes.",
+    "Fixed-scope offers for discovery, prototypes, production increments, and automation retainers — with clear deliverables and a clean handoff.",
 };
 
 const primaryCta =
-  "inline-flex items-center justify-center rounded-full bg-dh-rebel-red px-4 py-2 text-xs font-semibold text-black shadow shadow-dh-rebel-red/30 transition hover:opacity-90";
+  "inline-flex items-center justify-center rounded-full bg-dh-rebel-red px-4 py-2 text-xs font-semibold text-white shadow shadow-dh-rebel-red/30 transition hover:bg-dh-rebel-red/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-dh-rebel-red/60";
 
 const secondaryCta =
-  "inline-flex items-center justify-center rounded-full border border-dh-steel-blue/60 bg-transparent px-4 py-2 text-xs font-semibold text-dh-steel-blue transition hover:border-dh-steel-blue hover:bg-dh-steel-blue/10";
+  "inline-flex items-center justify-center rounded-full border border-dh-steel-blue/60 bg-transparent px-4 py-2 text-xs font-semibold text-dh-steel-blue transition hover:border-dh-steel-blue hover:bg-dh-steel-blue/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-dh-steel-blue/50";
 
 const neutralCta =
-  "inline-flex items-center justify-center rounded-full border border-dh-border bg-transparent px-4 py-2 text-xs font-semibold text-dh-text transition hover:bg-white/5";
+  "inline-flex items-center justify-center rounded-full border border-dh-border bg-transparent px-4 py-2 text-xs font-semibold text-dh-text transition hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-dh-steel-blue/40";
+
+type Offer = {
+  id: string;
+  name: string;
+  tier1Name: string;
+  startingAt: string;
+  blurb: string[];
+};
+
+const OFFERS: Offer[] = [
+  {
+    id: "signal-to-spec",
+    name: "Signal-to-Spec Discovery",
+    tier1Name: "Tier 1 — Rapid Discovery",
+    startingAt: "$2,500",
+    blurb: [
+      "Use this when you’re not sure what to build first — or you’ve got competing priorities and unclear risks.",
+      "We turn “ideas” into a scoped plan: requirements, data sources, constraints, and acceptance criteria.",
+      "You leave with clarity, not a pitch deck.",
+    ],
+  },
+  {
+    id: "prototype-sprint",
+    name: "Prototype Sprint",
+    tier1Name: "Tier 1 — Proof-of-Concept Sprint",
+    startingAt: "$9,500",
+    blurb: [
+      "Build something real enough to test assumptions.",
+      "We prioritize the riskiest parts first, then ship a demoable slice with clear notes on what’s proven and what’s not.",
+    ],
+  },
+  {
+    id: "build-ship",
+    name: "Build & Ship Increment",
+    tier1Name: "Tier 1 — 4-Week Increment",
+    startingAt: "$24,000",
+    blurb: [
+      "Ship a real increment, not a fragile prototype.",
+      "We scope a release slice, build it with reliability in mind, and deliver with the artifacts your team needs to operate it.",
+    ],
+  },
+  {
+    id: "retainer",
+    name: "Automation & Integrations Retainer",
+    tier1Name: "Tier 1 — Essential",
+    startingAt: "$2,500 / month",
+    blurb: [
+      "For teams who need a reliable builder in the loop.",
+      "We handle small builds, integrations, automation, and quality improvements — with a clear intake path and scope boundaries.",
+    ],
+  },
+];
 
 export default function ServicesPage() {
   return (
     <main className="min-h-screen bg-dh-carbon text-dh-text">
-      {/* Intro */}
+      {/* Hero */}
       <section className="border-b border-dh-border px-4 py-12 sm:px-6 md:py-16 lg:px-8">
         <div className="mx-auto max-w-6xl space-y-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-dh-steel-blue">
             Services
           </p>
+
           <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-            Tool-first builds for teams that actually ship.
+            Offers built for shipping.
           </h1>
+
           <p className="max-w-3xl text-sm text-dh-muted sm:text-base">
-            Digital Hooligan LLC is a{" "}
-            <span className="font-medium text-dh-text">small, focused studio</span>{" "}
-            that designs, builds, and operates web apps, bots, dashboards, and
-            automation toys. Ideal for internal tools, early prototypes, and
-            disciplined delivery in environments that can’t afford fragile code.
+            Fixed‑scope tiers with clear deliverables and a clean handoff.
           </p>
         </div>
       </section>
 
-      {/* Three core service buckets */}
+      {/* Offers */}
       <section className="border-b border-dh-border bg-dh-carbon px-4 py-12 sm:px-6 md:py-16 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
-          {/* 1. Short focused builds */}
-          <div className="space-y-2 rounded-2xl border border-dh-border bg-dh-panel p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-muted">
-              Short, focused builds
+        <div className="mx-auto max-w-6xl space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-lg font-semibold text-dh-text">Choose your entry point.</h2>
+            <p className="max-w-3xl text-sm text-dh-muted">
+              Start with discovery, validate with a prototype, or ship an increment.
             </p>
-            <h2 className="text-sm font-semibold text-dh-text">
-              MVPs, dashboards & proof-of-concepts
-            </h2>
-            <p className="text-xs text-dh-muted">
-              4–8 week projects that get you from idea to{" "}
-              <span className="font-medium text-dh-text">clickable reality</span>{" "}
-              with observability baked in from day one.
-            </p>
-            <ul className="mt-2 space-y-1 text-[11px] text-dh-muted">
-              <li>• Web dashboards for internal programs</li>
-              <li>• Targeted scrapers and monitoring jobs</li>
-              <li>• Simple APIs & internal tools</li>
-            </ul>
           </div>
 
-          {/* 2. Labs-style experiments */}
-          <div className="space-y-2 rounded-2xl border border-dh-border bg-dh-panel p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-muted">
-              Labs-style experiments
-            </p>
-            <h2 className="text-sm font-semibold text-dh-text">
-              Experiments with a real upgrade path
-            </h2>
-            <p className="text-xs text-dh-muted">
-              Build small and controlled first. If it works, promote it into a
-              product, integration, or hardened internal tool instead of throwing
-              it away.
-            </p>
-            <ul className="mt-2 space-y-1 text-[11px] text-dh-muted">
-              <li>• Hype-testing new ideas</li>
-              <li>• “Shadow mode” tools alongside existing systems</li>
-              <li>• Clear success metrics before scaling</li>
-            </ul>
-          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {OFFERS.map((offer) => (
+              <article
+                key={offer.id}
+                id={offer.id}
+                className="space-y-3 rounded-2xl border border-dh-border bg-dh-panel p-5"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-muted">
+                  Offer
+                </p>
 
-          {/* 3. Gov & enterprise */}
-          <div className="space-y-2 rounded-2xl border border-dh-border bg-dh-panel p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-muted">
-              Gov & enterprise ready
-            </p>
-            <h2 className="text-sm font-semibold text-dh-text">
-              Prototypes for serious environments
-            </h2>
-            <p className="text-xs text-dh-muted">
-              Used to requirements, test discipline, and “ship it clean.”
-              Digital Hooligan is <span className="font-medium text-dh-text">SAM.gov registered</span>{" "}
-              and operates as <span className="font-medium text-dh-text">SDVOSB / VOSB</span> with{" "}
-              <span className="font-medium text-dh-text">SBA 8(a)</span>.
-            </p>
-            <ul className="mt-2 space-y-1 text-[11px] text-dh-muted">
-              <li>• Internal portals and dashboards</li>
-              <li>• Data visualization & alerting surfaces</li>
-              <li>• Early-stage tools ahead of larger contracts</li>
-            </ul>
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold text-dh-text">{offer.name}</h3>
+
+                  <div className="space-y-2 text-sm text-dh-muted">
+                    {offer.blurb.map((line, idx) => (
+                      <p key={`${offer.id}-blurb-${idx}`}>{line}</p>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <span className="inline-flex items-center rounded-full border border-dh-border bg-dh-carbon px-3 py-1 text-[11px] font-semibold text-dh-text">
+                    {offer.tier1Name}
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-dh-border bg-dh-carbon px-3 py-1 text-[11px] font-semibold text-dh-text">
+                    Starting at {offer.startingAt}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Link href="/contact" className={primaryCta}>
+                    Book a fit check
+                  </Link>
+                  <Link href="/contact" className={secondaryCta}>
+                    Request a scoped quote
+                  </Link>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How projects run */}
+      {/* How we work */}
       <section className="border-b border-dh-border bg-dh-carbon px-4 py-12 sm:px-6 md:py-16 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,1.2fr),minmax(0,1fr)]">
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-dh-text">
-              How projects usually run
-            </h2>
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-dh-text">How we work</h2>
+
             <ol className="space-y-2 text-sm text-dh-muted">
               <li>
-                <span className="font-semibold text-dh-text">1. Quick discovery</span>{" "}
-                – Clarify the problem, environment, constraints, and success criteria.
+                <span className="font-semibold text-dh-text">1. Align</span> — outcome, constraints, success
+                signals
               </li>
               <li>
-                <span className="font-semibold text-dh-text">2. Lightweight plan</span>{" "}
-                – Milestones, rough timeline, and what “done” looks like. No giant decks.
+                <span className="font-semibold text-dh-text">2. Ship</span> — fixed scope, weekly demos, clean
+                PRs
               </li>
               <li>
-                <span className="font-semibold text-dh-text">3. Build & iterate</span>{" "}
-                – Short cycles with demos and adjustments instead of disappearing for months.
-              </li>
-              <li>
-                <span className="font-semibold text-dh-text">4. Handoff or ongoing care</span>{" "}
-                – Clean docs, clean code, and a clear support story.
+                <span className="font-semibold text-dh-text">3. Handoff</span> — docs, runbook, what shipped +
+                what’s next
               </li>
             </ol>
+
+            <div className="space-y-2 text-sm text-dh-muted">
+              <p>We run short cycles with explicit scope.</p>
+              <p>You’ll see progress weekly, not at the end.</p>
+              <p>
+                Deliverables are defined up front, and anything outside scope goes through a written add‑on/change
+                order path.
+              </p>
+              <p>You get a clean repo, handoff notes, and the context to keep moving.</p>
+            </div>
           </div>
 
-          <aside className="space-y-3 rounded-2xl border border-dh-border bg-dh-panel p-4 text-xs text-dh-muted">
+          <aside className="space-y-3 rounded-2xl border border-dh-border bg-dh-panel p-5 text-sm text-dh-muted">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-dh-muted">
-              Good fit projects
+              Credibility strip
             </p>
             <ul className="space-y-1.5">
-              <li>• You want a focused, opinionated builder.</li>
-              <li>• You care about dashboards, observability, and uptime.</li>
-              <li>• You’re okay starting small and upgrading if it works.</li>
-              <li>• You’ll give feedback during the build.</li>
+              <li className="text-sm">• Fixed‑scope tiers + written change control</li>
+              <li className="text-sm">• Weekly demos + visible artifacts</li>
+              <li className="text-sm">• Clean repo + handoff notes</li>
+              <li className="text-sm">• Security‑first defaults (practices, not certifications)</li>
+              <li className="text-sm">• Support only when contracted (no implied SLA)</li>
             </ul>
-            <p className="pt-2 text-[11px] text-dh-muted/80">
-              If you need more visibility, we can provide simple weekly status updates and a
-              structured handoff package.
-            </p>
           </aside>
         </div>
       </section>
 
-      {/* CTA row */}
+      {/* CTAs */}
       <section className="bg-dh-carbon px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 border-t border-dh-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1 text-sm">
-            <p className="font-semibold text-dh-text">
-              Ready to talk about a project?
-            </p>
+        <div className="mx-auto max-w-6xl space-y-6 border-t border-dh-border pt-6">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-dh-text">Start here</p>
             <p className="text-xs text-dh-muted">
-              A short email with your constraints and goals is perfect.
+              Choose the smallest tier that produces a decision or a shippable artifact — then expand via a new
+              tier or change order.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/#contact" className={primaryCta}>
-              Jump to contact
-            </Link>
-            <Link href="/contact" className={secondaryCta}>
-              Contact page
-            </Link>
-            <Link href="/" className={neutralCta}>
-              Back to homepage
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2 rounded-2xl border border-dh-border bg-dh-panel p-5">
+              <Link href="/contact" className={primaryCta}>
+                Book a fit check
+              </Link>
+              <p className="text-xs text-dh-muted">
+                Bring a 1‑paragraph problem statement + any links/screenshots.
+              </p>
+            </div>
+
+            <div className="space-y-2 rounded-2xl border border-dh-border bg-dh-panel p-5">
+              <Link href="/contact" className={secondaryCta}>
+                Request a scoped quote
+              </Link>
+              <p className="text-xs text-dh-muted">Tell us the outcome + deadline + constraints.</p>
+            </div>
+
+            <div className="space-y-2 rounded-2xl border border-dh-border bg-dh-panel p-5">
+              <Link href="/contact" className={neutralCta}>
+                Start with Discovery
+              </Link>
+              <p className="text-xs text-dh-muted">
+                If requirements are fuzzy, this is the right first move.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-2">
+            <Link href="/labs" className={neutralCta}>
+              See proof &amp; build notes
             </Link>
           </div>
         </div>
