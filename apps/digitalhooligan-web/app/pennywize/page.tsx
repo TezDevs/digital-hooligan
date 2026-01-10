@@ -51,8 +51,12 @@ export default function PennyWizePage() {
               for noisy tickers: scanner boards, briefings, and explainability
               that help you understand what changed and why it matters.
             </p>
-            <p className="text-xs text-dh-street-gray/70">
-              Not predictive. Not financial advice. No buy/sell calls.
+
+            {/* D-FIN-01 (verbatim) */}
+            <p className="text-xs leading-relaxed text-dh-street-gray/70">
+              Signals and information are provided for research and awareness only. They are not financial,
+              investment, legal, or tax advice, and do not constitute a recommendation to buy or sell any
+              security.
             </p>
           </div>
 
@@ -247,12 +251,19 @@ export default function PennyWizePage() {
       {/* Footer CTA row */}
       <section className="bg-dh-black px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-5xl flex-col gap-4 border-t border-dh-street-gray/40 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1 text-sm text-dh-offwhite">
+          <div className="space-y-2 text-sm text-dh-offwhite">
             <p className="font-semibold text-dh-offwhite">
               Want to build around PennyWize?
             </p>
             <p className="text-xs text-dh-street-gray/80">
               A short email with your constraints and goals is perfect.
+            </p>
+
+            {/* D-FIN-01 (verbatim) — footer placement */}
+            <p className="text-xs leading-relaxed text-dh-street-gray/70">
+              Signals and information are provided for research and awareness only. They are not financial,
+              investment, legal, or tax advice, and do not constitute a recommendation to buy or sell any
+              security.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
