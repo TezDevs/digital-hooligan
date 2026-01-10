@@ -30,8 +30,8 @@ export default function Footer() {
             </Link>
 
             <p className="max-w-md text-dh-muted">
-              A small, veteran-led software studio building web apps, dashboards, and automation — with
-              clean delivery, tight scope, and maintainable code.
+              A small, veteran-led software studio building web apps, dashboards, and automation — with clean
+              delivery, tight scope, and maintainable code.
             </p>
             <p className="text-dh-muted/80">
               NAICS 541511 · SAM.gov registered · SDVOSB · VOSB · SBA 8(a) Business Development
@@ -41,9 +41,7 @@ export default function Footer() {
 
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
-                Public
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Public</p>
               <ul className="space-y-1.5">
                 <li>
                   <Link href="/" className="transition-colors hover:text-dh-steel-blue">
@@ -69,9 +67,7 @@ export default function Footer() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
-                Programs
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Programs</p>
               <ul className="space-y-1.5">
                 <li>
                   <Link href="/gov" className="transition-colors hover:text-dh-steel-blue">
@@ -87,9 +83,7 @@ export default function Footer() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
-                Legal
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Legal</p>
               <ul className="space-y-1.5">
                 <li>
                   <Link href="/privacy" className="transition-colors hover:text-dh-steel-blue">
@@ -103,6 +97,31 @@ export default function Footer() {
                 </li>
               </ul>
             </div>
+          </div>
+        </div>
+
+        {/* Required disclaimers (verbatim) */}
+        <div className="rounded-2xl border border-dh-border bg-dh-panel p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Disclosures</p>
+
+          <div className="mt-3 space-y-3 text-xs leading-relaxed text-dh-muted">
+            <p>
+              Pricing is shown as “Starting at” for the lowest tier only. Exact scope and final pricing are
+              confirmed in the proposal after discovery. Timelines assume timely client inputs and no unapproved
+              scope changes. Anything not included is handled via an add-on, separate SOW, or change order.
+            </p>
+            <p>
+              Scope is fixed to the selected tier’s defined deliverables. Any work outside scope is quoted and
+              approved in writing as an add-on or change order before work proceeds.
+            </p>
+            <p>
+              Third-party fees (cloud services, licenses, APIs, hardware, shipping, travel) are not included
+              unless explicitly stated. They are pass-through costs with prior approval.
+            </p>
+            <p>
+              Ongoing support and response targets apply only when explicitly included in the Statement of Work
+              (SOW) or a support add-on. No 24/7 support is implied by default.
+            </p>
           </div>
         </div>
 
