@@ -29,6 +29,5 @@ This is a monorepo.
 
 From the repo root:
 
-```bash
-pnpm install
-pnpm -C apps/digitalhooligan-web dev
+pnpm bootstrap
+
