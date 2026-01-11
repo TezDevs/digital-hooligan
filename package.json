@@ -10,8 +10,16 @@
     "env:check": "node scripts/check-env.mjs",
     "dev:dh": "pnpm --filter digitalhooligan-web dev",
     "dev:penny": "pnpm --filter pennywize-web dev",
-    "dev:sneaker": "pnpm --filter sneakerscout-web dev",
-    "dev:all": "pnpm --parallel --filter digitalhooligan-web --filter pennywize-web --filter sneakerscout-web dev"
+    "dev:sneaker": "pnpm --filter sneakerscout-lite dev",
+    "dev:all": "pnpm --parallel --filter digitalhooligan-web --filter pennywize-web --filter sneakerscout-lite dev",
+    "lint": "pnpm -r --filter digitalhooligan-web --filter sneakerscout-lite lint",
+    "build": "pnpm -r --filter digitalhooligan-web --filter sneakerscout-lite build",
+    "typecheck": "pnpm -r --filter digitalhooligan-web --filter sneakerscout-lite --if-present run typecheck",
+    "check": "pnpm lint && pnpm typecheck && pnpm build",
+    "lint:all": "pnpm -r lint",
+    "build:all": "pnpm -r build",
+    "typecheck:all": "pnpm -r --if-present run typecheck",
+    "check:all": "pnpm lint:all && pnpm typecheck:all && pnpm build:all"
   },
   "dependencies": {
     "lucide-react": "^0.555.0"
