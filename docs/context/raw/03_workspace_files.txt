@@ -10,8 +10,8 @@
   "scripts": {
     "dev:dh": "pnpm --filter digitalhooligan-web dev",
     "dev:penny": "pnpm --filter pennywize-web dev",
-    "dev:sneaker": "pnpm --filter sneakerscout-web dev",
-    "dev:all": "pnpm --parallel --filter digitalhooligan-web --filter pennywize-web --filter sneakerscout-web dev"
+    "dev:sneaker": "pnpm --filter dropsignal-web dev",
+    "dev:all": "pnpm --parallel --filter digitalhooligan-web --filter pennywize-web --filter dropsignal-web dev"
   },
   "dependencies": {
     "lucide-react": "^0.555.0"

@@ -4,7 +4,7 @@ drwxr-xr-x@  5 courtezcannady  staff  160 Dec 22 14:12 .
 drwxr-xr-x  13 courtezcannady  staff  416 Jan  1 16:46 ..
 drwxr-xr-x@ 24 courtezcannady  staff  768 Jan  5 14:13 digitalhooligan-web
 drwxr-xr-x@ 14 courtezcannady  staff  448 Dec  3 00:59 pennywize-web
-drwxr-xr-x@ 13 courtezcannady  staff  416 Dec  3 00:59 sneakerscout-lite
+drwxr-xr-x@ 13 courtezcannady  staff  416 Dec  3 00:59 dropsignal-web
 total 104
 drwxr-xr-x@ 24 courtezcannady  staff   768 Jan  5 14:13 .
 drwxr-xr-x@  5 courtezcannady  staff   160 Dec 22 14:12 ..
