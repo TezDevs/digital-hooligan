@@ -1,6 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const CTA_URLS = {
   exploreTemplates: "", // TODO: Notion embed or Figma preview URL (placeholder allowed)
@@ -14,7 +16,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
 
 function AnchorButton(props: {
   href: string;
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: "primary" | "secondary";
 }) {
   const primary = props.variant !== "secondary";
@@ -35,7 +37,7 @@ function AnchorButton(props: {
 
 function ExternalButton(props: {
   href?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: "primary" | "secondary";
 }) {
   const primary = props.variant !== "secondary";
@@ -80,7 +82,7 @@ function SectionShell(props: {
   eyebrow?: string;
   title: string;
   description?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <section id={props.id} className="py-14 sm:py-20">
@@ -104,12 +106,70 @@ function SectionShell(props: {
   );
 }
 
-function Pill(props: { children: React.ReactNode }) {
+function Pill(props: { children: ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-neutral-800 bg-neutral-950/40 px-3 py-1 text-xs text-neutral-200">
       {props.children}
     </span>
   );
+}
+
+type ProofTile = {
+  title: string;
+  // Replace these with finalized Product Copy Studio text when you paste it.
+  alt: string;
+  caption: string;
+  fileName: string; // must exist in /public/labs/hq/proof/
+};
+
+const PROOF_TILES: ProofTile[] = [
+  {
+    title: "Internal workspace screenshots — real usage",
+    alt: "Internal workspace screenshots — real usage",
+    caption: "Internal workspace screenshots — real usage",
+    fileName: "internal-workspace-real-usage.png",
+  },
+  {
+    title: "Board taxonomy — validates ops loop",
+    alt: "Board taxonomy — validates ops loop",
+    caption: "Board taxonomy — validates ops loop",
+    fileName: "board-taxonomy-ops-loop.png",
+  },
+  {
+    title: "Weekly review template — cadence proof",
+    alt: "Weekly review template — cadence proof",
+    caption: "Weekly review template — cadence proof",
+    fileName: "weekly-review-cadence-proof.png",
+  },
+  {
+    title: "Definition of Done examples — scope control proof",
+    alt: "Definition of Done examples — scope control proof",
+    caption: "Definition of Done examples — scope control proof",
+    fileName: "definition-of-done-scope-control.png",
+  },
+  {
+    title: "Decision & Change Log — governance proof",
+    alt: "Decision & Change Log — governance proof",
+    caption: "Decision & Change Log — governance proof",
+    fileName: "decision-change-log-governance.png",
+  },
+  {
+    title: "Mode Switch Diagram — execution model proof",
+    alt: "Mode Switch Diagram — execution model proof",
+    caption: "Mode Switch Diagram — execution model proof",
+    fileName: "mode-switch-execution-model.png",
+  },
+  {
+    title: "Public changelog — evolution proof",
+    alt: "Public changelog — evolution proof",
+    caption: "Public changelog — evolution proof",
+    fileName: "public-changelog-evolution.png",
+  },
+];
+
+function proofSrc(fileName: string) {
+  // Support spaces/en-dashes safely (even though we normalized filenames)
+  return encodeURI(`/labs/hq/proof/${fileName}`);
 }
 
 export function LabsHqClient() {
@@ -301,10 +361,17 @@ export function LabsHqClient() {
           <div className="text-sm font-medium text-neutral-100">
             Kanban visuals
           </div>
-          <p className="mt-2 text-sm leading-6 text-neutral-400">
-            Placeholder panel for the “Central Kanban” visuals
-            (screenshots/diagrams).
-          </p>
+
+          <Image
+            src="/hero/launch-hq.png"
+            alt="Launch HQ — Operational Centerline"
+            width={1600}
+            height={900}
+            priority
+            className="mt-4 h-auto w-full rounded-2xl border border-neutral-900"
+          />
+
+          {/* Restored placeholder block (for v1 / safety / future swap) */}
           <div className="mt-4 rounded-xl border border-dashed border-neutral-800 bg-neutral-950/60 p-8 text-xs text-neutral-500">
             Kanban screenshot placeholder
           </div>
@@ -319,26 +386,43 @@ export function LabsHqClient() {
         description="Screenshots: real boards, DoD, shipping logs."
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            "Internal workspace screenshots - real usage.",
-            "Board taxonomy - validates ops loop.",
-            "Weekly review template - cadence proof.",
-            "Definition of Done examples - scope control proof.",
-            "Decision & Change Log - governance proof.",
-            "Mode Switch Diagram - execution model proof.",
-            "Public changelog - evolution proof.",
-          ].map((label) => (
-            <div
-              key={label}
-              className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5"
+          {PROOF_TILES.map((tile) => (
+            <figure
+              key={tile.title}
+              className={cx(
+                "group relative overflow-hidden rounded-2xl border border-neutral-900 bg-neutral-950/40",
+                "transition-transform duration-200 hover:-translate-y-0.5 hover:border-neutral-800"
+              )}
             >
-              <div className="text-sm font-medium text-neutral-100">
-                {label}
+              <div className="relative aspect-[16/10] w-full overflow-hidden">
+                <Image
+                  src={proofSrc(tile.fileName)}
+                  alt={tile.alt}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"
+                />
               </div>
-              <div className="mt-4 rounded-xl border border-dashed border-neutral-800 bg-neutral-950/60 p-6 text-xs text-neutral-500">
-                Screenshot / asset placeholder
-              </div>
-            </div>
+
+              <figcaption className="p-5">
+                <div className="text-sm font-medium text-neutral-100">
+                  {tile.title}
+                </div>
+                <p className="mt-2 text-sm leading-6 text-neutral-400">
+                  {tile.caption}
+                </p>
+              </figcaption>
+
+              <a
+                href={proofSrc(tile.fileName)}
+                className="absolute inset-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-500/40"
+                aria-label={`${tile.title}: open image`}
+              />
+            </figure>
           ))}
         </div>
 
