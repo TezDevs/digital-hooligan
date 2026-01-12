@@ -1,5 +1,5 @@
 {
-  "name": "sneakerscout-lite",
+  "name": "dropsignal-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
-
   },
   "dependencies": {
     "next": "16.0.3",

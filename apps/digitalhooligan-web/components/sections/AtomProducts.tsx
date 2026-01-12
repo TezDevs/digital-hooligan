@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import styles from './atom-products.module.css';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import styles from "./atom-products.module.css";
 
 type Product = {
   id: string;
@@ -17,62 +17,62 @@ type Product = {
 
 const PRODUCTS: Product[] = [
   {
-    id: 'pennywize',
-    name: 'PennyWize',
-    short: 'Penny stock intel engine',
+    id: "pennywize",
+    name: "PennyWize",
+    short: "Penny stock intel engine",
     description:
-      'PennyWize watches micro-caps, news, and volume so you don’t have to. Built for fast scanning, alerting, and quick “is this worth my attention?” checks.',
-    image: '/products/pennywize.png',
+      "PennyWize watches micro-caps, news, and volume so you don’t have to. Built for fast scanning, alerting, and quick “is this worth my attention?” checks.",
+    image: "/products/pennywize.png",
     ring: 1,
     angle: 90,
   },
   {
-    id: 'sneakerscout',
-    name: 'SneakerScout',
-    short: 'Sneaker price-drop radar',
+    id: "dropsignal",
+    name: "dropsignal",
+    short: "Sneaker price-drop radar",
     description:
-      'SneakerScout tracks drops across marketplaces, flags underpriced pairs, and helps you move fast on deals before they’re gone.',
-    image: '/products/pennywize.png',
+      "dropsignal tracks drops across marketplaces, flags underpriced pairs, and helps you move fast on deals before they’re gone.",
+    image: "/products/pennywize.png",
     ring: 1,
     angle: 210,
   },
   {
-    id: 'labs',
-    name: 'Hooligan Labs',
-    short: 'R&D skunkworks',
+    id: "labs",
+    name: "Hooligan Labs",
+    short: "R&D skunkworks",
     description:
-      'Hooligan Labs is where weird prototypes live first: bots, scrapers, tactical dashboards, and experimental tools for operators.',
-    image: '/products/pennywize.png',
+      "Hooligan Labs is where weird prototypes live first: bots, scrapers, tactical dashboards, and experimental tools for operators.",
+    image: "/products/pennywize.png",
     ring: 1,
     angle: 330,
   },
   {
-    id: 'devhq',
-    name: 'Dev HQ',
-    short: 'Central ops console',
+    id: "devhq",
+    name: "Dev HQ",
+    short: "Central ops console",
     description:
-      'Dev HQ is your command center for Digital Hooligan projects, workflows, and automation. One place to launch, monitor, and improve your stack.',
-    image: '/products/pennywize.png',
+      "Dev HQ is your command center for Digital Hooligan projects, workflows, and automation. One place to launch, monitor, and improve your stack.",
+    image: "/products/pennywize.png",
     ring: 2,
     angle: 30,
   },
   {
-    id: 'brandkit',
-    name: 'Brand Systems',
-    short: 'Design + identity',
+    id: "brandkit",
+    name: "Brand Systems",
+    short: "Design + identity",
     description:
-      'A unified cyberpunk-meets-operator design system: colors, typography, components, and motion that tie the Hooligan universe together.',
-    image: '/products/pennywize.png',
+      "A unified cyberpunk-meets-operator design system: colors, typography, components, and motion that tie the Hooligan universe together.",
+    image: "/products/pennywize.png",
     ring: 2,
     angle: 180,
   },
   {
-    id: 'future',
-    name: 'Future Apps',
-    short: 'Upcoming drops',
+    id: "future",
+    name: "Future Apps",
+    short: "Upcoming drops",
     description:
-      'Slots reserved for the next wave of Hooligan tools—small, sharp, and profitable utilities designed to punch above their weight.',
-    image: '/products/pennywize.png',
+      "Slots reserved for the next wave of Hooligan tools—small, sharp, and profitable utilities designed to punch above their weight.",
+    image: "/products/pennywize.png",
     ring: 3,
     angle: 300,
   },
@@ -89,7 +89,7 @@ export default function AtomProducts() {
         <motion.div
           className={styles.atomWrapper}
           animate={{ x: selected ? -20 : 0 }}
-          transition={{ type: 'spring', stiffness: 120, damping: 16 }}
+          transition={{ type: "spring", stiffness: 120, damping: 16 }}
         >
           <div className={styles.atomGlow} />
 
@@ -120,7 +120,7 @@ export default function AtomProducts() {
                     type="button"
                     onClick={() => setSelected(product)}
                     className={`${styles.productNode} ${
-                      isSelected ? styles.productNodeActive : ''
+                      isSelected ? styles.productNodeActive : ""
                     }`}
                     style={{
                       transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
@@ -145,7 +145,7 @@ export default function AtomProducts() {
                 initial={{ x: 320, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 320, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 140, damping: 18 }}
+                transition={{ type: "spring", stiffness: 140, damping: 18 }}
                 className={styles.panel}
               >
                 <div className={styles.panelHeader}>
