@@ -1,358 +1,514 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
-type LabStage = "idea" | "building" | "testing" | "live";
+const CTA_URLS = {
+  exploreTemplates: "", // TODO: Notion embed or Figma preview URL (placeholder allowed)
+  seeOurSystem: "", // TODO: public Notion view URL (placeholder allowed)
+  buildYourHQ: "", // TODO: onboarding waitlist URL (placeholder allowed)
+} as const;
 
-type LabsApp = {
-    id: string;
-    slug: string;
-    name: string;
-    tagline: string;
-    stage: LabStage;
-    focus: string;
-    owner: string;
-    notes: string;
-    nextSteps: string[];
-    riskLevel: "low" | "medium" | "high";
-};
-
-const LABS_APPS: LabsApp[] = [
-    {
-        id: "pennywize",
-        slug: "pennywize",
-        name: "PennyWize",
-        tagline: "Penny-stock intel bot for chaotic markets.",
-        stage: "building",
-        focus: "Realtime stock signals, feeds, and watchlists.",
-        owner: "Digital Hooligan Labs",
-        notes:
-            "Core signal engine + retro ticker experiments live mostly in Pi + backend space. Web app UX still evolving.",
-        nextSteps: [
-            "Finalize MVP feed architecture (APIs + queues).",
-            "Prototype retro ticker UI for Pi + web embeds.",
-            "Wire health & usage metrics into CEO Performance.",
-        ],
-        riskLevel: "medium",
-    },
-    {
-        id: "dropsignal",
-        slug: "dropsignal",
-        name: "DropSignal",
-        tagline: "Sneaker + streetwear price-drop radar.",
-        stage: "idea",
-        focus: "Scraping, feeds, and price-drop alerts for hype items.",
-        owner: "Digital Hooligan Labs",
-        notes:
-            "Still validating exact feature set and which marketplaces to target first. Assist-mode alerts first; add-to-cart later.",
-        nextSteps: [
-            "Lock in top 3–5 marketplaces to support.",
-            "Design assist-mode alert flows (no carts yet).",
-            "Outline path to 'grown-up mode' retailer integrations.",
-        ],
-        riskLevel: "medium",
-    },
-    {
-        id: "hypewatch",
-        slug: "hypewatch",
-        name: "HypeWatch",
-        tagline: "Collectibles + hype assets watch bot.",
-        stage: "idea",
-        focus: "Cards, collectibles, and other hype-side assets.",
-        owner: "Digital Hooligan Labs",
-        notes:
-            "Shares DNA with DropSignal but focused more on long-tail collectibles and OTC markets.",
-        nextSteps: [
-            "Decide first vertical: cards vs figures vs mixed.",
-            "Sketch shared engine vs separate engine from DropSignal.",
-            "Map alerts into CEO Performance and Labs HQ.",
-        ],
-        riskLevel: "low",
-    },
-    {
-        id: "ops-toys",
-        slug: "ops-toys",
-        name: "Ops Toys",
-        tagline: "Drawer of DevOps and infra automation toys.",
-        stage: "testing",
-        focus: "Internal tooling for APIs, deployments, and observability.",
-        owner: "Internal / Dev",
-        notes:
-            "Intended as the internal playground: CLI tools, small bots, and infra automation experiments.",
-        nextSteps: [
-            "List the first 3 internal tools to productize.",
-            "Integrate with CEO dashboard for deployment health.",
-            "Decide what, if anything, becomes client-facing.",
-        ],
-        riskLevel: "high",
-    },
-];
-
-function getStageBadge(stage: LabStage) {
-    const base =
-        "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium border";
-
-    switch (stage) {
-        case "idea":
-            return (
-                <span
-                    className={`${base} border-neutral-700 bg-neutral-900 text-neutral-300`}
-                >
-                    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-neutral-500" />
-                    Idea
-                </span>
-            );
-        case "building":
-            return (
-                <span
-                    className={`${base} border-emerald-500/50 bg-emerald-500/10 text-emerald-200`}
-                >
-                    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    Building
-                </span>
-            );
-        case "testing":
-            return (
-                <span
-                    className={`${base} border-amber-500/50 bg-amber-500/10 text-amber-200`}
-                >
-                    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-amber-400" />
-                    Testing
-                </span>
-            );
-        case "live":
-            return (
-                <span
-                    className={`${base} border-sky-500/50 bg-sky-500/10 text-sky-200`}
-                >
-                    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-sky-400" />
-                    Live
-                </span>
-            );
-    }
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
 }
 
-function getRiskBadge(level: LabsApp["riskLevel"]) {
-    const base =
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium border";
+function AnchorButton(props: {
+  href: string;
+  children: React.ReactNode;
+  variant?: "primary" | "secondary";
+}) {
+  const primary = props.variant !== "secondary";
+  return (
+    <a
+      href={props.href}
+      className={cx(
+        "inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium transition",
+        primary
+          ? "bg-rose-500 text-neutral-950 hover:bg-rose-400"
+          : "border border-neutral-800 bg-neutral-950/40 text-neutral-100 hover:bg-neutral-900"
+      )}
+    >
+      {props.children}
+    </a>
+  );
+}
 
-    if (level === "low") {
-        return (
-            <span
-                className={`${base} border-emerald-500/50 bg-emerald-500/5 text-emerald-300`}
-            >
-                Risk: Low
-            </span>
-        );
-    }
+function ExternalButton(props: {
+  href?: string;
+  children: React.ReactNode;
+  variant?: "primary" | "secondary";
+}) {
+  const primary = props.variant !== "secondary";
 
-    if (level === "medium") {
-        return (
-            <span
-                className={`${base} border-amber-500/50 bg-amber-500/5 text-amber-200`}
-            >
-                Risk: Medium
-            </span>
-        );
-    }
-
+  // ✅ direct guard narrows props.href to string below
+  if (!props.href) {
     return (
-        <span
-            className={`${base} border-rose-500/50 bg-rose-500/5 text-rose-300`}
-        >
-            Risk: High
-        </span>
+      <span
+        className={cx(
+          "inline-flex cursor-not-allowed items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium opacity-60",
+          primary
+            ? "bg-rose-500 text-neutral-950"
+            : "border border-neutral-800 bg-neutral-950/40 text-neutral-100"
+        )}
+        aria-disabled="true"
+        title="Link target not set yet"
+      >
+        {props.children} (placeholder)
+      </span>
     );
+  }
+
+  return (
+    <Link
+      href={props.href}
+      target="_blank"
+      rel="noreferrer"
+      className={cx(
+        "inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium transition",
+        primary
+          ? "bg-rose-500 text-neutral-950 hover:bg-rose-400"
+          : "border border-neutral-800 bg-neutral-950/40 text-neutral-100 hover:bg-neutral-900"
+      )}
+    >
+      {props.children}
+    </Link>
+  );
+}
+
+function SectionShell(props: {
+  id?: string;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <section id={props.id} className="py-14 sm:py-20">
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
+        {props.eyebrow ? (
+          <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">
+            {props.eyebrow}
+          </div>
+        ) : null}
+        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-50 sm:text-3xl">
+          {props.title}
+        </h2>
+        {props.description ? (
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-neutral-400 sm:text-base">
+            {props.description}
+          </p>
+        ) : null}
+        {props.children ? <div className="mt-8">{props.children}</div> : null}
+      </div>
+    </section>
+  );
+}
+
+function Pill(props: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-neutral-800 bg-neutral-950/40 px-3 py-1 text-xs text-neutral-200">
+      {props.children}
+    </span>
+  );
 }
 
 export function LabsHqClient() {
-    const searchParams = useSearchParams();
-    const appId = searchParams.get("appId");
-    const normalizedId = appId?.toLowerCase() ?? null;
-
-    const selectedApp: LabsApp =
-        LABS_APPS.find(
-            (app) =>
-                normalizedId &&
-                (app.id.toLowerCase() === normalizedId ||
-                    app.slug.toLowerCase() === normalizedId)
-        ) ?? LABS_APPS[0];
-
-    const basePath = "/labs/hq";
-
-    return (
-        <div className="min-h-screen bg-neutral-950 text-neutral-50">
-            <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 md:px-6 lg:px-8">
-                {/* Back to CEO */}
-                <div className="mb-1 flex items-center justify-between">
-                    <Link
-                        href="/ceo"
-                        className="inline-flex items-center gap-2 text-xs font-medium text-neutral-400 hover:text-emerald-300"
-                    >
-                        <span className="text-base leading-none">←</span>
-                        <span>Back to CEO dashboard</span>
-                    </Link>
-                    <span className="rounded-full border border-neutral-800 bg-neutral-900/60 px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-neutral-500">
-                        Labs HQ
-                    </span>
-                </div>
-
-                {/* Header */}
-                <header className="flex flex-col gap-3 border-b border-neutral-800 pb-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold md:text-3xl">
-                            Hooligan Labs HQ
-                        </h1>
-                        <p className="mt-1 text-sm text-neutral-400">
-                            Internal playground for PennyWize, DropSignal, HypeWatch, and Ops
-                            Toys. This is where ideas graduate from{" "}
-                            <span className="text-neutral-200">
-                                sketch → prototype → live.
-                            </span>
-                        </p>
-                    </div>
-                    <div className="flex flex-col items-start gap-2 text-xs md:items-end">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/70 px-3 py-1 font-medium text-neutral-200">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                            Focus app: {selectedApp.name}
-                        </div>
-                        <p className="text-neutral-500">
-                            This view was{" "}
-                            {appId
-                                ? "pre-filtered via ?appId from CEO Performance."
-                                : "opened directly from Labs or the site."}
-                        </p>
-                    </div>
-                </header>
-
-                {/* Main layout */}
-                <main className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr),minmax(0,1.7fr)]">
-                    {/* Left: app list */}
-                    <section className="flex flex-col gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
-                        <div className="flex items-center justify-between gap-2">
-                            <h2 className="text-sm font-medium text-neutral-100">
-                                Lab apps
-                            </h2>
-                            <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">
-                                {LABS_APPS.length} in pipeline
-                            </span>
-                        </div>
-
-                        <div className="mt-1 flex flex-col gap-2">
-                            {LABS_APPS.map((app) => {
-                                const active = app.id === selectedApp.id;
-
-                                return (
-                                    <Link
-                                        key={app.id}
-                                        href={`${basePath}?appId=${app.id}`}
-                                        className={`group flex flex-col rounded-xl border px-3 py-2 text-sm transition ${active
-                                                ? "border-emerald-500/70 bg-emerald-500/10"
-                                                : "border-neutral-800 bg-neutral-950/60 hover:border-neutral-600 hover:bg-neutral-900"
-                                            }`}
-                                    >
-                                        <div className="flex items-center justify-between gap-2">
-                                            <div className="flex flex-col">
-                                                <span
-                                                    className={`font-medium ${active
-                                                            ? "text-emerald-200"
-                                                            : "text-neutral-100 group-hover:text-neutral-50"
-                                                        }`}
-                                                >
-                                                    {app.name}
-                                                </span>
-                                                <span className="text-xs text-neutral-500">
-                                                    {app.tagline}
-                                                </span>
-                                            </div>
-                                            <div className="flex flex-col items-end gap-1">
-                                                {getStageBadge(app.stage)}
-                                                <span className="text-[10px] uppercase tracking-[0.16em] text-neutral-500">
-                                                    {app.owner}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </section>
-
-                    {/* Right: detail panel */}
-                    <section className="flex flex-col gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
-                        <header className="flex flex-wrap items-start justify-between gap-3">
-                            <div>
-                                <h2 className="text-lg font-semibold text-neutral-50">
-                                    {selectedApp.name}
-                                </h2>
-                                <p className="mt-1 text-sm text-neutral-400">
-                                    {selectedApp.tagline}
-                                </p>
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                                {getStageBadge(selectedApp.stage)}
-                                {getRiskBadge(selectedApp.riskLevel)}
-                            </div>
-                        </header>
-
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-3">
-                                <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                                    Focus
-                                </h3>
-                                <p className="mt-2 text-sm text-neutral-200">
-                                    {selectedApp.focus}
-                                </p>
-                            </div>
-
-                            <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-3">
-                                <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                                    Owner
-                                </h3>
-                                <p className="mt-2 text-sm text-neutral-200">
-                                    {selectedApp.owner}
-                                </p>
-                                <p className="mt-1 text-xs text-neutral-500">
-                                    Owner is accountable for scope, tradeoffs, and when it
-                                    graduates to production.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-3">
-                            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                                Notes from the lab
-                            </h3>
-                            <p className="mt-2 text-sm text-neutral-200">
-                                {selectedApp.notes}
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-3">
-                            <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                                Next steps
-                            </h3>
-                            <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-neutral-200">
-                                {selectedApp.nextSteps.map((step, index) => (
-                                    <li key={index}>{step}</li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-neutral-500">
-                            <span>
-                                Tip: You can deep-link here from the CEO dashboard or Dev
-                                Workbench with{" "}
-                                <code className="rounded bg-neutral-900 px-1 py-0.5">
-                                    ?appId={selectedApp.id}
-                                </code>
-                                .
-                            </span>
-                        </div>
-                    </section>
-                </main>
-            </div>
+  return (
+    <main className="min-h-screen bg-neutral-950 text-neutral-50">
+      {/* Top bar */}
+      <div className="border-b border-neutral-900">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 md:px-6 lg:px-8">
+          <Link
+            href="/labs"
+            className="inline-flex items-center gap-2 text-xs font-medium text-neutral-400 hover:text-rose-300"
+          >
+            <span className="text-base leading-none">←</span>
+            <span>Back to Labs</span>
+          </Link>
+          <span className="rounded-full border border-neutral-800 bg-neutral-950/40 px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-neutral-500">
+            Launch HQ
+          </span>
         </div>
-    );
+      </div>
+
+      {/* SECTION 1 — Above the Fold (Promise + CTA) */}
+      <header className="border-b border-neutral-900">
+        <div className="mx-auto max-w-6xl px-4 py-14 md:px-6 lg:px-8 sm:py-20">
+          <div className="flex flex-wrap items-center gap-2">
+            <Pill>Structure. Cadence. Visibility.</Pill>
+            <Pill>Notion-first operating system</Pill>
+          </div>
+
+          <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
+            Structure your chaos. Ship faster.
+          </h1>
+
+          <p className="mt-5 max-w-2xl text-base leading-7 text-neutral-300">
+            Launch HQ is your operating system for shipping work with speed,
+            clarity, and focus.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <AnchorButton href="#system-overview" variant="primary">
+              See How It Works
+            </AnchorButton>
+            <AnchorButton href="#request-access" variant="secondary">
+              Request Access
+            </AnchorButton>
+          </div>
+
+          <div className="mt-10 grid gap-3 text-sm text-neutral-300 sm:grid-cols-2">
+            <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5">
+              <div className="text-sm font-medium text-neutral-100">
+                Promise
+              </div>
+              <p className="mt-2 leading-6 text-neutral-300">
+                Launch HQ is the Notion-first operating system that gives your
+                business a clear execution rhythm - turning chaos into shipped
+                work, without adding overhead.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5">
+              <div className="text-sm font-medium text-neutral-100">
+                Tone &amp; Boundaries
+              </div>
+              <p className="mt-2 leading-6 text-neutral-300">
+                Direct, calm authority. No hype. No guarantees. Launch HQ helps
+                you ship better, not sell harder.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5">
+            <div className="text-sm font-medium text-neutral-100">
+              Language Guide
+            </div>
+            <p className="mt-2 text-sm leading-6 text-neutral-300">
+              {`Use "operating system," "work visibility," "cadence," "execution loop."
+                Avoid "platform," "dashboard," "AI," "automation."`}
+            </p>
+          </div>
+        </div>
+      </header>
+
+      {/* SECTION 2 — Problem & Contrast */}
+      <SectionShell
+        title="Most teams drown in their own work."
+        description="Too many tools. No shared rhythm. Work hides in people's heads."
+      >
+        <div className="flex flex-wrap gap-3">
+          <AnchorButton href="#kanban-visuals" variant="primary">
+            Bring Work Into View
+          </AnchorButton>
+          <AnchorButton href="#system-overview" variant="secondary">
+            See the System Overview
+          </AnchorButton>
+        </div>
+
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5">
+            <div className="text-sm font-medium text-neutral-100">
+              Tool sprawl
+            </div>
+            <p className="mt-2 text-sm leading-6 text-neutral-400">
+              Work fragments across docs, messages, and trackers — and no one
+              can see the whole picture.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5">
+            <div className="text-sm font-medium text-neutral-100">
+              No shared rhythm
+            </div>
+            <p className="mt-2 text-sm leading-6 text-neutral-400">
+              Planning resets constantly. Priorities drift. You spend more time
+              recalibrating than shipping.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5">
+            <div className="text-sm font-medium text-neutral-100">
+              Invisible decisions
+            </div>
+            <p className="mt-2 text-sm leading-6 text-neutral-400">
+              Definitions of done and tradeoffs live in people’s heads — until
+              they explode as scope creep.
+            </p>
+          </div>
+        </div>
+      </SectionShell>
+
+      {/* SECTION 3 — How Launch HQ Works */}
+      <SectionShell
+        id="system-overview"
+        eyebrow="How it works"
+        title={`Launch HQ isn't another project tracker - it's your launch coordination layer, built to help small teams move faster and with fewer decisions.`}
+        description="How it works:"
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6">
+            <div className="text-base font-semibold text-neutral-100">
+              Structure
+            </div>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-neutral-300">
+              <li>
+                - Central Kanban: every work item visible, triaged, and
+                measurable.
+              </li>
+              <li>
+                - Mode system: separate thinking from shipping for focus and
+                flow.
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6">
+            <div className="text-base font-semibold text-neutral-100">
+              Cadence
+            </div>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-neutral-300">
+              <li>
+                - Built-in cadence: daily flow + weekly planning + monthly
+                review.
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6">
+            <div className="text-base font-semibold text-neutral-100">
+              Visibility
+            </div>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-neutral-300">
+              <li>
+                - Proof-based governance: decisions and definitions of done
+                logged.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <ExternalButton href={CTA_URLS.exploreTemplates} variant="primary">
+            Explore Templates
+          </ExternalButton>
+          <AnchorButton href="#proof" variant="secondary">
+            See Proof Assets
+          </AnchorButton>
+        </div>
+
+        <div
+          id="kanban-visuals"
+          className="mt-10 rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6"
+        >
+          <div className="text-sm font-medium text-neutral-100">
+            Kanban visuals
+          </div>
+          <p className="mt-2 text-sm leading-6 text-neutral-400">
+            Placeholder panel for the “Central Kanban” visuals
+            (screenshots/diagrams).
+          </p>
+          <div className="mt-4 rounded-xl border border-dashed border-neutral-800 bg-neutral-950/60 p-8 text-xs text-neutral-500">
+            Kanban screenshot placeholder
+          </div>
+        </div>
+      </SectionShell>
+
+      {/* SECTION 4 — Proof in Practice */}
+      <SectionShell
+        id="proof"
+        eyebrow="Proof in practice"
+        title="Used daily at Digital Hooligan."
+        description="Screenshots: real boards, DoD, shipping logs."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            "Internal workspace screenshots - real usage.",
+            "Board taxonomy - validates ops loop.",
+            "Weekly review template - cadence proof.",
+            "Definition of Done examples - scope control proof.",
+            "Decision & Change Log - governance proof.",
+            "Mode Switch Diagram - execution model proof.",
+            "Public changelog - evolution proof.",
+          ].map((label) => (
+            <div
+              key={label}
+              className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5"
+            >
+              <div className="text-sm font-medium text-neutral-100">
+                {label}
+              </div>
+              <div className="mt-4 rounded-xl border border-dashed border-neutral-800 bg-neutral-950/60 p-6 text-xs text-neutral-500">
+                Screenshot / asset placeholder
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <ExternalButton href={CTA_URLS.seeOurSystem} variant="primary">
+            See Our System
+          </ExternalButton>
+          <AnchorButton href="#governance" variant="secondary">
+            Governance &amp; Guardrails
+          </AnchorButton>
+        </div>
+      </SectionShell>
+
+      {/* SECTION 5 — Governance & Guardrails */}
+      <SectionShell
+        id="governance"
+        eyebrow="Governance & guardrails"
+        title="Clear structure without false certainty."
+        description="Who it's for: Founder-led teams and operators who want to move fast without burning out."
+      >
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6">
+            <div className="text-base font-semibold text-neutral-100">
+              Disclaimers
+            </div>
+            <ul className="mt-4 space-y-3 text-sm leading-6 text-neutral-300">
+              <li>
+                - Launch HQ provides structure, cadence, and visibility - not
+                guarantees of revenue, timelines, or performance.
+              </li>
+              <li>
+                - Results depend on inputs, discipline, and decision quality.
+              </li>
+              <li>
+                - Launch HQ is not legal, accounting, HR, or staffing advice.
+              </li>
+              <li>
+                - Runs inside your workspace; no resale, scraping, or model
+                training on client data.
+              </li>
+              <li>
+                - Public examples are sanitized, permissioned, or synthetic.
+              </li>
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6">
+            <div className="text-base font-semibold text-neutral-100">
+              Next step
+            </div>
+            <p className="mt-3 text-sm leading-6 text-neutral-400">
+              Thin v1 Scope: Home page + explainer + proof assets section. No
+              case studies, no pricing configurator yet.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <ExternalButton href={CTA_URLS.buildYourHQ} variant="primary">
+                Build Your HQ
+              </ExternalButton>
+              <AnchorButton href="#request-access" variant="secondary">
+                Request Access
+              </AnchorButton>
+            </div>
+          </div>
+        </div>
+      </SectionShell>
+
+      {/* SECTION 6 — Closing CTA */}
+      <SectionShell
+        eyebrow="Closing"
+        title="You don't need another app. You need an operating system."
+      >
+        <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6">
+          <div id="request-access" className="grid gap-6 md:grid-cols-2">
+            <div>
+              <div className="text-sm font-medium text-neutral-100">
+                Request Access to Launch HQ
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-400">
+                Email capture placeholder (no backend wiring in v1).
+              </p>
+
+              <form
+                className="mt-4 flex flex-col gap-3 sm:flex-row"
+                onSubmit={(e) => e.preventDefault()}
+              >
+                <label className="sr-only" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  placeholder="you@company.com"
+                  className="w-full rounded-2xl border border-neutral-800 bg-neutral-950/60 px-4 py-2 text-sm text-neutral-100 outline-none focus:ring-2 focus:ring-rose-500/40"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-2xl bg-rose-500 px-4 py-2 text-sm font-medium text-neutral-950 hover:bg-rose-400"
+                >
+                  Request Access
+                </button>
+              </form>
+
+              <p className="mt-3 text-xs leading-5 text-neutral-500">
+                No hype. No guarantees.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-800 bg-neutral-950/60 p-5">
+              <div className="text-sm font-medium text-neutral-100">
+                Quick links
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-400">
+                If you already have destinations, set the CTA targets in{" "}
+                <code className="rounded bg-neutral-900 px-1 py-0.5">
+                  CTA_URLS
+                </code>
+                .
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <ExternalButton
+                  href={CTA_URLS.seeOurSystem}
+                  variant="secondary"
+                >
+                  See Our System
+                </ExternalButton>
+                <ExternalButton
+                  href={CTA_URLS.exploreTemplates}
+                  variant="secondary"
+                >
+                  Explore Templates
+                </ExternalButton>
+                <ExternalButton href={CTA_URLS.buildYourHQ} variant="secondary">
+                  Build Your HQ
+                </ExternalButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </SectionShell>
+
+      <footer className="border-t border-neutral-900 py-10">
+        <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
+          <div className="text-sm font-medium text-neutral-100">Launch HQ</div>
+          <p className="mt-2 max-w-3xl text-xs leading-5 text-neutral-500">
+            Launch HQ provides structure, cadence, and visibility - not
+            guarantees of revenue, timelines, or performance. Public examples
+            are sanitized, permissioned, or synthetic.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-4 text-xs text-neutral-500">
+            <a href="#system-overview" className="hover:text-rose-300">
+              System overview
+            </a>
+            <a href="#kanban-visuals" className="hover:text-rose-300">
+              Kanban visuals
+            </a>
+            <a href="#proof" className="hover:text-rose-300">
+              Proof
+            </a>
+            <a href="#governance" className="hover:text-rose-300">
+              Governance
+            </a>
+            <a href="#request-access" className="hover:text-rose-300">
+              Request access
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
 }
