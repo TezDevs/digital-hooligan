@@ -5,11 +5,19 @@ import {
   RitualEntry,
   SignalEventStub,
   WorkModeState,
+  EntityId,
 } from "../../domain/radixTypes";
 
 export interface RadixRepository {
   listDecisions(): Promise<DecisionEntry[]>;
   addDecision(entry: DecisionEntry): Promise<void>;
+
+  /**
+   * v1 lifecycle updates (truthful timestamps only).
+   * Status remains derived in Assembly from timestamps.
+   */
+  activateDecision(decisionId: EntityId, activatedAtISO: string): Promise<void>;
+  closeDecision(decisionId: EntityId, closedAtISO: string): Promise<void>;
 
   listPulseEntries(): Promise<PulseMetricEntry[]>;
   addPulseEntry(entry: PulseMetricEntry): Promise<void>;

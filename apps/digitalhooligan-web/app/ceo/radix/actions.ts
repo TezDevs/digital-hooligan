@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createInMemoryRadixRepository } from "../../../lib/radix/infrastructure/repositories/inMemoryRadixRepository";
 import type { DecisionCategory, DecisionEntry } from "../../../lib/radix/domain/radixTypes";
-import { makeAudit, makeEntityId, nowISO, V1_ACTOR } from "../../../lib/radix/infrastructure/mock/radixFactory";
+import {
+  makeAudit,
+  makeEntityId,
+  nowISO,
+  V1_ACTOR,
+} from "../../../lib/radix/infrastructure/mock/radixFactory";
 
 function toDecisionCategory(input: string | null): DecisionCategory | undefined {
   if (!input) return undefined;
@@ -41,6 +46,25 @@ export async function addDecision(formData: FormData): Promise<void> {
   const repo = createInMemoryRadixRepository();
   await repo.addDecision(entry);
 
-  // Ensure the /ceo/radix page refreshes its server-rendered snapshot.
+  revalidatePath("/ceo/radix");
+}
+
+export async function activateDecision(formData: FormData): Promise<void> {
+  const decisionId = String(formData.get("decisionId") ?? "").trim();
+  if (!decisionId) return;
+
+  const repo = createInMemoryRadixRepository();
+  await repo.activateDecision(decisionId, nowISO());
+
+  revalidatePath("/ceo/radix");
+}
+
+export async function closeDecision(formData: FormData): Promise<void> {
+  const decisionId = String(formData.get("decisionId") ?? "").trim();
+  if (!decisionId) return;
+
+  const repo = createInMemoryRadixRepository();
+  await repo.closeDecision(decisionId, nowISO());
+
   revalidatePath("/ceo/radix");
 }
