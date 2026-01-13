@@ -1,5 +1,7 @@
 // apps/digitalhooligan-web/app/ceo/radix/page.tsx
 import { RadixCockpitLayout } from "../../../components/radix/RadixCockpitLayout";
+import { RadixSnapshotHeader } from "../../../components/radix/RadixSnapshotHeader";
+
 import { RadixCorePanel } from "../../../components/radix/core/RadixCorePanel";
 import { RadixPulsePanel } from "../../../components/radix/pulse/RadixPulsePanel";
 import { RadixRitualsPanel } from "../../../components/radix/rituals/RadixRitualsPanel";
@@ -12,14 +14,13 @@ import { buildOpsSnapshot } from "../../../lib/radix/assembly/buildOpsSnapshot";
 export default async function RadixPage() {
   const repo = createInMemoryRadixRepository();
 
-  const [decisions, pulseEntries, rituals, workModes, signals] =
-    await Promise.all([
-      repo.listDecisions(),
-      repo.listPulseEntries(),
-      repo.listRituals(),
-      repo.listWorkModes(),
-      repo.listSignals(),
-    ]);
+  const [decisions, pulseEntries, rituals, workModes, signals] = await Promise.all([
+    repo.listDecisions(),
+    repo.listPulseEntries(),
+    repo.listRituals(),
+    repo.listWorkModes(),
+    repo.listSignals(),
+  ]);
 
   const snapshot = buildOpsSnapshot({
     asOf: new Date().toISOString(),
@@ -31,7 +32,7 @@ export default async function RadixPage() {
   });
 
   return (
-    <RadixCockpitLayout>
+    <RadixCockpitLayout header={<RadixSnapshotHeader snapshot={snapshot} />}>
       <RadixCorePanel snapshot={snapshot} />
       <RadixPulsePanel snapshot={snapshot} />
       <RadixRitualsPanel snapshot={snapshot} />
