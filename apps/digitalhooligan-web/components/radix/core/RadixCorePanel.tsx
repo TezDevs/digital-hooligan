@@ -4,6 +4,7 @@ import { addDecision, activateDecision, closeDecision } from "../../../app/ceo/r
 
 export function RadixCorePanel(props: { snapshot: OpsSnapshot }) {
   const open = props.snapshot.openDecisions;
+  const recent = props.snapshot.recentDecisions;
 
   return (
     <section className="rounded-2xl border p-4 space-y-4">
@@ -42,49 +43,81 @@ export function RadixCorePanel(props: { snapshot: OpsSnapshot }) {
         </p>
       </form>
 
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold">Open Decisions</h3>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold">Open Decisions</h3>
 
-        {open.length === 0 ? (
-          <div className="text-sm opacity-70">No open decisions.</div>
-        ) : (
-          <ul className="space-y-2">
-            {open.map((d) => (
-              <li key={d.id} className="rounded-xl border p-3 space-y-2">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="font-medium text-sm">{d.title}</div>
-                  <div className="text-xs opacity-70">{d.status ?? "derived"}</div>
-                </div>
+          {open.length === 0 ? (
+            <div className="text-sm opacity-70">No open decisions.</div>
+          ) : (
+            <ul className="space-y-2">
+              {open.map((d) => (
+                <li key={d.id} className="rounded-xl border p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="font-medium text-sm">{d.title}</div>
+                    <div className="text-xs opacity-70">{d.status ?? "derived"}</div>
+                  </div>
 
-                {d.summary ? <div className="text-xs opacity-70">{d.summary}</div> : null}
+                  {d.summary ? <div className="text-xs opacity-70">{d.summary}</div> : null}
 
-                <div className="flex flex-wrap items-center gap-2">
-                  {!d.activatedAt ? (
-                    <form action={activateDecision}>
-                      <input type="hidden" name="decisionId" value={d.id} />
-                      <button type="submit" className="rounded-xl border px-3 py-1.5 text-xs font-medium hover:opacity-90">
-                        Activate
-                      </button>
-                    </form>
-                  ) : (
-                    <div className="text-xs opacity-60">activatedAt: {d.activatedAt}</div>
-                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {!d.activatedAt ? (
+                      <form action={activateDecision}>
+                        <input type="hidden" name="decisionId" value={d.id} />
+                        <button
+                          type="submit"
+                          className="rounded-xl border px-3 py-1.5 text-xs font-medium hover:opacity-90"
+                        >
+                          Activate
+                        </button>
+                      </form>
+                    ) : (
+                      <div className="text-xs opacity-60">activatedAt: {d.activatedAt}</div>
+                    )}
 
-                  {!d.closedAt ? (
-                    <form action={closeDecision}>
-                      <input type="hidden" name="decisionId" value={d.id} />
-                      <button type="submit" className="rounded-xl border px-3 py-1.5 text-xs font-medium hover:opacity-90">
-                        Close
-                      </button>
-                    </form>
-                  ) : (
-                    <div className="text-xs opacity-60">closedAt: {d.closedAt}</div>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                    {!d.closedAt ? (
+                      <form action={closeDecision}>
+                        <input type="hidden" name="decisionId" value={d.id} />
+                        <button
+                          type="submit"
+                          className="rounded-xl border px-3 py-1.5 text-xs font-medium hover:opacity-90"
+                        >
+                          Close
+                        </button>
+                      </form>
+                    ) : (
+                      <div className="text-xs opacity-60">closedAt: {d.closedAt}</div>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold">Recent Decisions</h3>
+
+          {recent.length === 0 ? (
+            <div className="text-sm opacity-70">No decisions yet.</div>
+          ) : (
+            <ul className="space-y-2">
+              {recent.map((d) => (
+                <li key={d.id} className="rounded-xl border p-3 space-y-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-sm font-medium">{d.title}</div>
+                    <div className="text-xs opacity-70">{d.status ?? "derived"}</div>
+                  </div>
+                  <div className="text-xs opacity-60">
+                    proposedAt: {d.proposedAt}
+                    {d.activatedAt ? ` • activatedAt: ${d.activatedAt}` : ""}
+                    {d.closedAt ? ` • closedAt: ${d.closedAt}` : ""}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </section>
   );
