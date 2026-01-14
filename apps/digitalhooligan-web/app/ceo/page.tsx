@@ -1,6 +1,9 @@
 import DecisionInputsInspector from "@/components/ceo/DecisionInputsInspector";
 import DecisionReviewSnapshotPanel from "@/components/ceo/DecisionReviewSnapshotPanel";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { CeoLoginClient } from "./login/CeoLoginClient";
+import { CEO_GATE_COOKIE_NAME } from "@/lib/ceo-gate/constants";
 import { getServerBaseUrl } from "@/lib/serverApi";
 
 type DecisionEntry = {
@@ -10,6 +13,12 @@ type DecisionEntry = {
   status: "draft" | "final";
   createdAt: string;
 };
+
+async function isAuthed(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const v = cookieStore.get(CEO_GATE_COOKIE_NAME)?.value;
+  return v === "1";
+}
 
 async function fetchDecisionEntries(): Promise<DecisionEntry[]> {
   try {
@@ -28,7 +37,7 @@ async function fetchDecisionEntries(): Promise<DecisionEntry[]> {
   }
 }
 
-export default async function CEOPage() {
+async function CeoDashboard() {
   const decisionEntries = await fetchDecisionEntries();
 
   return (
@@ -85,4 +94,17 @@ export default async function CEOPage() {
       </section>
     </main>
   );
+}
+
+export default async function CEOPage() {
+  const authed = await isAuthed();
+
+  // Canonical behavior:
+  // - Unauthed → render login UI at /ceo
+  // - Authed → render dashboard
+  if (!authed) {
+    return <CeoLoginClient />;
+  }
+
+  return <CeoDashboard />;
 }
