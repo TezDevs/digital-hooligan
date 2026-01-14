@@ -10,18 +10,29 @@ const PUBLIC_NAV_ITEMS = [
   { label: "Company", href: "/company" },
   { label: "Gov", href: "/gov" },
   { label: "Labs", href: "/labs" },
+
+  // Canonical CEO gateway (public-facing entry). Hard rule: link to /ceo only.
+  { label: "CEO Cockpit", href: "/ceo" },
+
   { label: "Contact", href: "/contact" },
 ];
 
 // Hide global public nav on internal/admin-ish surfaces (allowed; not public links)
-const HIDE_NAV_PREFIXES = ["/ceo", "/labs/hq", "/labs/app-registry", "/labs/experiments"];
+const HIDE_NAV_PREFIXES = [
+  "/ceo",
+  "/labs/hq",
+  "/labs/app-registry",
+  "/labs/experiments",
+];
 
 const LOGO_SRC = "/brand/digital_hooligan_logo_square.png";
 
 export default function GlobalNav() {
   const pathname = usePathname();
 
-  const hideNav = HIDE_NAV_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const hideNav = HIDE_NAV_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix)
+  );
   if (hideNav) return null;
 
   return (
@@ -47,7 +58,9 @@ export default function GlobalNav() {
             <span className="block text-[10px] font-medium uppercase tracking-[0.35em] text-dh-muted/70">
               Digital
             </span>
-            <span className="block text-sm font-semibold text-dh-text">Hooligan</span>
+            <span className="block text-sm font-semibold text-dh-text">
+              Hooligan
+            </span>
           </div>
         </Link>
 
@@ -77,7 +90,9 @@ export default function GlobalNav() {
                 aria-current={isActive ? "page" : undefined}
                 className={[
                   "rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors",
-                  isActive ? "text-dh-text" : "text-dh-muted/70 hover:text-dh-steel-blue",
+                  isActive
+                    ? "text-dh-text"
+                    : "text-dh-muted/70 hover:text-dh-steel-blue",
                 ].join(" ")}
               >
                 {item.label}
