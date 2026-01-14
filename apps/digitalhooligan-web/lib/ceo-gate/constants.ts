@@ -2,8 +2,8 @@
 
 export const CEO_GATE_COOKIE_NAME = "dh_ceo_gate";
 
-// 7 days (baseline). Adjust if you want shorter.
-export const CEO_GATE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+// 24 hours (baseline-safe)
+export const CEO_GATE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24;
 
 // Where unauthenticated users should be sent.
 // Middleware will append ?next=<path>

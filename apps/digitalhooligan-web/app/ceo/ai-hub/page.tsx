@@ -60,12 +60,29 @@ export default function AiHubPage() {
     const [appsLoading, setAppsLoading] = React.useState<boolean>(false);
     const [appsError, setAppsError] = React.useState<string | null>(null);
 
-    React.useEffect(() => {
-        void loadAppsFromRegistry();
-        void runSummary(DEFAULT_APP_ID);
+    const runSummary = React.useCallback(async (appId: string) => {
+        const cleaned = appId.trim();
+        if (!cleaned) return;
+
+        setSummaryState({ status: "loading", appId: cleaned });
+
+        try {
+            const params = new URLSearchParams({ appId: cleaned });
+            const res = await fetch(`/api/ai/app-summary?${params.toString()}`);
+            if (!res.ok) throw new Error(`AI summary API ${res.status}`);
+            const data: AiAppSummaryResponse = await res.json();
+
+            setSummaryState({ status: "ready", appId: cleaned, data });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : "Unexpected error calling /api/ai/app-summary.";
+            setSummaryState({ status: "error", appId: cleaned, message });
+        }
     }, []);
 
-    async function loadAppsFromRegistry() {
+    const loadAppsFromRegistry = React.useCallback(async () => {
         setAppsLoading(true);
         setAppsError(null);
 
@@ -88,7 +105,7 @@ export default function AiHubPage() {
             if (mapped.length > 0) {
                 setAppOptions(mapped);
 
-                // If current selection isn&apos;t in the registry, snap to the first app.
+                // If current selection isn't in the registry, snap to the first app.
                 const stillValid = mapped.some((opt) => opt.id === selectedAppId);
                 if (!stillValid) {
                     setSelectedAppId(mapped[0].id);
@@ -104,29 +121,12 @@ export default function AiHubPage() {
         } finally {
             setAppsLoading(false);
         }
-    }
+    }, [selectedAppId, runSummary]);
 
-    async function runSummary(appId: string) {
-        const cleaned = appId.trim();
-        if (!cleaned) return;
-
-        setSummaryState({ status: "loading", appId: cleaned });
-
-        try {
-            const params = new URLSearchParams({ appId: cleaned });
-            const res = await fetch(`/api/ai/app-summary?${params.toString()}`);
-            if (!res.ok) throw new Error(`AI summary API ${res.status}`);
-            const data: AiAppSummaryResponse = await res.json();
-
-            setSummaryState({ status: "ready", appId: cleaned, data });
-        } catch (err: unknown) {
-            const message =
-                err instanceof Error
-                    ? err.message
-                    : "Unexpected error calling /api/ai/app-summary.";
-            setSummaryState({ status: "error", appId: cleaned, message });
-        }
-    }
+    React.useEffect(() => {
+        void loadAppsFromRegistry();
+        void runSummary(DEFAULT_APP_ID);
+    }, [loadAppsFromRegistry, runSummary]);
 
     function handleRefresh() {
         void runSummary(selectedAppId);
@@ -201,11 +201,7 @@ export default function AiHubPage() {
 
 /* ---------- Shared CEO tab ---------- */
 
-function CeoTab(props: {
-    href: string;
-    label: string;
-    active?: boolean;
-}) {
+function CeoTab(props: { href: string; label: string; active?: boolean }) {
     const { href, label, active } = props;
 
     if (active) {
@@ -250,7 +246,6 @@ function AppInsightColumn(props: {
     return (
         <div className="space-y-3">
             <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-200 shadow-sm shadow-black/40">
-                {/* Header row */}
                 <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="max-w-md space-y-1">
                         <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
@@ -294,7 +289,6 @@ function AppInsightColumn(props: {
                     </div>
                 </div>
 
-                {/* Registry load state */}
                 {appsLoading && (
                     <p className="rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-2 text-[0.8rem] text-slate-300">
                         Loading app registry…
@@ -307,7 +301,6 @@ function AppInsightColumn(props: {
                     </p>
                 )}
 
-                {/* AI summary states */}
                 {summaryState.status === "idle" && (
                     <p className="mt-3 rounded-xl border border-slate-800 bg-slate-950/80 px-3 py-3 text-[0.85rem] text-slate-300">
                         Pick an app and hit <span className="font-semibold">Refresh</span>{" "}
@@ -400,8 +393,8 @@ function AiWiringNotesCard() {
                 </li>
                 <li>
                     • <span className="font-semibold">Later:</span> assistants in Dev WB
-                    can call the same summary endpoint plus GitHub + CI for
-                    branch-level work.
+                    can call the same summary endpoint plus GitHub + CI for branch-level
+                    work.
                 </li>
             </ul>
         </div>

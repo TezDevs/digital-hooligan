@@ -4,7 +4,22 @@ import { FormEvent, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-type LoginResponse = { ok: true } | { ok: false; message?: string };
+type LoginJson = {
+  ok?: unknown;
+  message?: unknown;
+};
+
+function safeMessage(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) return null;
+  const maybe = data as LoginJson;
+  return typeof maybe.message === "string" ? maybe.message : null;
+}
+
+function isOk(data: unknown): boolean {
+  if (typeof data !== "object" || data === null) return false;
+  const maybe = data as LoginJson;
+  return maybe.ok === true;
+}
 
 export function CeoLoginClient() {
   const router = useRouter();
@@ -35,10 +50,10 @@ export function CeoLoginClient() {
         body: JSON.stringify({ password }),
       });
 
-      const data = (await res.json().catch(() => ({}))) as LoginResponse;
+      const data = (await res.json().catch(() => ({}))) as unknown;
 
-      if (!res.ok || !data || (data as any).ok !== true) {
-        setError((data as any)?.message ?? "Login failed.");
+      if (!res.ok || !isOk(data)) {
+        setError(safeMessage(data) ?? "Login failed.");
         return;
       }
 
@@ -53,6 +68,7 @@ export function CeoLoginClient() {
   return (
     <div className="min-h-screen bg-neutral-950 px-4 py-8 text-neutral-100">
       <div className="mx-auto flex max-w-md flex-col gap-6">
+        {/* Header */}
         <header className="space-y-2">
           <p className="text-xs uppercase tracking-wide text-neutral-500">
             Digital Hooligan · CEO
@@ -65,6 +81,7 @@ export function CeoLoginClient() {
           </p>
         </header>
 
+        {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="space-y-4 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4"
@@ -101,11 +118,12 @@ export function CeoLoginClient() {
           </button>
         </form>
 
+        {/* Footer note */}
         <div className="text-xs text-neutral-500">
           <p>
-            This is a baseline password gate (no accounts). If you can’t log in,
-            confirm <span className="font-mono">DH_CEO_GATE_PASSWORD</span> is
-            set for this environment.
+            Baseline password gate (no accounts). If you can’t log in, confirm{" "}
+            <span className="font-mono">DH_CEO_GATE_PASSWORD</span> is set for
+            this environment.
           </p>
           <p className="mt-2">
             <Link href="/" className="text-emerald-400 hover:text-emerald-300">

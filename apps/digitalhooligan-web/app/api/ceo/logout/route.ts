@@ -9,7 +9,8 @@ function jsonLogout(): NextResponse {
   return res;
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
+  // No request context needed for JSON logout
   return jsonLogout();
 }
 
