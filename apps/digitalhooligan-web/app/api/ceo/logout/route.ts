@@ -1,26 +1,22 @@
-// app/api/ceo/logout/route.ts
+// apps/digitalhooligan-web/app/api/ceo/logout/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
+import { clearCeoGateCookie } from "../../../../lib/ceo-gate/cookies";
 
-function buildLogoutResponse(request: NextRequest) {
-    const url = new URL("/ceo/login", request.url);
-    const response = NextResponse.redirect(url);
-
-    // Clear the auth cookie
-    response.cookies.set("dh_ceo_auth", "", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 0
-    });
-
-    return response;
+function jsonLogout(): NextResponse {
+  const res = NextResponse.json({ ok: true });
+  clearCeoGateCookie(res);
+  return res;
 }
 
+export async function POST(_request: NextRequest) {
+  return jsonLogout();
+}
+
+// Keep GET for convenience / existing flows; redirect to /ceo/login
 export async function GET(request: NextRequest) {
-    return buildLogoutResponse(request);
-}
-
-export async function POST(request: NextRequest) {
-    return buildLogoutResponse(request);
+  const url = new URL("/ceo/login", request.url);
+  const res = NextResponse.redirect(url);
+  clearCeoGateCookie(res);
+  return res;
 }
