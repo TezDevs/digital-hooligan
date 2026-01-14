@@ -12,8 +12,10 @@ const AUDIT_LOG_PATH = path.join(process.cwd(), ".decision-review-audit.log");
 // The argument is intentionally accepted but unused.
 // This preserves compatibility with existing callers.
 export function buildDecisionReviewSnapshot(
-  _input?: unknown
+  input?: unknown
 ): DecisionReviewSnapshot {
+  void input; // intentional: preserve signature while satisfying lint
+
   const records: DecisionReviewExportRecord[] = [
     {
       id: "rev_001",
