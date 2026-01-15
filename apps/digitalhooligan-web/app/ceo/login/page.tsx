@@ -1,6 +1,0 @@
-import { redirect } from "next/navigation";
-
-export default function CeoLoginRedirectPage() {
-  // Redirect-only shell. No auth/session logic permitted.
-  redirect("/ceo");
-}

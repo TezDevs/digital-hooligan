@@ -80,21 +80,7 @@ export default async function LabsAppRegistryPage() {
 
                     {/* >>> This is your “back to CEO dashboard” button <<< */}
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <Link
-                            href="/ceo"
-                            className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5 text-slate-200 hover:border-emerald-400 hover:text-emerald-100"
-                        >
-                            <span aria-hidden="true">🏴‍☠️</span>
-                            <span>Back to CEO Dashboard</span>
-                        </Link>
-                        <Link
-                            href="/ceo/apps"
-                            className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-3 py-1.5 text-slate-300 hover:border-emerald-400 hover:text-emerald-100"
-                        >
-                            <span aria-hidden="true">📊</span>
-                            <span>CEO App Registry</span>
-                        </Link>
-                    </div>
+                        </div>
                 </div>
 
                 {/* Table */}

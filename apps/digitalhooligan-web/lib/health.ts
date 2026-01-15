@@ -38,7 +38,6 @@ export function getStubAppHealth(): StubAppHealthSnapshot {
                 checkedAt: now,
                 message: "Planned maintenance window",
             },
-            { appId: "ceo-dashboard", status: "healthy", latencyMs: 90, checkedAt: now },
         ],
         meta: { source: "stub", generatedAt: now },
     };

@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import Footer from "@/components/layout/Footer";
 
 const HIDE_FOOTER_PREFIXES = [
-  "/ceo",
   "/labs/hq",
   "/labs/app-registry",
   "/labs/experiments",

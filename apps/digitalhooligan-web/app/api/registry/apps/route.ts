@@ -61,7 +61,6 @@ const APP_REGISTRY: AppRegistryEntry[] = [
         stage: "idea",
         paths: {
             marketing: "/apps/pennywize",
-            ceo: "/ceo/apps?appId=pennywize",
             labs: "/labs/app-registry",
         },
         defaultHealthStatus: "healthy",
@@ -79,7 +78,6 @@ const APP_REGISTRY: AppRegistryEntry[] = [
         stage: "idea",
         paths: {
             marketing: "/apps/dropsignal",
-            ceo: "/ceo/apps?appId=dropsignal",
             labs: "/labs/app-registry",
         },
         defaultHealthStatus: "healthy",
@@ -97,7 +95,6 @@ const APP_REGISTRY: AppRegistryEntry[] = [
         stage: "idea",
         paths: {
             marketing: "/apps/hypewatch",
-            ceo: "/ceo/apps?appId=hypewatch",
             labs: "/labs/app-registry",
         },
         defaultHealthStatus: "healthy",
@@ -115,7 +112,6 @@ const APP_REGISTRY: AppRegistryEntry[] = [
         stage: "idea",
         paths: {
             marketing: "/apps/ops-toys",
-            ceo: "/ceo/apps?appId=ops-toys",
             labs: "/labs/app-registry",
         },
         defaultHealthStatus: "healthy",

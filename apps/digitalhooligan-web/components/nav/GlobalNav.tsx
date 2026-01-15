@@ -11,15 +11,12 @@ const PUBLIC_NAV_ITEMS = [
   { label: "Gov", href: "/gov" },
   { label: "Labs", href: "/labs" },
 
-  // Canonical CEO gateway (public-facing entry). Hard rule: link to /ceo only.
-  { label: "CEO Cockpit", href: "/ceo" },
 
   { label: "Contact", href: "/contact" },
 ];
 
 // Hide global public nav on internal/admin-ish surfaces (allowed; not public links)
 const HIDE_NAV_PREFIXES = [
-  "/ceo",
   "/labs/hq",
   "/labs/app-registry",
   "/labs/experiments",
