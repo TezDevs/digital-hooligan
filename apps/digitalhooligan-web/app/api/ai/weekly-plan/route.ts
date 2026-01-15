@@ -29,8 +29,6 @@ export type WeeklyPlanResponse = {
  * has looked at tasks, deals, finance, notes, and lab experiments.
  *
  * Later we can:
- * - Pull in data from /api/ceo/tasks, /api/ceo/deals, /api/ceo/finance,
- *   /api/ceo/notes, /api/labs/experiments, etc.
  * - Call a real LLM and return its structured plan.
  */
 export async function GET() {

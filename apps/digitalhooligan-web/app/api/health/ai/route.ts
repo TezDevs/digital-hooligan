@@ -45,13 +45,6 @@ export async function GET() {
                 "Returns a structured weekly plan across product, gov, admin, infra, and Labs.",
             status: "ok",
         },
-        {
-            id: "ai_future_copilot",
-            path: "/api/ai/ceo-copilot",
-            description:
-                "Future endpoint for a richer CEO copilot that reads all CEO + Labs data and proposes next moves.",
-            status: "planned",
-        },
     ];
 
     const payload: AiHealthResponse = {

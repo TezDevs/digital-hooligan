@@ -1,5 +1,0 @@
-import { redirect } from "next/navigation";
-
-export default function CEOEntryPage() {
-  redirect("/ceo/radix");
-}

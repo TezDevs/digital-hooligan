@@ -12,7 +12,6 @@ function buildStubRegistry(): RegistryItem[] {
         { id: "pennywize", name: "PennyWize", kind: "public-app", lifecycle: "live" },
         { id: "dropsignal", name: "DropSignal", kind: "public-app", lifecycle: "mvp" },
         { id: "hypewatch", name: "HypeWatch", kind: "public-app", lifecycle: "maintenance" },
-        { id: "ceo-dashboard", name: "CEO Dashboard", kind: "internal-tool", lifecycle: "internal" },
         { id: "ops-toys", name: "Ops Toys", kind: "internal-tool", lifecycle: "internal" },
     ];
 }
