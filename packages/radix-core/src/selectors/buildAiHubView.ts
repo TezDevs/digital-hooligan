@@ -1,5 +1,6 @@
 import type { AtlasOperator } from "../domain/atlas";
 import type { Workflow, WorkflowStep } from "../domain/workflows";
+import type { AiHubViewVM } from "../contracts";
 
 import { ATLAS_REGISTRY_MOCK } from "../mocks/atlasRegistry.mock";
 
@@ -52,7 +53,7 @@ export function buildAiHubView(): AiHubView {
     operators: sortedOperators,
     workflows: sortedWorkflows,
     issues,
-  };
+  } satisfies AiHubViewVM;
 }
 
 function missingOperatorIssue(

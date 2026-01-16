@@ -4,7 +4,7 @@ import type { Decision } from "../domain/decisions";
 import type { Module } from "../domain/modules";
 import type { HealthCheck } from "../domain/health";
 import type { TimelineEvent } from "../domain/timeline";
-
+import type { CeoDashboardViewVM } from "../contracts";
 import { computeCompositeHealthScore } from "../domain/health";
 import { CEO_DASHBOARD_MOCK } from "../mocks/ceoDashboard.mock";
 import {
@@ -157,6 +157,7 @@ export function buildCeoDashboardView(
   // Mode-based ordering/emphasis (no truth changes)
   const metrics = orderMetricsByMode(mock.metrics, params.mode);
 
+  // Safe injection: enforce VM contract at the returned object shape
   return {
     mode: params.mode,
     asOf,
@@ -174,7 +175,7 @@ export function buildCeoDashboardView(
 
     missingData,
     staleData,
-  };
+  } satisfies CeoDashboardViewVM;
 }
 
 function isStale(
@@ -221,8 +222,8 @@ function orderMetricsByMode(metrics: Metric[], mode: Mode): Metric[] {
       "revenue_mtd_usd",
       "active_client_slots",
       "ops_health_score",
-      "wip_items",
       "capacity_pct",
+      "wip_items",
     ],
     Owner: [
       "runway_months",
