@@ -1,0 +1,40 @@
+{
+  "name": "radix-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./domain/*": {
+      "types": "./dist/domain/*.d.ts",
+      "default": "./dist/domain/*.js"
+    },
+    "./mocks": {
+      "types": "./dist/mocks/index.d.ts",
+      "default": "./dist/mocks/index.js"
+    },
+    "./selectors": {
+      "types": "./dist/selectors/index.d.ts",
+      "default": "./dist/selectors/index.js"
+    },
+    "./util/*": {
+      "types": "./dist/util/*.d.ts",
+      "default": "./dist/util/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm -w exec tsc -p packages/radix-core/tsconfig.json",
+    "lint": "pnpm -w exec tsc -p packages/radix-core/tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
