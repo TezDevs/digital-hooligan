@@ -10,8 +10,6 @@ const PUBLIC_NAV_ITEMS = [
   { label: "Company", href: "/company" },
   { label: "Gov", href: "/gov" },
   { label: "Labs", href: "/labs" },
-
-
   { label: "Contact", href: "/contact" },
 ];
 
@@ -33,12 +31,12 @@ export default function GlobalNav() {
   if (hideNav) return null;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-dh-border bg-dh-carbon/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 overflow-x-hidden border-b border-dh-border bg-dh-carbon/80 backdrop-blur">
+      <div className="mx-auto flex min-w-0 max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
           aria-label="Digital Hooligan homepage"
-          className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-dh-steel-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dh-carbon"
+          className="flex shrink-0 items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-dh-steel-blue/60 focus-visible:ring-offset-2 focus-visible:ring-offset-dh-carbon"
         >
           <div className="relative h-6 w-6 overflow-hidden rounded-lg bg-white/95 shadow-[0_0_28px_rgba(255,255,255,0.08)] sm:h-8 sm:w-8">
             <Image
@@ -61,7 +59,7 @@ export default function GlobalNav() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-2">
+        <nav className="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-2">
           {PUBLIC_NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
 
@@ -71,7 +69,7 @@ export default function GlobalNav() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="ml-2 inline-flex items-center justify-center rounded-full bg-dh-rebel-red px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-dh-rebel-red/90 focus:outline-none focus:ring-2 focus:ring-dh-rebel-red/60"
+                  className="inline-flex items-center justify-center rounded-full bg-dh-rebel-red px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-dh-rebel-red/90 focus:outline-none focus:ring-2 focus:ring-dh-rebel-red/60"
                   aria-current={isActive ? "page" : undefined}
                 >
                   Contact
@@ -86,7 +84,7 @@ export default function GlobalNav() {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={[
-                  "rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors",
+                  "break-words rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em] transition-colors",
                   isActive
                     ? "text-dh-text"
                     : "text-dh-muted/70 hover:text-dh-steel-blue",
