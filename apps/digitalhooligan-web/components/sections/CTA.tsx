@@ -12,10 +12,7 @@ const neutralCta =
 
 export default function CTA() {
   return (
-    <section
-      id="cta"
-      className="border-t border-dh-street-gray/40 bg-dh-black"
-    >
+    <section id="cta" className="border-t border-dh-street-gray/40 bg-dh-black">
       <Container>
         <div className="py-14 md:py-16">
           <div className="rounded-3xl border border-dh-street-gray/60 bg-dh-deep-void/60 p-6 md:p-8">
@@ -32,7 +29,7 @@ export default function CTA() {
                 <p className="max-w-2xl text-pretty text-dh-street-gray/80">
                   If you’re scoping a product, modernizing ops, or need a tight
                   delivery partner, we keep it simple: define the outcome, ship
-                  clean, iterate fast.
+                  clean, iterate in tight loops (within defined scope).
                 </p>
 
                 <p className="text-sm text-dh-street-gray/80">

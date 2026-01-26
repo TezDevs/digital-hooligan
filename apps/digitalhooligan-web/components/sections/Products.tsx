@@ -31,7 +31,7 @@ const APPS: AppConfig[] = [
     name: "DropSignal",
     tag: "Signals • Price drops",
     blurb:
-      "Price-drop and restock radar that surfaces changes fast—built for people who live in release calendars and alerts.",
+      "Price-drop and restock radar that surfaces changes quickly—designed for people who live in release calendars and alerts. Timing depends on the source signals available.",
     image: "/images/hero/dh-hero-bear.png", // TODO: swap to real DropSignal art
     href: "/dropsignal",
     cta: "View details →",

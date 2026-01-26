@@ -2,7 +2,10 @@ import Container from "../layout/Container";
 
 export default function BrandStory() {
   return (
-    <section id="why" className="scroll-mt-24 border-t border-dh-border bg-dh-carbon">
+    <section
+      id="why"
+      className="scroll-mt-24 border-t border-dh-border bg-dh-carbon"
+    >
       <Container>
         <div className="py-12 md:py-16">
           {/* Tag */}
@@ -44,8 +47,9 @@ export default function BrandStory() {
                   How I work
                 </p>
                 <p className="mt-2 text-sm text-dh-text">
-                  Small, fast, dangerous. Tight scopes, short feedback loops,
-                  and shipping useful things instead of endless plans.
+                  Small, scope-bounded, and ship-focused. Tight scopes, short
+                  feedback loops, and shipping useful things instead of endless
+                  plans.
                 </p>
               </div>
             </div>

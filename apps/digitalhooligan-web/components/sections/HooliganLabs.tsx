@@ -27,7 +27,7 @@ const experiments = [
     label: "APIs & services",
     name: "DH API Services",
     blurb:
-      "Custom APIs and backend services that power scrapers, dashboards, and client-facing tools—built fast, hardened over time.",
+      "Custom APIs and backend services that power scrapers, dashboards, and client-facing tools—built in bounded sprints, hardened over time.",
     status: "Available soon",
   },
 ];
