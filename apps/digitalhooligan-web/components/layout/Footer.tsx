@@ -30,68 +30,113 @@ export default function Footer() {
             </Link>
 
             <p className="max-w-md text-dh-muted">
-              A small, veteran-led software studio building web apps, dashboards, and automation — with clean
-              delivery, tight scope, and maintainable code.
+              A small, veteran-led software studio building web apps and
+              automation — with clean delivery, tight scope, and maintainable
+              code.
             </p>
+
             <p className="text-dh-muted/80">
-              NAICS 541511 · SAM.gov registered · SDVOSB · VOSB · SBA 8(a) Business Development
+              NAICS 541511 · SAM.gov registered · SDVOSB · VOSB · SBA 8(a)
+              Business Development
             </p>
             <p className="text-dh-muted/80">UEI/CAGE available upon request.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Public</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
+                Explore
+              </p>
               <ul className="space-y-1.5">
                 <li>
-                  <Link href="/" className="transition-colors hover:text-dh-steel-blue">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/services" className="transition-colors hover:text-dh-steel-blue">
+                  <Link
+                    href="/services"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
                     Services
                   </Link>
                 </li>
                 <li>
-                  <Link href="/company" className="transition-colors hover:text-dh-steel-blue">
+                  <Link
+                    href="/apps"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
+                    Apps
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/ops-toys"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
+                    OpsToys
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/operator-notes"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
+                    Operator Notes
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
+                Company
+              </p>
+              <ul className="space-y-1.5">
+                <li>
+                  <Link
+                    href="/company"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
                     Company
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="transition-colors hover:text-dh-steel-blue">
-                    Contact
+                  <Link
+                    href="/gov"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
+                    Governance
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/labs"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
+                    Labs
                   </Link>
                 </li>
               </ul>
+
+              <p className="mt-2 text-xs text-dh-muted/80">
+                Labs are explorations, not products.
+              </p>
             </div>
 
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Programs</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
+                Legal
+              </p>
               <ul className="space-y-1.5">
                 <li>
-                  <Link href="/gov" className="transition-colors hover:text-dh-steel-blue">
-                    Government services
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/labs" className="transition-colors hover:text-dh-steel-blue">
-                    Hooligan Labs
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Legal</p>
-              <ul className="space-y-1.5">
-                <li>
-                  <Link href="/privacy" className="transition-colors hover:text-dh-steel-blue">
+                  <Link
+                    href="/privacy"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
                     Privacy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="transition-colors hover:text-dh-steel-blue">
+                  <Link
+                    href="/terms"
+                    className="transition-colors hover:text-dh-steel-blue"
+                  >
                     Terms
                   </Link>
                 </li>
@@ -102,33 +147,44 @@ export default function Footer() {
 
         {/* Required disclaimers (verbatim) */}
         <div className="rounded-2xl border border-dh-border bg-dh-panel p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">Disclosures</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-dh-muted/80">
+            Disclosures
+          </p>
 
           <div className="mt-3 space-y-3 text-xs leading-relaxed text-dh-muted">
             <p>
-              Pricing is shown as “Starting at” for the lowest tier only. Exact scope and final pricing are
-              confirmed in the proposal after discovery. Timelines assume timely client inputs and no unapproved
-              scope changes. Anything not included is handled via an add-on, separate SOW, or change order.
+              Pricing is shown as “Starting at” for the lowest tier only. Exact
+              scope and final pricing are confirmed in the proposal after
+              discovery. Timelines assume timely client inputs and no unapproved
+              scope changes. Anything not included is handled via an add-on,
+              separate SOW, or change order.
             </p>
             <p>
-              Scope is fixed to the selected tier’s defined deliverables. Any work outside scope is quoted and
-              approved in writing as an add-on or change order before work proceeds.
+              Scope is fixed to the selected tier’s defined deliverables. Any
+              work outside scope is quoted and approved in writing as an add-on
+              or change order before work proceeds.
             </p>
             <p>
-              Third-party fees (cloud services, licenses, APIs, hardware, shipping, travel) are not included
-              unless explicitly stated. They are pass-through costs with prior approval.
+              Third-party fees (cloud services, licenses, APIs, hardware,
+              shipping, travel) are not included unless explicitly stated. They
+              are pass-through costs with prior approval.
             </p>
             <p>
-              Ongoing support and response targets apply only when explicitly included in the Statement of Work
-              (SOW) or a support add-on. No 24/7 support is implied by default.
+              Ongoing support and response targets apply only when explicitly
+              included in the Statement of Work (SOW) or a support add-on. No
+              24/7 support is implied by default.
             </p>
           </div>
         </div>
 
         <div className="flex flex-col gap-3 border-t border-dh-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Digital Hooligan LLC. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Digital Hooligan LLC. All rights
+            reserved.
+          </p>
           <p className="text-dh-muted/80">
-            Built with disciplined engineering, rapid iteration, and a little bit of hooligan energy.
+            Built with disciplined engineering, rapid iteration, and a little
+            bit of hooligan energy.
           </p>
         </div>
       </div>

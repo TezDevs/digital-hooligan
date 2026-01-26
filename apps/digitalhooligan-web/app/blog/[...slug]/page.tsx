@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function BlogRedirectPage() {
+export default function BlogSlugRedirectPage() {
   redirect("/operator-notes");
 }

@@ -3,10 +3,12 @@ import Image from "next/image";
 
 const NAV_ITEMS = [
   { href: "/services", label: "Services" },
+  { href: "/apps", label: "Apps" },
+  { href: "/ops-toys", label: "OpsToys" },
   { href: "/company", label: "Company" },
   { href: "/gov", label: "Gov" },
   { href: "/labs", label: "Labs" },
-  { href: "/contact", label: "Contact" },
+  { href: "/operator-notes", label: "Operator Notes (Writing)" },
 ];
 
 const LOGO_SRC = "/brand/digital_hooligan_logo_square.png";
@@ -35,7 +37,9 @@ export default function Navbar() {
             <span className="block text-[10px] font-medium uppercase tracking-[0.35em] text-dh-muted/70">
               Digital
             </span>
-            <span className="block text-sm font-semibold text-dh-text">Hooligan</span>
+            <span className="block text-sm font-semibold text-dh-text">
+              Hooligan
+            </span>
           </div>
         </Link>
 

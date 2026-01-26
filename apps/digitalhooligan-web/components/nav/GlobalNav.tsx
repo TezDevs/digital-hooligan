@@ -5,12 +5,13 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const PUBLIC_NAV_ITEMS = [
-  { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
+  { label: "Apps", href: "/apps" },
+  { label: "OpsToys", href: "/ops-toys" },
   { label: "Company", href: "/company" },
   { label: "Gov", href: "/gov" },
   { label: "Labs", href: "/labs" },
-  { label: "Contact", href: "/contact" },
+  { label: "Operator Notes (Writing)", href: "/operator-notes" },
 ];
 
 // Hide global public nav on internal/admin-ish surfaces (allowed; not public links)
@@ -26,7 +27,7 @@ export default function GlobalNav() {
   const pathname = usePathname();
 
   const hideNav = HIDE_NAV_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix)
+    pathname.startsWith(prefix),
   );
   if (hideNav) return null;
 
@@ -63,21 +64,6 @@ export default function GlobalNav() {
           {PUBLIC_NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
 
-            // Primary CTA: conversion only
-            if (item.href === "/contact") {
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="inline-flex items-center justify-center rounded-full bg-dh-rebel-red px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-dh-rebel-red/90 focus:outline-none focus:ring-2 focus:ring-dh-rebel-red/60"
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  Contact
-                </Link>
-              );
-            }
-
-            // Secondary nav links: Steel Blue hover, no mint
             return (
               <Link
                 key={item.href}

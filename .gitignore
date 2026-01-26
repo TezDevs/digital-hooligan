@@ -23,3 +23,5 @@ turbo
 # Per-app node_modules / builds (safety)
 apps/*/node_modules
 apps/*/.next
+.vercel
+.env*.local
