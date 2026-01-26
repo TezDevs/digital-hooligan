@@ -5,7 +5,7 @@ import FooterGate from "@/components/layout/FooterGate";
 
 export const metadata: Metadata = {
   title: "Digital Hooligan",
-  description: "Apps, bots, dashboards & automation",
+  description: "Decision infrastructure, signal lenses, and operator kits.",
 };
 
 export default function RootLayout({
