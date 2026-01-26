@@ -25,7 +25,7 @@ function AnchorButton(props: {
         "inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium transition",
         primary
           ? "bg-rose-500 text-neutral-950 hover:bg-rose-400"
-          : "border border-neutral-800 bg-neutral-950/40 text-neutral-100 hover:bg-neutral-900"
+          : "border border-neutral-800 bg-neutral-950/40 text-neutral-100 hover:bg-neutral-900",
       )}
     >
       {props.children}
@@ -48,7 +48,7 @@ function ExternalButton(props: {
           "inline-flex cursor-not-allowed items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium opacity-60",
           primary
             ? "bg-rose-500 text-neutral-950"
-            : "border border-neutral-800 bg-neutral-950/40 text-neutral-100"
+            : "border border-neutral-800 bg-neutral-950/40 text-neutral-100",
         )}
         aria-disabled="true"
         title="Link target not set yet"
@@ -67,7 +67,7 @@ function ExternalButton(props: {
         "inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium transition",
         primary
           ? "bg-rose-500 text-neutral-950 hover:bg-rose-400"
-          : "border border-neutral-800 bg-neutral-950/40 text-neutral-100 hover:bg-neutral-900"
+          : "border border-neutral-800 bg-neutral-950/40 text-neutral-100 hover:bg-neutral-900",
       )}
     >
       {props.children}
@@ -140,12 +140,12 @@ export function LabsHqClient() {
           </div>
 
           <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
-            Structure your chaos. Ship faster.
+            Structure your chaos. Ship with less friction.
           </h1>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-neutral-300">
-            Launch HQ is your operating system for shipping work with speed,
-            clarity, and focus.
+            Launch HQ is an operating system for shipping work with clarity and
+            focus—within a defined scope and an explicit execution rhythm.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -164,8 +164,8 @@ export function LabsHqClient() {
               </div>
               <p className="mt-2 leading-6 text-neutral-300">
                 Launch HQ is the Notion-first operating system that gives your
-                business a clear execution rhythm - turning chaos into shipped
-                work, without adding overhead.
+                business a clear execution rhythm—turning chaos into shipped
+                work without adding overhead.
               </p>
             </div>
             <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-5">
@@ -174,7 +174,8 @@ export function LabsHqClient() {
               </div>
               <p className="mt-2 leading-6 text-neutral-300">
                 Direct, calm authority. No hype. No guarantees. Launch HQ helps
-                you ship better, not sell harder.
+                you ship better—not by promising timelines, but by making work
+                visible and reviewable.
               </p>
             </div>
           </div>
@@ -240,7 +241,7 @@ export function LabsHqClient() {
       <SectionShell
         id="system-overview"
         eyebrow="How it works"
-        title={`Launch HQ isn't another project tracker - it's your launch coordination layer, built to help small teams move faster and with fewer decisions.`}
+        title={`Launch HQ isn't another project tracker - it's your launch coordination layer, built to help small teams move with momentum and fewer decision bottlenecks.`}
         description="How it works:"
       >
         <div className="grid gap-4 md:grid-cols-3">
@@ -278,7 +279,7 @@ export function LabsHqClient() {
             </div>
             <ul className="mt-4 space-y-2 text-sm leading-6 text-neutral-300">
               <li>
-                - Proof-based governance: decisions and definitions of done
+                - Artifact-based governance: decisions and definitions of done
                 logged.
               </li>
             </ul>
@@ -290,7 +291,7 @@ export function LabsHqClient() {
             Explore Templates
           </ExternalButton>
           <AnchorButton href="#proof" variant="secondary">
-            See Proof Assets
+            See Operational Artifacts
           </AnchorButton>
         </div>
 
@@ -311,22 +312,22 @@ export function LabsHqClient() {
         </div>
       </SectionShell>
 
-      {/* SECTION 4 — Proof in Practice */}
+      {/* SECTION 4 — Operational Artifacts */}
       <SectionShell
         id="proof"
-        eyebrow="Proof in practice"
+        eyebrow="Operational artifacts"
         title="Used daily at Digital Hooligan."
         description="Screenshots: real boards, DoD, shipping logs."
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            "Internal workspace screenshots - real usage.",
-            "Board taxonomy - validates ops loop.",
-            "Weekly review template - cadence proof.",
-            "Definition of Done examples - scope control proof.",
-            "Decision & Change Log - governance proof.",
-            "Mode Switch Diagram - execution model proof.",
-            "Public changelog - evolution proof.",
+            "Internal workspace screenshots — real usage.",
+            "Board taxonomy — validates ops loop.",
+            "Weekly review template — cadence artifact.",
+            "Definition of Done examples — scope control artifact.",
+            "Decision & Change Log — governance artifact.",
+            "Mode Switch Diagram — execution model artifact.",
+            "Public changelog — evolution artifact.",
           ].map((label) => (
             <div
               key={label}
@@ -357,7 +358,7 @@ export function LabsHqClient() {
         id="governance"
         eyebrow="Governance & guardrails"
         title="Clear structure without false certainty."
-        description="Who it's for: Founder-led teams and operators who want to move fast without burning out."
+        description="Who it's for: Founder-led teams and operators who want momentum without burnout (within defined scope)."
       >
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-neutral-900 bg-neutral-950/40 p-6">
@@ -390,8 +391,8 @@ export function LabsHqClient() {
               Next step
             </div>
             <p className="mt-3 text-sm leading-6 text-neutral-400">
-              Thin v1 Scope: Home page + explainer + proof assets section. No
-              case studies, no pricing configurator yet.
+              Thin v1 Scope: Home page + explainer + operational artifacts
+              section. No case studies, no pricing configurator yet.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <ExternalButton href={CTA_URLS.buildYourHQ} variant="primary">
@@ -498,7 +499,7 @@ export function LabsHqClient() {
               Kanban visuals
             </a>
             <a href="#proof" className="hover:text-rose-300">
-              Proof
+              Operational artifacts
             </a>
             <a href="#governance" className="hover:text-rose-300">
               Governance

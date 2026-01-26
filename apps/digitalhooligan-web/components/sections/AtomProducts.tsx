@@ -21,7 +21,7 @@ const PRODUCTS: Product[] = [
     name: "PennyWize",
     short: "Penny stock intel engine",
     description:
-      "PennyWize watches micro-caps, news, and volume so you don’t have to. Built for fast scanning, alerting, and quick “is this worth my attention?” checks.",
+      "PennyWize watches micro-caps, news, and volume so you don’t have to. Built for rapid scanning and alerting (timing depends on sources) and quick “is this worth my attention?” checks.",
     image: "/products/pennywize.png",
     ring: 1,
     angle: 90,
@@ -31,7 +31,7 @@ const PRODUCTS: Product[] = [
     name: "dropsignal",
     short: "Sneaker price-drop radar",
     description:
-      "dropsignal tracks drops across marketplaces, flags underpriced pairs, and helps you move fast on deals before they’re gone.",
+      "dropsignal tracks drops across marketplaces, flags underpriced pairs, and helps you react quickly when signals appear (no time guarantee).",
     image: "/products/pennywize.png",
     ring: 1,
     angle: 210,

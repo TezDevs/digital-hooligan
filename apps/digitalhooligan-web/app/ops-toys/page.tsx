@@ -79,7 +79,7 @@ export default function OpsToysPage() {
               <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-dh-muted">
                 <li>Single workflow</li>
                 <li>Minimal integrations</li>
-                <li>Fast deployment</li>
+                <li>Scope-bounded deployment (no time guarantee)</li>
               </ul>
             </div>
 
