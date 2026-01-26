@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
   title: "DropSignal · Digital Hooligan",
@@ -17,6 +18,14 @@ export default function DropSignalPage() {
     <main className="min-h-screen bg-dh-carbon px-4 py-12 text-dh-text sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-10">
         <header className="space-y-3">
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Systems", href: "/apps" },
+              { label: "DropSignal" },
+            ]}
+          />
+
           <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
             DropSignal
           </h1>
@@ -36,7 +45,7 @@ export default function DropSignalPage() {
             <li>Verified source links</li>
           </ul>
           <p className="mt-3 text-sm text-dh-muted">
-            <span className="text-dh-text font-semibold">
+            <span className="font-semibold text-dh-text">
               It is designed to filter noise without creating urgency theater.
             </span>
           </p>
@@ -50,7 +59,7 @@ export default function DropSignalPage() {
             DropSignal is powered by Solum’s signal and evidence spine.
           </p>
           <p className="mt-3 text-sm text-dh-muted">
-            <span className="text-dh-text font-semibold">
+            <span className="font-semibold text-dh-text">
               This lens surfaces signals and evidence. It does not tell you what
               to do.
             </span>
@@ -59,7 +68,7 @@ export default function DropSignalPage() {
 
         <section className="flex flex-wrap items-center gap-3 border-t border-dh-border pt-6">
           <Link href="/apps" className={neutralCta}>
-            Learn about Solum →
+            Back to Systems Map →
           </Link>
         </section>
       </div>
