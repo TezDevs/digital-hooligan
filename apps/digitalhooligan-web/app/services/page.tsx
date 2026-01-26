@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
   title: "Services · Digital Hooligan",
@@ -17,6 +18,14 @@ export default function ServicesPage() {
     <main className="min-h-screen bg-dh-carbon text-dh-text">
       <section className="border-b border-dh-border px-4 py-12 sm:px-6 md:py-16 lg:px-8">
         <div className="mx-auto max-w-6xl space-y-4">
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Systems", href: "/apps" },
+              { label: "Services" },
+            ]}
+          />
+
           <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
             Deploying Operator-Grade Systems
           </h1>
@@ -35,7 +44,7 @@ export default function ServicesPage() {
                 RadixOS Deployments
               </p>
               <p className="mt-3 text-sm text-dh-muted">
-                <span className="text-dh-text font-semibold">
+                <span className="font-semibold text-dh-text">
                   We deploy RadixOS into defined operating environments.
                 </span>
               </p>
@@ -48,7 +57,7 @@ export default function ServicesPage() {
               </ul>
               <p className="mt-3 text-sm text-dh-muted">
                 Deployments are scoped, documented, and{" "}
-                <span className="text-dh-text font-semibold">
+                <span className="font-semibold text-dh-text">
                   designed to support later review
                 </span>
                 .
@@ -86,6 +95,37 @@ export default function ServicesPage() {
                 <li>Explicit limitations</li>
               </ul>
             </article>
+          </div>
+
+          {/* Who this is for / not for */}
+          <div className="grid gap-6 border-t border-dh-border pt-6 md:grid-cols-2">
+            <div className={panel}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-muted/80">
+                Who this is for
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-dh-muted">
+                <li>
+                  Operators who want explicit boundaries and scoped delivery
+                </li>
+                <li>
+                  Teams that need ownership + review cadence to survive turnover
+                </li>
+                <li>Programs where explainability and auditability matter</li>
+              </ul>
+            </div>
+
+            <div className={panel}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-dh-muted/80">
+                Who this is not for
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-dh-muted">
+                <li>Open-ended “do everything” advisory arrangements</li>
+                <li>
+                  Work that requires implied guarantees or fixed timelines
+                </li>
+                <li>Engagements where boundaries cannot be documented</li>
+              </ul>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 border-t border-dh-border pt-6">

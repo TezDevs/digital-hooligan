@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
   title: "HypeWatch · Digital Hooligan",
@@ -16,6 +17,14 @@ export default function HypeWatchPage() {
     <main className="min-h-screen bg-dh-carbon px-4 py-12 text-dh-text sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-10">
         <header className="space-y-3">
+          <Breadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Systems", href: "/apps" },
+              { label: "HypeWatch" },
+            ]}
+          />
+
           <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
             HypeWatch
           </h1>
@@ -32,7 +41,7 @@ export default function HypeWatchPage() {
             HypeWatch tracks attention patterns and supporting artifacts.
           </p>
           <p className="mt-3 text-sm text-dh-muted">
-            <span className="text-dh-text font-semibold">
+            <span className="font-semibold text-dh-text">
               It frames signals across contrasts such as:
             </span>
           </p>
@@ -48,7 +57,7 @@ export default function HypeWatchPage() {
 
         <section className="flex flex-wrap items-center gap-3 border-t border-dh-border pt-6">
           <Link href="/apps" className={neutralCta}>
-            Learn about Solum →
+            Back to Systems Map →
           </Link>
         </section>
       </div>
