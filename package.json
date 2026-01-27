@@ -19,7 +19,8 @@
     "lint:all": "pnpm -r lint",
     "build:all": "pnpm -r build",
     "typecheck:all": "pnpm -r --if-present run typecheck",
-    "check:all": "pnpm lint:all && pnpm typecheck:all && pnpm build:all"
+    "check:all": "pnpm lint:all && pnpm typecheck:all && pnpm build:all",
+    "guardrails:shared-primitives": "node scripts/guardrails-shared-primitives.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.555.0"
