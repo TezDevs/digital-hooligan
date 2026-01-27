@@ -2,8 +2,18 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Labs · Digital Hooligan",
-  description: "Exploration only.",
+  title: "Labs — How We Dogfood the System",
+  description:
+    "Labs shows how Digital Hooligan operates internally. Experiments, tooling, and lessons. Not a product.",
+  alternates: { canonical: "https://digitalhooligan.io/labs" },
+  openGraph: {
+    title: "Labs (Dogfooding)",
+    description:
+      "A transparent look at how we operate and test our own systems.",
+    url: "https://digitalhooligan.io/labs",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const panel = "rounded-2xl border border-dh-border bg-dh-panel p-5";

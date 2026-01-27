@@ -2,9 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "OpsToys · Digital Hooligan",
+  title: "OpsToys — Execution Kits for Operators",
   description:
-    "Packaged execution kits for operators who want momentum without chaos.",
+    "OpsToys are packaged execution kits that turn unclear work into owned decisions with cadence and review.",
+  alternates: { canonical: "https://digitalhooligan.io/ops-toys" },
+  openGraph: {
+    title: "OpsToys Execution Kits",
+    description:
+      "Packaged operator kits that feed RadixOS. Built for speed through bounded scope and ownership.",
+    url: "https://digitalhooligan.io/ops-toys",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const primaryCta =

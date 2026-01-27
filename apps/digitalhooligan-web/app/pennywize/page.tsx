@@ -2,8 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "PennyWize (Deprecated) · Digital Hooligan",
-  description: "This product has been replaced.",
+  title: "PennyWize (Deprecated)",
+  description:
+    "PennyWize was an early experiment that evolved into Solum. Preserved for historical context.",
+  alternates: { canonical: "https://digitalhooligan.io/pennywize" },
+  openGraph: {
+    title: "PennyWize (Historical)",
+    description: "An early experiment that informed Solum. No longer active.",
+    url: "https://digitalhooligan.io/pennywize",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const neutralCta =

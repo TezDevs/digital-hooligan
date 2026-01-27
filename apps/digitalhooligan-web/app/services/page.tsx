@@ -3,9 +3,18 @@ import Link from "next/link";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Services · Digital Hooligan",
+  title: "OpsToys Sprints — Decision Acceleration, Not Consulting",
   description:
-    "Implementation and rollout of defined systems — not open-ended consulting.",
+    "Fixed-scope OpsToys sprints to structure decisions, execution, and review. Built for operators who need clarity fast.",
+  alternates: { canonical: "https://digitalhooligan.io/services" },
+  openGraph: {
+    title: "OpsToys Sprints",
+    description:
+      "Execution kits delivered through a fixed-scope sprint. Decision acceleration with ownership, cadence, and review.",
+    url: "https://digitalhooligan.io/services",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const primaryCta =

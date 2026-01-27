@@ -3,9 +3,18 @@ import Link from "next/link";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Digital Hooligan — Two Spines. Clear Boundaries.",
+  title: "Decision Infrastructure for Operators — Digital Hooligan",
   description:
-    "Decision infrastructure for operators who want judgment to stay human, auditable, and explainable.",
+    "Digital Hooligan designs decision infrastructure for operators. OpsToys sprints, RadixOS governance, and evidence-first execution.",
+  alternates: { canonical: "https://digitalhooligan.io/" },
+  openGraph: {
+    title: "Decision Infrastructure for Operators",
+    description:
+      "A decision infrastructure company for operators. Enter through OpsToys. Govern work with RadixOS. Evidence over vibes.",
+    url: "https://digitalhooligan.io/",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const primaryCta =

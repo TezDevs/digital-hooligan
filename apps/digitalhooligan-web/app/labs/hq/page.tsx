@@ -2,8 +2,18 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Launch HQ · Digital Hooligan",
-  description: "Decisions → Execution",
+  title: "LaunchHQ — Internal Operations Environment",
+  description:
+    "LaunchHQ is Digital Hooligan’s internal operating environment. Shared to explain how decisions are executed.",
+  alternates: { canonical: "https://digitalhooligan.io/labs/hq" },
+  openGraph: {
+    title: "LaunchHQ (Internal)",
+    description:
+      "Our internal HQ for cadence, decisions, and execution. Shared for clarity, not sold.",
+    url: "https://digitalhooligan.io/labs/hq",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const panel = "rounded-2xl border border-dh-border bg-dh-panel p-5";

@@ -2,8 +2,18 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Governance · Digital Hooligan",
-  description: "Decision accountability by design.",
+  title: "Governance & Decision Traceability",
+  description:
+    "How Digital Hooligan designs auditable decisions, review cycles, and accountability. Structure, not certification.",
+  alternates: { canonical: "https://digitalhooligan.io/gov" },
+  openGraph: {
+    title: "Governance & Traceability",
+    description:
+      "Decision governance explained. Auditable structure without compliance theater.",
+    url: "https://digitalhooligan.io/gov",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const panel = "rounded-2xl border border-dh-border bg-dh-panel p-5";
