@@ -21,8 +21,7 @@ const primitivesImportMatchers = [
   /require\(["']@digitalhooligan\/shared-platform-primitives["']\)/,
 ];
 
-// Heuristic: if a file imports the primitives package, it must contain "AuthorityContext"
-// or "assertAuthority(" somewhere in the file (fail-closed tripwire).
+// Heuristic tripwire: importing primitives must mention AuthorityContext/assertAuthority
 const mustMentionAuthorityTokens = [/AuthorityContext/, /assertAuthority\s*\(/];
 
 const includeExt = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
@@ -90,9 +89,7 @@ function checkAuthorityUsage(files) {
 }
 
 function checkProhibitedSemanticKeys(files) {
-  // Only flag in likely boundary files to reduce noise:
-  // - any file mentioning ContextPack / createContextPack / sendAlert
-  // - any file importing the primitives package
+  // Only scan likely boundary files to reduce noise
   const boundaryHints = [
     /ContextPack/,
     /createContextPack\s*\(/,
@@ -105,7 +102,6 @@ function checkProhibitedSemanticKeys(files) {
     if (!boundaryHints.some((rx) => rx.test(text))) continue;
 
     for (const key of prohibitedSemanticKeys) {
-      // check quoted keys: "decision": or 'decision':
       const rx = new RegExp(`["']${key}["']\\s*:`, "g");
       if (rx.test(text)) {
         fail(

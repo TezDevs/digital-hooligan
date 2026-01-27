@@ -34,6 +34,9 @@
     "build": "pnpm -w exec tsc -p packages/radix-core/tsconfig.json",
     "lint": "pnpm -w exec tsc -p packages/radix-core/tsconfig.json --noEmit"
   },
+  "dependencies": {
+    "@digitalhooligan/shared-platform-primitives": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
