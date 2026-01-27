@@ -3,8 +3,18 @@ import Link from "next/link";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "HypeWatch · Digital Hooligan",
-  description: "Evidence-first trend signals without predictions.",
+  title: "HypeWatch — Separating Signal from Noise",
+  description:
+    "HypeWatch is a Solum lens for examining hype cycles with evidence, uncertainty, and context.",
+  alternates: { canonical: "https://digitalhooligan.io/hypewatch" },
+  openGraph: {
+    title: "HypeWatch (Solum Lens)",
+    description:
+      "A wrapper on Solum for inspecting hype without prediction or advice.",
+    url: "https://digitalhooligan.io/hypewatch",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const neutralCta =

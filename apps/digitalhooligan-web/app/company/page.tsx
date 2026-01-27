@@ -3,8 +3,18 @@ import Link from "next/link";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Company · Digital Hooligan",
-  description: "Decisions over dashboards.",
+  title: "About Digital Hooligan — Decision Infrastructure",
+  description:
+    "Digital Hooligan is a decision infrastructure company for operators. Philosophy, boundaries, and operating model.",
+  alternates: { canonical: "https://digitalhooligan.io/company" },
+  openGraph: {
+    title: "About Digital Hooligan",
+    description:
+      "Built for operators who value judgment, ownership, and evidence over vibes.",
+    url: "https://digitalhooligan.io/company",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const neutralCta =

@@ -1,8 +1,18 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Operator Notes · Digital Hooligan",
-  description: "Decisions, signals, lessons.",
+  title: "Operator Notes — Decisions, Systems, Lessons",
+  description:
+    "Operator Notes publishes system design, decision logs, and execution lessons from real work.",
+  alternates: { canonical: "https://digitalhooligan.io/operator-notes" },
+  openGraph: {
+    title: "Operator Notes",
+    description:
+      "Notes on decisions, systems, and execution. No content marketing fluff.",
+    url: "https://digitalhooligan.io/operator-notes",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const panel = "rounded-2xl border border-dh-border bg-dh-panel p-5";

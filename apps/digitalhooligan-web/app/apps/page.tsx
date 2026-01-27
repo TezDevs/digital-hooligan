@@ -3,8 +3,19 @@ import Link from "next/link";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Systems Map · Digital Hooligan",
-  description: "A clear map of spines, product lines, and internal engines.",
+  title: "Decision Spines & Engines — RadixOS, Solum, OpsToys",
+  description:
+    "Understand the spines behind Digital Hooligan: RadixOS, Solum, Pondus, and OpsToys. What each is—and is not.",
+  alternates: {
+    canonical: "https://digitalhooligan.io/apps",
+  },
+  openGraph: {
+    title: "Decision Spines & Engines",
+    description:
+      "RadixOS for decisions. Solum for signals. OpsToys for execution. Clear boundaries, no platform hype.",
+    url: "https://digitalhooligan.io/apps",
+    type: "website",
+  },
 };
 
 const card = "rounded-2xl border border-dh-border bg-dh-panel p-5";
@@ -114,12 +125,15 @@ export default function AppsPage() {
               <p className="mt-3 text-sm text-dh-steel-blue">See kits →</p>
             </Link>
 
-            <Link href="/labs" className={linkCard}>
-              <p className="text-sm font-semibold text-dh-text">Labs</p>
+            <Link href="/gov" className={linkCard}>
+              <p className="text-sm font-semibold text-dh-text">Gov</p>
               <p className="mt-2 text-sm text-dh-muted">
-                Explorations and experiments. Not products.
+                Governance boundaries and decision traceability (structure
+                only).
               </p>
-              <p className="mt-3 text-sm text-dh-steel-blue">Browse Labs →</p>
+              <p className="mt-3 text-sm text-dh-steel-blue">
+                Read boundaries →
+              </p>
             </Link>
           </div>
         </section>

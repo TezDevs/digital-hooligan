@@ -3,9 +3,18 @@ import Link from "next/link";
 import Breadcrumb from "@/components/nav/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "DropSignal · Digital Hooligan",
+  title: "DropSignal — Signal Lens on Solum",
   description:
-    "A lens for surfacing product drops with evidence and official links.",
+    "DropSignal is a lens over Solum that explains why a signal appeared and what evidence supports it.",
+  alternates: { canonical: "https://digitalhooligan.io/dropsignal" },
+  openGraph: {
+    title: "DropSignal (Solum Lens)",
+    description:
+      "A signal lens built on Solum. Evidence-first, non-advisory, and explicitly bounded.",
+    url: "https://digitalhooligan.io/dropsignal",
+    siteName: "Digital Hooligan",
+    type: "website",
+  },
 };
 
 const neutralCta =
