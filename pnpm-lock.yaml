@@ -198,6 +198,10 @@ importers:
         version: 5.9.3
 
   packages/radix-core:
+    dependencies:
+      '@digitalhooligan/shared-platform-primitives':
+        specifier: workspace:*
+        version: link:../shared-platform-primitives
     devDependencies:
       typescript:
         specifier: ^5.9.3
