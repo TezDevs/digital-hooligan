@@ -18,7 +18,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
-      - name: Enable Corepack
+      - name: Enable Corepack (pnpm)
         run: corepack enable
 
       - name: Activate pnpm

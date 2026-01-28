@@ -1,0 +1,37 @@
+name: Guardrails
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  shared_primitives_guardrails:
+    name: Shared primitives guardrails
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node (from .nvmrc)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Enable Corepack (pnpm)
+        run: corepack enable
+
+      - name: Activate pnpm (via Corepack)
+        run: corepack prepare pnpm@10.28.0 --activate
+
+      - name: Verify pnpm
+        run: pnpm --version
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Guardrails (fail closed)
+        run: pnpm guardrails:shared-primitives
