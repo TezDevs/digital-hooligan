@@ -20,7 +20,8 @@
     "build:all": "pnpm -r build",
     "typecheck:all": "pnpm -r --if-present run typecheck",
     "check:all": "pnpm lint:all && pnpm typecheck:all && pnpm build:all",
-    "guardrails:shared-primitives": "node scripts/guardrails-shared-primitives.mjs"
+    "guardrails:shared-primitives": "node scripts/guardrails-shared-primitives.mjs",
+    "igr:check": "node scripts/igr/check-igr-0.7.mjs --base origin/main"
   },
   "dependencies": {
     "lucide-react": "^0.555.0"
