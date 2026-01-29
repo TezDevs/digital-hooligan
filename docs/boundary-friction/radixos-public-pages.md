@@ -63,3 +63,20 @@ Friction: Routes exist, but no canonical “path established” (no link from ex
 Resolution applied: RadixOS pages contain internal top navigation. No changes made to the site’s global navigation to avoid guessing the canonical nav component.
 
 Decision required: Identify the canonical public navigation surface that is authorized to link to /radixos (header, footer, sitemap, or other).
+
+---
+
+## BF-005 — No canonical navigation path to /radixos defined (Resolved)
+
+Where: site-wide navigation  
+Resolution applied: Added a single public nav link in `GlobalNav.tsx`: “RadixOS” → “/radixos”.  
+Notes: Inserted append-only as the last item to avoid implied re-ranking of existing nav items.
+
+---
+
+## BF-006 — Global nav link placement may imply hierarchy
+
+Where: GlobalNav  
+Friction: Any placement of a new link implies ordering.  
+Resolution applied: Link added as the final item with identical styling and no additional grouping.  
+Why not resolved creatively: No re-architecture of IA, no new categories, no emphasis patterns.
