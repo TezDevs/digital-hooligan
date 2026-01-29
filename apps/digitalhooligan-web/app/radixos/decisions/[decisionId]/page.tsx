@@ -71,7 +71,7 @@ export default function RadixOSDecisionDetailPage({ params }: PageProps) {
       <div className={valueClass}>Not available on this public surface.</div>
 
       <div className={labelClass}>
-        Declared constraints (not validated or enforced)
+        Declared constraints (recorded, not validated)
       </div>
       <div className={valueClass}>Not available on this public surface.</div>
 

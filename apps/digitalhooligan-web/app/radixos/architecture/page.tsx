@@ -62,7 +62,7 @@ export default function RadixOSArchitecturePage() {
         RadixOS does not detect signals, recommend actions, infer truth, or
         execute work.
       </p>
-      <p className={pClass}>This boundary is intentional and enforced.</p>
+      <p className={pClass}>This boundary is intentional by design.</p>
 
       <p className={metaClass}>context ≠ decide ≠ signal ≠ execute</p>
     </main>

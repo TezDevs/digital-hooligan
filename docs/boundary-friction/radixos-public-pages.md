@@ -17,7 +17,7 @@ Friction: Layout requires a ledger UI structure and retrieval controls. Repo doe
 Resolution applied: Rendered retrieval controls and an explicit empty state: “No Decisions are displayed on this surface without an attached public data source.”  
 Why not resolved creatively: No inferred data, no invented API, no reuse of CEO/private endpoints without explicit authorization.
 
-Decision required: Declare whether /radixos/decisions is permitted to consume the same contract as /ceo/decisions or whether a separate public contract exists.
+Open question: Declare whether /radixos/decisions is permitted to consume the same contract as /ceo/decisions or whether a separate public contract exists.
 
 ---
 
@@ -28,7 +28,7 @@ Friction: Detail page layout specifies a full immutable record display, but ther
 Resolution applied: Rendered required labels with explicit “Not available on this public surface.” values, and “Not declared” / “None referenced” where applicable.  
 Why not resolved creatively: No system inference, no fabricated record, no cross-surface leakage.
 
-Decision required: Declare whether this public surface should:
+Open question: Declare whether this public surface is described as:
 
 - (A) remain read-only with explicit missing data, or
 - (B) consume a public Decision record contract.
@@ -42,7 +42,7 @@ Friction: Layout allows append-only retrospective input only if publicly permitt
 Resolution applied: Retrospective section is view-only with explicit statement; input omitted.  
 Why not resolved creatively: Avoid implying creation/authorship/workflow on a public surface.
 
-Decision required: Confirm whether public append-only notes are permitted (and under what auth boundary).
+Open question: Confirm whether public append-only notes are permitted (and under what auth boundary).
 
 ---
 
@@ -52,17 +52,17 @@ Where: all /radixos pages
 Friction: Global layout appears to render a dark background. Using near-black text (neutral-900) makes content illegible.  
 Resolution applied: Pages now use light neutral primary text (neutral-100) and neutral secondary text (neutral-400), still grayscale-only. Links are forced to inherit text color to avoid browser default blue.
 
-Decision required: Confirm whether RadixOS public surfaces must follow global theme or enforce a page-level neutral scheme. Current implementation is page-level neutral text only (no background panels added).
+Open question: Confirm whether RadixOS public surfaces is described as follow global theme or enforce a page-level neutral scheme. Current implementation is page-level neutral text only (no background panels added).
 
 ---
 
 ## BF-005 — No canonical navigation path to /radixos defined
 
 Where: site-wide navigation  
-Friction: Routes exist, but no canonical “path established” (no link from existing navigation). The binding spec defines top nav within RadixOS pages, but does not define how the public site must route users into /radixos.  
+Friction: Routes exist, but no canonical “path established” (no link from existing navigation). The binding spec defines top nav within RadixOS pages, but does not define how the public site is described as route users into /radixos.  
 Resolution applied: RadixOS pages contain internal top navigation. No changes made to the site’s global navigation to avoid guessing the canonical nav component.
 
-Decision required: Identify the canonical public navigation surface that is authorized to link to /radixos (header, footer, sitemap, or other).
+Open question: Identify the canonical public navigation surface that is declared to link to /radixos (header, footer, sitemap, or other).
 
 ---
 

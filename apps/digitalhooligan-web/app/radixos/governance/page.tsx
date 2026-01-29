@@ -59,7 +59,7 @@ export default function RadixOSGovernancePage() {
       <h2 className={h2Class}>What Governance Is Not</h2>
       <p className={pClass}>RadixOS does not:</p>
 
-      <p className={listItemClass}>Enforce compliance</p>
+      <p className={listItemClass}>RadixOS does not attempt compliance validation</p>
       <p className={listItemClass}>Replace leadership judgment</p>
       <p className={listItemClass}>Resolve conflict automatically</p>
       <p className={listItemClass}>Ensure alignment or performance</p>
