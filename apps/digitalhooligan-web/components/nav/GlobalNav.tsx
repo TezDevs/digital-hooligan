@@ -12,6 +12,7 @@ const PUBLIC_NAV_ITEMS = [
   { label: "Gov", href: "/gov" },
   { label: "Labs", href: "/labs" },
   { label: "Operator Notes (Writing)", href: "/operator-notes" },
+  { label: "RadixOS", href: "/radixos" },
 ];
 
 // Hide global public nav on internal/admin-ish surfaces (allowed; not public links)
