@@ -64,7 +64,7 @@ export default function RadixOSOverviewPage() {
         </div>
         <div>Assumptions and confidence bounds</div>
         <div>A timestamp and attribution</div>
-        <div>An optional review cadence (declared, not enforced)</div>
+        <div>An optional review cadence (declared, not applied)</div>
       </div>
       <p className={pClass}>
         RadixOS preserves decision history, not outcomes or evaluations.
@@ -72,8 +72,7 @@ export default function RadixOSOverviewPage() {
 
       <h2 className={h2Class}>What RadixOS Does Not Do</h2>
       <p className={pClass}>
-        RadixOS does not detect signals, recommend actions, infer truth, or
-        execute work.
+        RadixOS does not observe external conditions, provide action guidance, infer truth, or execute work.
       </p>
       <p className={pClass}>
         It does not evaluate decision quality, score correctness, monitor
@@ -88,7 +87,7 @@ export default function RadixOSOverviewPage() {
       <p className={pClass}>It consumes context without owning it</p>
       <p className={pClass}>It records decisions without validating them</p>
       <p className={pClass}>It preserves history without interpretation</p>
-      <p className={metaClass}>context ≠ decide ≠ signal ≠ execute</p>
+      <p className={metaClass}>context ≠ decide ≠ observe ≠ execute</p>
     </main>
   );
 }

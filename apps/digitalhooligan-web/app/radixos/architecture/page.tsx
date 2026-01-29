@@ -47,7 +47,7 @@ export default function RadixOSArchitecturePage() {
         RadixOS consumes context; it does not generate or own it
       </p>
       <p className={pClass}>
-        RadixOS records Decisions; it does not infer or recommend them
+        RadixOS records Decisions; it does not infer them
       </p>
       <p className={pClass}>
         RadixOS preserves history; it does not trigger actions
@@ -59,12 +59,11 @@ export default function RadixOSArchitecturePage() {
 
       <h2 className={h2Class}>Explicit Non-Capabilities</h2>
       <p className={pClass}>
-        RadixOS does not detect signals, recommend actions, infer truth, or
-        execute work.
+        RadixOS does not observe external conditions, provide action guidance, infer truth, or execute work.
       </p>
       <p className={pClass}>This boundary is intentional by design.</p>
 
-      <p className={metaClass}>context ≠ decide ≠ signal ≠ execute</p>
+      <p className={metaClass}>context ≠ decide ≠ observe ≠ execute</p>
     </main>
   );
 }
