@@ -39,7 +39,7 @@ export default function RadixOSArchitecturePage() {
       <p className={pClass}>RadixOS is a governance layer.</p>
       <p className={pClass}>
         It records Decisions without collapsing boundaries between: Context,
-        Decision, Signal, Execution
+        Decision, Observation, Execution
       </p>
 
       <h2 className={h2Class}>System Boundaries</h2>
