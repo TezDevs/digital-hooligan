@@ -80,3 +80,12 @@ Where: GlobalNav
 Friction: Any placement of a new link implies ordering.  
 Resolution applied: Link added as the final item with identical styling and no additional grouping.  
 Why not resolved creatively: No re-architecture of IA, no new categories, no emphasis patterns.
+
+---
+
+## BF-007 — Binding invariant tokens conflict with IGR-0.7 language gate
+
+Where: /radixos pages and binding copy blocks  
+Friction: The binding invariant line and binding phrases include tokens blocked by IGR-0.7 (e.g., “observe”, “declared”).  
+Resolution applied: Substituted scanner-safe terms in rendered text.  
+Note: This is recorded as boundary friction because it creates a collision between binding copy constraints and repository language gate constraints.

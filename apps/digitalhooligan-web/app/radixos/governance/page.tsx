@@ -49,7 +49,7 @@ export default function RadixOSGovernancePage() {
 
       <p className={listItemClass}>Authority is declared, not inferred</p>
       <p className={listItemClass}>Ownership is explicit and singular</p>
-      <p className={listItemClass}>Constraints are declared, not enforced</p>
+      <p className={listItemClass}>Constraints are declared, not applied</p>
       <p className={listItemClass}>History is immutable</p>
       <p className={listItemClass}>Review cadence is an explicit choice</p>
       <p className={listItemClass}>
@@ -68,7 +68,7 @@ export default function RadixOSGovernancePage() {
         It preserves what was decided, by whom, and under which constraints.
       </p>
 
-      <p className={metaClass}>context ≠ decide ≠ signal ≠ execute</p>
+      <p className={metaClass}>context ≠ decide ≠ observe ≠ execute</p>
     </main>
   );
 }
