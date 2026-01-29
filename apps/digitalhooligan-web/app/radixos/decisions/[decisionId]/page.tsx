@@ -5,23 +5,32 @@ type PageProps = {
 };
 
 const containerClass =
-  "mx-auto w-full max-w-[760px] px-[20px] py-[24px] text-[15px] leading-6 text-neutral-900";
+  "mx-auto w-full max-w-[760px] px-[20px] py-[24px] text-[15px] leading-6 text-neutral-100";
 const titleClass = "text-[20px] leading-7 font-normal";
-const crumbClass = "mb-[10px] text-[13px] leading-5 text-neutral-600";
+const crumbClass = "mb-[10px] text-[13px] leading-5 text-neutral-400";
 const pClass = "mt-[10px]";
 const h2Class = "mt-[18px] text-[17px] leading-6 font-normal";
-const labelClass = "mt-[14px] text-[13px] leading-5 text-neutral-600";
+const labelClass = "mt-[14px] text-[13px] leading-5 text-neutral-400";
 const valueClass = "mt-[6px] whitespace-pre-wrap";
-const metaClass = "mt-[10px] text-[13px] leading-5 text-neutral-600";
+const metaClass = "mt-[10px] text-[13px] leading-5 text-neutral-400";
+const linkClass = "text-inherit underline";
 
 function TopNav() {
   return (
     <nav className="mb-[18px]">
       <div className="flex flex-wrap gap-x-[14px] gap-y-[6px]">
-        <Link href="/radixos">RadixOS</Link>
-        <Link href="/radixos/decisions">Decisions</Link>
-        <Link href="/radixos/governance">Governance</Link>
-        <Link href="/radixos/architecture">Architecture</Link>
+        <Link className={linkClass} href="/radixos">
+          RadixOS
+        </Link>
+        <Link className={linkClass} href="/radixos/decisions">
+          Decisions
+        </Link>
+        <Link className={linkClass} href="/radixos/governance">
+          Governance
+        </Link>
+        <Link className={linkClass} href="/radixos/architecture">
+          Architecture
+        </Link>
       </div>
     </nav>
   );
@@ -41,7 +50,8 @@ export default function RadixOSDecisionDetailPage({ params }: PageProps) {
 
       <p className={pClass}>This page displays a single immutable Decision.</p>
       <p className={pClass}>
-        It reflects intent at the time of authorship, preserved without modification.
+        It reflects intent at the time of authorship, preserved without
+        modification.
       </p>
 
       <p className={metaClass}>This record is immutable.</p>
@@ -60,7 +70,9 @@ export default function RadixOSDecisionDetailPage({ params }: PageProps) {
       <div className={labelClass}>Timestamp / attribution</div>
       <div className={valueClass}>Not available on this public surface.</div>
 
-      <div className={labelClass}>Declared constraints (not validated or enforced)</div>
+      <div className={labelClass}>
+        Declared constraints (not validated or enforced)
+      </div>
       <div className={valueClass}>Not available on this public surface.</div>
 
       <div className={labelClass}>Assumptions and confidence bounds</div>
@@ -79,13 +91,17 @@ export default function RadixOSDecisionDetailPage({ params }: PageProps) {
       <p className={pClass}>
         Change occurs only through new Decisions referencing prior Decisions.
       </p>
-      <p className={pClass}>Retrospectives attach observations without mutating original intent.</p>
+      <p className={pClass}>
+        Retrospectives attach observations without mutating original intent.
+      </p>
       <p className={pClass}>
         Outcomes are recorded as observed states, not judgments of correctness.
       </p>
 
       <h2 className={h2Class}>Retrospective (Notes)</h2>
-      <p className={pClass}>No retrospective notes are displayed on this public surface.</p>
+      <p className={pClass}>
+        No retrospective notes are displayed on this public surface.
+      </p>
     </main>
   );
 }

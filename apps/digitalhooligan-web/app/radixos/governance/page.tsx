@@ -1,21 +1,30 @@
 import Link from "next/link";
 
 const containerClass =
-  "mx-auto w-full max-w-[760px] px-[20px] py-[24px] text-[15px] leading-6 text-neutral-900";
+  "mx-auto w-full max-w-[760px] px-[20px] py-[24px] text-[15px] leading-6 text-neutral-100";
 const titleClass = "text-[20px] leading-7 font-normal";
 const h2Class = "mt-[18px] text-[17px] leading-6 font-normal";
 const pClass = "mt-[10px]";
 const listItemClass = "mt-[10px]";
-const metaClass = "mt-[10px] text-[13px] leading-5 text-neutral-600";
+const metaClass = "mt-[10px] text-[13px] leading-5 text-neutral-400";
+const linkClass = "text-inherit underline";
 
 function TopNav() {
   return (
     <nav className="mb-[18px]">
       <div className="flex flex-wrap gap-x-[14px] gap-y-[6px]">
-        <Link href="/radixos">RadixOS</Link>
-        <Link href="/radixos/decisions">Decisions</Link>
-        <Link href="/radixos/governance">Governance</Link>
-        <Link href="/radixos/architecture">Architecture</Link>
+        <Link className={linkClass} href="/radixos">
+          RadixOS
+        </Link>
+        <Link className={linkClass} href="/radixos/decisions">
+          Decisions
+        </Link>
+        <Link className={linkClass} href="/radixos/governance">
+          Governance
+        </Link>
+        <Link className={linkClass} href="/radixos/architecture">
+          Architecture
+        </Link>
       </div>
     </nav>
   );
@@ -28,9 +37,12 @@ export default function RadixOSGovernancePage() {
 
       <h1 className={titleClass}>Governance</h1>
 
-      <p className={pClass}>RadixOS exists to bind executive judgment as an authoritative record.</p>
       <p className={pClass}>
-        Governance emerges from explicit Decisions, not inferred alignment or retroactive narratives.
+        RadixOS exists to bind executive judgment as an authoritative record.
+      </p>
+      <p className={pClass}>
+        Governance emerges from explicit Decisions, not inferred alignment or
+        retroactive narratives.
       </p>
 
       <h2 className={h2Class}>Governance Principles</h2>
@@ -52,7 +64,9 @@ export default function RadixOSGovernancePage() {
       <p className={listItemClass}>Resolve conflict automatically</p>
       <p className={listItemClass}>Ensure alignment or performance</p>
 
-      <p className={pClass}>It preserves what was decided, by whom, and under which constraints.</p>
+      <p className={pClass}>
+        It preserves what was decided, by whom, and under which constraints.
+      </p>
 
       <p className={metaClass}>context ≠ decide ≠ signal ≠ execute</p>
     </main>
