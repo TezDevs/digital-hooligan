@@ -62,7 +62,7 @@ export default function RadixOSGovernancePage() {
       <p className={listItemClass}>RadixOS does not attempt compliance validation</p>
       <p className={listItemClass}>Replace leadership judgment</p>
       <p className={listItemClass}>Resolve conflict automatically</p>
-      <p className={listItemClass}>Ensure alignment or performance</p>
+      <p className={listItemClass}>Claim alignment or performance</p>
 
       <p className={pClass}>
         It preserves what was decided, by whom, and under which constraints.

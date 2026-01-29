@@ -42,7 +42,7 @@ Friction: Layout allows append-only retrospective input only if publicly permitt
 Resolution applied: Retrospective section is view-only with explicit statement; input omitted.  
 Why not resolved creatively: Avoid implying creation/authorship/workflow on a public surface.
 
-Open question: Confirm whether public append-only notes are permitted (and under what auth boundary).
+Open question: notes whether public append-only notes are permitted (and under what auth boundary).
 
 ---
 
@@ -52,7 +52,7 @@ Where: all /radixos pages
 Friction: Global layout appears to render a dark background. Using near-black text (neutral-900) makes content illegible.  
 Resolution applied: Pages now use light neutral primary text (neutral-100) and neutral secondary text (neutral-400), still grayscale-only. Links are forced to inherit text color to avoid browser default blue.
 
-Open question: Confirm whether RadixOS public surfaces is described as follow global theme or enforce a page-level neutral scheme. Current implementation is page-level neutral text only (no background panels added).
+Open question: notes whether RadixOS public surfaces is described as follow global theme or enforce a page-level neutral scheme. Current implementation is page-level neutral text only (no background panels added).
 
 ---
 
